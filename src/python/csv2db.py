@@ -47,10 +47,6 @@ def run(cmd):
     """
     args = parse_arguments(cmd)
 
-    # Set batch size
-    global batchsize
-    batchsize = int(args.batch)
-
     # Set verbose
     global verbose
     verbose = args.verbose
@@ -62,10 +58,13 @@ def run(cmd):
     # Find all files
     file_names = f.find_all_files(args.file)
 
-    if args.generate:
+    if args.command == "generate":
         generate_table_sql(file_names, args.column_type)
     else:
-        global conn
+        # Set batch size
+        global batchsize, conn
+        batchsize = int(args.batch)
+        # Set DB connection
         conn = f.get_db_connection(args.dbtype, args.user, args.password, args.host, args.port, args.dbname)
         load_files(file_names)
         conn.close()
@@ -146,7 +145,7 @@ def load_files(file_names):
         print("Loading file {0}".format(file_name))
         print()
         file = f.open_file(file_name)
-        read_and_load_file(file, table_name)
+        read_and_load_file(file)
         file.close()
 
 
@@ -225,28 +224,36 @@ def parse_arguments(cmd):
     parser = argparse.ArgumentParser(prog="csv2db", description="A loader for CSV files.")
     parser.add_argument("-f", "--file", default="*.csv.zip",
                         help="The file to load, by default all *.csv.zip files")
-    parser.add_argument("-o", "--dbtype", default="oracle",
-                        help="The database type. Choose one of {0}, ".format([e.value for e in f.DBType]))
-    parser.add_argument("-u", "--user",
-                        help="The database user to load data into")
-    parser.add_argument("-p", "--password",
-                        help="The database schema password")
-    parser.add_argument("-m", "--host", default="localhost",
-                        help="The host name on which the database is running on")
-    parser.add_argument("-n", "--port", default="1521",
-                        help="The port on which the database is listening")
-    parser.add_argument("-d", "--dbname", default="ORCLPDB1",
-                        help="The name of the database")
-    parser.add_argument("-b", "--batch", default="10000",
-                        help="How many rows should be loaded at once.")
-    parser.add_argument("-t", "--table",
-                        help="The table to load data into.")
-    parser.add_argument("-g", "--generate", action="store_true", default=False,
-                        help="Generates the table and columns based on the header row of the CSV file.")
-    parser.add_argument("-c", "--column-type", default="VARCHAR2(4000)",
-                        help="The column type to use for the table generation")
     parser.add_argument("-v", "--verbose", action="store_true", default=False,
                         help="Verbose output.")
+    parser.add_argument("-t", "--table",
+                        help="The table name to use.")
+
+    subparsers = parser.add_subparsers(dest="command")
+
+    parser_generate = subparsers.add_parser("generate", aliases=["gen"],
+                                            help="Prints a CREATE TABLE SQL statement to create the table " +
+                                                 "and columns based on the header row of the CSV file(s).")
+    parser_generate.add_argument("-c", "--column-type", default="VARCHAR2(4000)",
+                                 help="The column type to use for the table generation.")
+
+    parser_load = subparsers.add_parser("load", aliases=["lo"],
+                                        help="Loads the data from the CSV file(s) into the database.")
+    parser_load.add_argument("-o", "--dbtype", default="oracle",
+                             help="The database type. Choose one of {0}.".format([e.value for e in f.DBType]))
+    parser_load.add_argument("-u", "--user",
+                             help="The database user to load data into.")
+    parser_load.add_argument("-p", "--password",
+                             help="The database schema password.")
+    parser_load.add_argument("-m", "--host", default="localhost",
+                             help="The host name on which the database is running on.")
+    parser_load.add_argument("-n", "--port", default="1521",
+                             help="The port on which the database is listening.")
+    parser_load.add_argument("-d", "--dbname", default="ORCLPDB1",
+                             help="The name of the database.")
+    parser_load.add_argument("-b", "--batch", default="10000",
+                             help="How many rows should be loaded at once.")
+
     return parser.parse_args(cmd)
 
 
