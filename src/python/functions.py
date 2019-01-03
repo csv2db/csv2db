@@ -30,6 +30,8 @@ from enum import Enum
 def open_file(file):
     """Opens a CSV file.
 
+    The file can either be in plain text (.csv), zipped (.csv.zip), or gzipped (.csv.gz)
+
     Parameters
     ----------
     file : str
@@ -140,6 +142,21 @@ def get_db_connection(db_type, user, password, host, port, db_name):
 
 
 def raw_input_to_list(raw_line, header=False):
+    """Returns a list of values from a raw CSV input.
+
+    Parameters
+    ----------
+    raw_line : bytes, bytearray, str
+        The raw line to convert
+    header : bool
+        If true, values will be upper case and spaces replaced with '_'.
+        This is only good for header rows in the CSV files.
+
+    Returns
+    -------
+    [str,]
+        A list of string values
+    """
     ret = raw_line
     if isinstance(raw_line, (bytes, bytearray)):
         ret = raw_line.decode()
@@ -158,6 +175,21 @@ def raw_input_to_list(raw_line, header=False):
 
 
 def raw_input_to_set(raw_line, header=False):
+    """Returns a set of values from a raw CSV input.
+
+    Parameters
+    ----------
+    raw_line : bytes, bytearray, str
+        The raw line to convert
+    header : bool
+        If true, values will be upper case and spaces replaced with '_'.
+        This is only good for header rows in the CSV files.
+
+    Returns
+    -------
+    set([str,])
+        A set of string values
+    """
     return set(raw_input_to_list(raw_line, header))
 
 
