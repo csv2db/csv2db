@@ -84,28 +84,10 @@ def generate_table_sql(file_names, column_data_type):
     col_set = set()
     for file_name in file_names:
         file = f.open_file(file_name)
-        columns_to_add = read_header(file)
+        columns_to_add = f.read_header(file)
         col_set = add_to_col_set(col_set, columns_to_add)
         file.close()
     print_table_and_col_set(col_set, column_data_type)
-
-
-def read_header(file):
-    """Reads header and returns the column list.
-
-    This function reads the first row of the CSV file and parses it for the column names.
-
-    Parameters
-    ----------
-    file : file_object
-        The file to read the header from
-
-    Returns
-    -------
-    set([])
-        A set with all the column names.
-    """
-    return f.raw_input_to_set(file.readline(), True)
 
 
 def add_to_col_set(col_set, columns_to_add):

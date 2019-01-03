@@ -51,6 +51,24 @@ def open_file(file):
         return open(file, mode='r')
 
 
+def read_header(file):
+    """Reads header and returns the column list.
+
+    This function reads the first row of the CSV file and parses it for the column names.
+
+    Parameters
+    ----------
+    file : file_object
+        The file to read the header from
+
+    Returns
+    -------
+    set([])
+        A set with all the column names.
+    """
+    return raw_input_to_set(file.readline(), True)
+
+
 def find_all_files(pattern):
     """Find all files of a given pattern.
 
