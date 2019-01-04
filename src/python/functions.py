@@ -24,7 +24,9 @@ import zipfile
 import gzip
 import glob
 import os
+import datetime
 from enum import Enum
+import config as cfg
 
 
 def open_file(file):
@@ -96,8 +98,23 @@ def verbose(output):
     output : str
         The output to print
     """
-    if verbose:
+    if cfg.verbose:
         print(output)
+
+
+def debug(output):
+    """Print debug output.
+
+    Parameters
+    ----------
+    output : Any
+        The output to print"""
+    if cfg.debug:
+        if isinstance(output, list):
+            output = ", ".join(output)
+        elif isinstance(output, dict):
+            output = ", ".join(str(key) + ": " + str(value) for key, value in output.items())
+        print(("DEBUG: %s: " + output) % datetime.datetime.now())
 
 
 def get_db_connection(db_type, user, password, host, port, db_name):

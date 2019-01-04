@@ -23,11 +23,7 @@
 import sys
 import argparse
 import functions as f
-
-conn = None
-batchsize = 0
-table_name = ""
-input_data = []
+import config as cfg
 
 
 def run(cmd):
@@ -47,27 +43,35 @@ def run(cmd):
     """
     args = parse_arguments(cmd)
 
-    # Set verbose
-    global verbose
-    verbose = args.verbose
+    # Set verbose and debug output flags
+    cfg.verbose = args.verbose
+    if args.debug:
+        cfg.verbose = True
+        cfg.debug = True
 
     # Set table name
-    global table_name
-    table_name = args.table
+    cfg.table_name = args.table
 
     # Find all files
+    f.verbose("Finding file(s).")
     file_names = f.find_all_files(args.file)
+    f.debug(file_names)
 
     if args.command == "generate":
+        f.verbose("Generating CREATE TABLE statement.")
         generate_table_sql(file_names, args.column_type)
     else:
         # Set batch size
-        global batchsize, conn
-        batchsize = int(args.batch)
-        # Set DB connection
-        conn = f.get_db_connection(args.dbtype, args.user, args.password, args.host, args.port, args.dbname)
+        f.debug("Batch size: {0}".format(args.batch))
+        cfg.batch_size = int(args.batch)
+
+        f.verbose("Establishing database connection.")
+        f.debug("Database details:")
+        f.debug({"dbtype": args.dbtype, "user": args.user, "host": args.host, "port": args.port, "dbname": args.dbname})
+        cfg.conn = f.get_db_connection(args.dbtype, args.user, args.password, args.host, args.port, args.dbname)
         load_files(file_names)
-        conn.close()
+        f.verbose("Closing database connection.")
+        cfg.conn.close()
 
 
 def generate_table_sql(file_names, column_data_type):
@@ -120,10 +124,10 @@ def print_table_and_col_set(col_set, column_data_type):
     column_data_type : str
         The data type to use for all columns
     """
-    global table_name
-    if table_name is None:
-        table_name = "<TABLE NAME>"
-    print("CREATE TABLE {0}".format(table_name))
+    if cfg.table_name is not None:
+        print("CREATE TABLE {0}".format(cfg.table_name))
+    else:
+        print("CREATE TABLE <TABLE NAME>")
     print("(")
     cols = ""
     for col in col_set:
@@ -143,10 +147,11 @@ def load_files(file_names):
     for file_name in file_names:
         print()
         print("Loading file {0}".format(file_name))
-        print()
         file = f.open_file(file_name)
         read_and_load_file(file)
         file.close()
+        print("Done")
+        print()
 
 
 def read_and_load_file(file):
@@ -176,22 +181,19 @@ def load_data(col_map, data):
     data : bytes, bytearray, str
         The data to load
     """
-    global input_data
-
     if data is not None:
         values = f.raw_input_to_list(data)
         if values:
             # If the data has more values than the header provided, ignore the end (green data set has that)
             while len(values) > len(col_map):
                 values.pop()
-            input_data.append(values)
+            cfg.input_data.append(values)
 
-    if (len(input_data) == batchsize) or (data is None):
-        global conn
-        cur = conn.cursor()
-        cur.executemany(generate_statement(col_map), input_data)
-        conn.commit()
-        input_data.clear()
+    if (len(cfg.input_data) == cfg.batch_size) or (data is None):
+        cur = cfg.conn.cursor()
+        cur.executemany(generate_statement(col_map), cfg.input_data)
+        cfg.conn.commit()
+        cfg.input_data.clear()
 
 
 def generate_statement(col_map):
@@ -203,7 +205,7 @@ def generate_statement(col_map):
         The columns to load the data into
     """
     return "INSERT INTO {0} ({1}) VALUES (:{2})".format(
-                        table_name,
+                        cfg.table_name,
                         ", ".join(col_map),
                         ", :".join(col_map))
 
@@ -226,6 +228,8 @@ def parse_arguments(cmd):
                         help="The file to load, by default all *.csv.zip files")
     parser.add_argument("-v", "--verbose", action="store_true", default=False,
                         help="Verbose output.")
+    parser.add_argument("--debug", action="store_true", default=False,
+                        help="Debug output.")
     parser.add_argument("-t", "--table",
                         help="The table name to use.")
 
