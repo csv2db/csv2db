@@ -32,14 +32,14 @@ either because of historical reasons or because you want to load different CSV f
       -v, --verbose         Verbose output.
       -t TABLE, --table TABLE
                             The table name to use.
-    gvenzl-mac:python gvenzl$ ./csv2db.py generate -h
+    $ ./csv2db.py generate -h
     usage: csv2db generate [-h] [-c COLUMN_TYPE]
     
     optional arguments:
       -h, --help            show this help message and exit
       -c COLUMN_TYPE, --column-type COLUMN_TYPE
                             The column type to use for the table generation.
-    gvenzl-mac:python gvenzl$ ./csv2db.py load -h
+    $ ./csv2db.py load -h
     usage: csv2db load [-h] [-o DBTYPE] [-u USER] [-p PASSWORD] [-m HOST]
                        [-n PORT] [-d DBNAME] [-b BATCH]
     
@@ -61,3 +61,44 @@ either because of historical reasons or because you want to load different CSV f
 ## How to use csv2db
 
 ### Create a staging table
+
+`csv2db` can generate the SQL statement for a staging table for your data using the `generate` command:
+
+![](resources/csv2db_generate.gif)
+
+By default you will have to fill in the table name. You can also specify the table name via the `-t` option:
+
+![](resources/csv2db_generate_table.gif)
+
+`csv2db` will use `VARCHAR2(4000)` as default data type for all columns for the staging table. If you wish to use a different data type, you can specify it via the `-c` option:
+
+![](resources/csv2db_generate_table_column.gif)
+
+## Installation
+
+You can install `csv2db` either by cloning this Git repository
+
+    git glone https://github.com/gvenzl/csv2db
+
+or by downloading one of the releases
+
+    wget https://github.com/gvenzl/csv2db/releases/latest
+    unzip csv2db.zip
+    cd csv2db
+    
+In order for `csv2db` to work you will have to install the appropriate database driver(s).
+The following drivers are being used, all avaliable on pypi.org:
+
+* Oracle: [cx_Oracle](https://pypi.org/project/cx_Oracle/) version 7.0.0+
+* MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
+* PostgreSQL: [psycopg2](https://pypi.org/project/psycopg2/) version 2.7.6.1+
+* SQL Server: [pypyodbc](https://pypi.org/project/pypyodbc/) version 1.3.5+
+
+You can install any of these drivers via `pip`:
+
+    pip install cx_Oracle
+    pip install mysql-connector-python
+    pip install psycopg2
+    pip install pypyodbc
+
+**NOTE:** You only have to install the driver for the database(s) that you want to load the data into.
