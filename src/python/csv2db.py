@@ -57,7 +57,7 @@ def run(cmd):
     file_names = f.find_all_files(args.file)
     f.debug(file_names)
 
-    if args.command == "generate":
+    if args.command.startswith("gen"):
         f.verbose("Generating CREATE TABLE statement.")
         generate_table_sql(file_names, args.column_type)
     else:
