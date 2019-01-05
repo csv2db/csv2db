@@ -55,6 +55,7 @@ def run(cmd):
     # Find all files
     f.verbose("Finding file(s).")
     file_names = f.find_all_files(args.file)
+    f.debug("Found {0} files.".format(len(file_names)))
     f.debug(file_names)
 
     if args.command.startswith("gen"):
