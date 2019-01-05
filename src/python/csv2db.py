@@ -224,25 +224,36 @@ def parse_arguments(cmd):
         Argparse object
     """
     parser = argparse.ArgumentParser(prog="csv2db", description="A loader for CSV files.")
-    parser.add_argument("-f", "--file", default="*.csv.zip",
-                        help="The file to load, by default all *.csv.zip files")
-    parser.add_argument("-v", "--verbose", action="store_true", default=False,
-                        help="Verbose output.")
-    parser.add_argument("--debug", action="store_true", default=False,
-                        help="Debug output.")
-    parser.add_argument("-t", "--table",
-                        help="The table name to use.")
 
     subparsers = parser.add_subparsers(dest="command")
+    subparsers.required = True
 
+    # Sub Parser generate
     parser_generate = subparsers.add_parser("generate", aliases=["gen"],
                                             help="Prints a CREATE TABLE SQL statement to create the table " +
                                                  "and columns based on the header row of the CSV file(s).")
+    parser_generate.add_argument("-f", "--file", default="*.csv.zip",
+                                 help="The file to load, by default all *.csv.zip files")
+    parser_generate.add_argument("-v", "--verbose", action="store_true", default=False,
+                                 help="Verbose output.")
+    parser_generate.add_argument("--debug", action="store_true", default=False,
+                                 help="Debug output.")
+    parser_generate.add_argument("-t", "--table",
+                                 help="The table name to use.")
     parser_generate.add_argument("-c", "--column-type", default="VARCHAR2(4000)",
                                  help="The column type to use for the table generation.")
 
+    # Sub Parser load
     parser_load = subparsers.add_parser("load", aliases=["lo"],
                                         help="Loads the data from the CSV file(s) into the database.")
+    parser_load.add_argument("-f", "--file", default="*.csv.zip",
+                             help="The file to load, by default all *.csv.zip files")
+    parser_load.add_argument("-v", "--verbose", action="store_true", default=False,
+                             help="Verbose output.")
+    parser_load.add_argument("--debug", action="store_true", default=False,
+                             help="Debug output.")
+    parser_load.add_argument("-t", "--table",
+                             help="The table name to use.")
     parser_load.add_argument("-o", "--dbtype", default="oracle",
                              help="The database type. Choose one of {0}.".format([e.value for e in f.DBType]))
     parser_load.add_argument("-u", "--user",
