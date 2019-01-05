@@ -114,7 +114,7 @@ def debug(output):
             output = ", ".join(output)
         elif isinstance(output, dict):
             output = ", ".join(str(key) + ": " + str(value) for key, value in output.items())
-        print(("DEBUG: %s: " + output) % datetime.datetime.now())
+        print(("DEBUG: {0}: " + output).format(datetime.datetime.now()))
 
 
 def get_db_connection(db_type, user, password, host, port, db_name):
