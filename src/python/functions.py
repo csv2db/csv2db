@@ -172,8 +172,10 @@ def get_db_connection(db_type, user, password, host, port, db_name):
                                        Port={3};
                                        Database={4};""".format(user, password, host, port, db_name)
                                     )
+    except ModuleNotFoundError as err:
+        raise ConnectionError("Database driver module is not installed: {0}".format(str(err)))
     except Exception as err:
-        raise ConnectionError(err)
+        raise ConnectionError("Error connecting to the database: {0}".format(err))
 
 
 def raw_input_to_list(raw_line, header=False):
