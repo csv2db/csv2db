@@ -4,14 +4,14 @@ A loader for CSV files.
 `csv2db` takes CSV files and loads them into a database.
 Rather than having to potentially go through TBs of CSV data to find out what columns and data types are present in the CSV files,
 `csv2db` will read the header in each CSV file and automatically load data into the columns of the same name into the target table.
-Spaces will automatically be replaced with `_` characters,
+Spaces in the header column names are automatically replaced with `_` characters,
 for example the column `station id` in the CSV file will be interpreted as `station_id` column in the table.
+
 This approach allows you to get data into the database first and worry about the data cleansing part later,
 which is usually much easier once the data is in the database than in the CSV files.
 
 `csv2db` is capable of scanning all CSV file headers at once and derive a `CREATE TABLE` statement with all the column names from.
-This is particularly useful if the format of the CSV files has changed over time,
-either because of historical reasons or because you want to load different CSV file types into the same database table.
+This is particularly useful if the format of the CSV files has changed over time or because you want to load different CSV file types into the same database table.
 
 ## Usage
 
@@ -102,7 +102,7 @@ or by downloading one of the releases
     cd csv2db
     
 In order for `csv2db` to work you will have to install the appropriate database driver(s).
-The following drivers are being used, all available on pypi.org:
+The following drivers are being used, all available on [pypi.org](https://pypi.org/):
 
 * Oracle: [cx_Oracle](https://pypi.org/project/cx_Oracle/) version 7.0.0+
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
@@ -112,8 +112,7 @@ You can install any of these drivers via `pip`:
 
     pip install cx_Oracle
     pip install mysql-connector-python
-    pip install psycopg2
-    pip install pypyodbc
+    pip install psycopg2-binary
 
 **NOTE:** You only have to install the driver for the database(s) that you want to load the data into.
 
