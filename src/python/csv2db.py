@@ -82,7 +82,6 @@ def run(cmd):
         except KeyboardInterrupt:
             print("Exiting program")
             cfg.conn.close()
-            return
 
 
 def generate_table_sql(file_names, column_data_type):
@@ -203,16 +202,16 @@ def load_data(col_map, data):
             cfg.input_data.append(values)
 
     if (len(cfg.input_data) == cfg.batch_size) or (data is None):
-        cur = cfg.conn.cursor()
         f.debug("Executing statement:")
         stmt = generate_statement(col_map)
         f.debug(stmt)
+        cur = cfg.conn.cursor()
         cur.executemany(stmt, cfg.input_data)
         f.debug("Commit")
         cfg.conn.commit()
-        f.verbose("{0} rows loaded".format(len(cfg.input_data)))
-        cfg.input_data.clear()
         cur.close()
+        cfg.input_data.clear()
+        f.verbose("{0} rows loaded".format(len(cfg.input_data)))
 
 
 def generate_statement(col_map):
