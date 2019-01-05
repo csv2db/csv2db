@@ -59,8 +59,7 @@ either because of historical reasons or because you want to load different CSV f
 	  -t TABLE, --table TABLE
 	                        The table name to use.
 	  -o DBTYPE, --dbtype DBTYPE
-	                        The database type. Choose one of ['oracle', 'mysql',
-	                        'postgres', 'sqlserver'].
+	                        The database type. Choose one of ['oracle', 'mysql', 'postgres'].
 	  -u USER, --user USER  The database user to load data into.
 	  -p PASSWORD, --password PASSWORD
 	                        The database schema password.
@@ -108,7 +107,6 @@ The following drivers are being used, all available on pypi.org:
 * Oracle: [cx_Oracle](https://pypi.org/project/cx_Oracle/) version 7.0.0+
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
 * PostgreSQL: [psycopg2-binary](https://pypi.org/project/psycopg2-binary/) version 2.7.6.1+
-* SQL Server: [pypyodbc](https://pypi.org/project/pypyodbc/) version 1.3.5+
 
 You can install any of these drivers via `pip`:
 

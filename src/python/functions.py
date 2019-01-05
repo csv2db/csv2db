@@ -163,15 +163,6 @@ def get_db_connection(db_type, user, password, host, port, db_name):
                                        port='{3}' 
                                        dbname='{4}'""".format(user, password, host, port, db_name)
                                     )
-        elif db_type == DBType.SQLSERVER.value:
-            import pypyodbc
-            return pypyodbc.connect("Driver={SQL Server};" +
-                                    """uid={0};
-                                       pwd={1};
-                                       Server={2};
-                                       Port={3};
-                                       Database={4};""".format(user, password, host, port, db_name)
-                                    )
         else:
             raise ValueError("Database type '{0}' is not supported.".format(db_type))
     except ModuleNotFoundError as err:
@@ -234,4 +225,3 @@ class DBType(Enum):
     ORACLE = "oracle"
     MYSQL = "mysql"
     POSTGRES = "postgres"
-    SQLSERVER = "sqlserver"
