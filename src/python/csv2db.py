@@ -52,6 +52,9 @@ def run(cmd):
     # Set table name
     cfg.table_name = args.table
 
+    # Set DB type
+    cfg.db_type = args.dbtype
+
     # Find all files
     f.verbose("Finding file(s).")
     file_names = f.find_all_files(args.file)
@@ -68,10 +71,13 @@ def run(cmd):
         f.verbose("Establishing database connection.")
         f.debug("Database details:")
         f.debug({"dbtype": args.dbtype, "user": args.user, "host": args.host, "port": args.port, "dbname": args.dbname})
-        cfg.conn = f.get_db_connection(args.dbtype, args.user, args.password, args.host, args.port, args.dbname)
-        load_files(file_names)
-        f.verbose("Closing database connection.")
-        cfg.conn.close()
+        try:
+            cfg.conn = f.get_db_connection(cfg.db_type, args.user, args.password, args.host, args.port, args.dbname)
+            load_files(file_names)
+            f.verbose("Closing database connection.")
+            cfg.conn.close()
+        except Exception as err:
+            print("Error connecting to the database: {0}".format(err))
 
 
 def generate_table_sql(file_names, column_data_type):
@@ -204,10 +210,11 @@ def generate_statement(col_map):
     col_map : [str,]
         The columns to load the data into
     """
-    return "INSERT INTO {0} ({1}) VALUES (:{2})".format(
-                        cfg.table_name,
-                        ", ".join(col_map),
-                        ", :".join(col_map))
+    if cfg.db_type == f.DBType.ORACLE.value:
+        values = ", :".join(col_map)
+    else:
+        values = ("%s, " * len(col_map))[:-2]
+    return "INSERT INTO {0} ({1}) VALUES ({2})".format(cfg.table_name, ", ".join(col_map), values)
 
 
 def parse_arguments(cmd):

@@ -142,20 +142,20 @@ def get_db_connection(db_type, user, password, host, port, db_name):
     """
 
     try:
-        if db_type is DBType.ORACLE.value:
+        if db_type == DBType.ORACLE.value:
             import cx_Oracle
             return cx_Oracle.connect(user,
                                      password,
                                      host + ":" + port + "/" + db_name)
-        elif db_type is DBType.MYSQL.value:
-            import mysqlx
-            return mysqlx.get_session({
-                                       'user': user,
-                                       'password': password,
-                                       'host': host,
-                                       'port': int(port),
-                                      }).get_schema(db_name)
-        elif db_type is DBType.POSTGRES.value:
+        elif db_type == DBType.MYSQL.value:
+            import mysql.connector
+            return mysql.connector.connect(
+                                       user=user,
+                                       password=password,
+                                       host=host,
+                                       port=int(port),
+                                       database=db_name)
+        elif db_type == DBType.POSTGRES.value:
             import psycopg2
             return psycopg2.connect("""user='{0}' 
                                        password='{1}' 
@@ -163,7 +163,7 @@ def get_db_connection(db_type, user, password, host, port, db_name):
                                        port='{3}' 
                                        dbname='{4}'""".format(user, password, host, port, db_name)
                                     )
-        elif db_type is DBType.SQLSERVER.value:
+        elif db_type == DBType.SQLSERVER.value:
             import pypyodbc
             return pypyodbc.connect("Driver={SQL Server};" +
                                     """uid={0};
@@ -172,10 +172,10 @@ def get_db_connection(db_type, user, password, host, port, db_name):
                                        Port={3};
                                        Database={4};""".format(user, password, host, port, db_name)
                                     )
+        else:
+            raise ValueError("Database type '{0}' is not supported.".format(db_type))
     except ModuleNotFoundError as err:
-        raise ConnectionError("Database driver module is not installed: {0}".format(str(err)))
-    except Exception as err:
-        raise ConnectionError("Error connecting to the database: {0}".format(err))
+        raise ConnectionError("Database driver module is not installed: {0}. Please install it first.".format(str(err)))
 
 
 def raw_input_to_list(raw_line, header=False):

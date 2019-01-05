@@ -27,3 +27,4 @@ conn = None
 table_name = ""
 column_type = "VARCHAR2(4000)"
 input_data = []
+db_type = None
