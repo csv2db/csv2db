@@ -103,7 +103,7 @@ or by downloading one of the releases
     cd csv2db
     
 In order for `csv2db` to work you will have to install the appropriate database driver(s).
-The following drivers are being used, all avaliable on pypi.org:
+The following drivers are being used, all available on pypi.org:
 
 * Oracle: [cx_Oracle](https://pypi.org/project/cx_Oracle/) version 7.0.0+
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
