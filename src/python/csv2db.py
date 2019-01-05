@@ -153,6 +153,7 @@ def load_files(file_names):
     for file_name in file_names:
         print()
         print("Loading file {0}".format(file_name))
+        f.debug("Opening file handler for '{0}'".format(file_name))
         file = f.open_file(file_name)
         read_and_load_file(file)
         file.close()
@@ -169,6 +170,7 @@ def read_and_load_file(file):
         The file to load
     """
     col_map = f.raw_input_to_list(file.readline(), True)
+    f.debug("Column map: {0}".format(col_map))
     try:
         for raw_line in file:
             load_data(col_map, raw_line)
@@ -192,13 +194,19 @@ def load_data(col_map, data):
         if values:
             # If the data has more values than the header provided, ignore the end (green data set has that)
             while len(values) > len(col_map):
+                f.debug("Removing extra row value entry not present in the header.")
                 values.pop()
             cfg.input_data.append(values)
 
     if (len(cfg.input_data) == cfg.batch_size) or (data is None):
         cur = cfg.conn.cursor()
-        cur.executemany(generate_statement(col_map), cfg.input_data)
+        f.debug("Executing statement:")
+        stmt = generate_statement(col_map)
+        f.debug(stmt)
+        cur.executemany(stmt, cfg.input_data)
+        f.debug("Commit")
         cfg.conn.commit()
+        f.verbose("{0} rows loaded".format(len(cfg.input_data)))
         cfg.input_data.clear()
 
 
