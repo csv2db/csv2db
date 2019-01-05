@@ -107,7 +107,7 @@ The following drivers are being used, all available on pypi.org:
 
 * Oracle: [cx_Oracle](https://pypi.org/project/cx_Oracle/) version 7.0.0+
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
-* PostgreSQL: [psycopg2](https://pypi.org/project/psycopg2/) version 2.7.6.1+
+* PostgreSQL: [psycopg2-binary](https://pypi.org/project/psycopg2-binary/) version 2.7.6.1+
 * SQL Server: [pypyodbc](https://pypi.org/project/pypyodbc/) version 1.3.5+
 
 You can install any of these drivers via `pip`:
