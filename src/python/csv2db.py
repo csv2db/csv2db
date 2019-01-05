@@ -79,6 +79,10 @@ def run(cmd):
             cfg.conn.close()
         except Exception as err:
             print("Error connecting to the database: {0}".format(err))
+        except KeyboardInterrupt:
+            print("Exiting program")
+            cfg.conn.close()
+            return
 
 
 def generate_table_sql(file_names, column_data_type):
@@ -155,9 +159,8 @@ def load_files(file_names):
         print()
         print("Loading file {0}".format(file_name))
         f.debug("Opening file handler for '{0}'".format(file_name))
-        file = f.open_file(file_name)
-        read_and_load_file(file)
-        file.close()
+        with f.open_file(file_name) as file:
+            read_and_load_file(file)
         print("Done")
         print()
 
@@ -209,6 +212,7 @@ def load_data(col_map, data):
         cfg.conn.commit()
         f.verbose("{0} rows loaded".format(len(cfg.input_data)))
         cfg.input_data.clear()
+        cur.close()
 
 
 def generate_statement(col_map):
