@@ -52,9 +52,6 @@ def run(cmd):
     # Set table name
     cfg.table_name = args.table
 
-    # Set DB type
-    cfg.db_type = args.dbtype
-
     # Find all files
     f.verbose("Finding file(s).")
     file_names = f.find_all_files(args.file)
@@ -64,6 +61,9 @@ def run(cmd):
         f.verbose("Generating CREATE TABLE statement.")
         generate_table_sql(file_names, args.column_type)
     else:
+        # Set DB type
+        cfg.db_type = args.dbtype
+
         # Set batch size
         f.debug("Batch size: {0}".format(args.batch))
         cfg.batch_size = int(args.batch)
@@ -211,7 +211,7 @@ def generate_statement(col_map):
         The columns to load the data into
     """
     if cfg.db_type == f.DBType.ORACLE.value:
-        values = ", :".join(col_map)
+        values = ":" + ", :".join(col_map)
     else:
         values = ("%s, " * len(col_map))[:-2]
     return "INSERT INTO {0} ({1}) VALUES ({2})".format(cfg.table_name, ", ".join(col_map), values)
