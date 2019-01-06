@@ -73,19 +73,159 @@ This is particularly useful if the format of the CSV files has changed over time
 
 ## How to use csv2db
 
+### Loading CSV files into the database
+
+`csv2db` can load uncompressed and compressed csv files in `.zip` or `.gz` format without having to uncompress them first.
+
+```bash
+$ ./csv2db load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1
+
+Loading file test/resources/201811-citibike-tripdata.csv
+Done
+
+$ ./csv2db load -f test/resources/201811-citibike-tripdata.csv.gz -t citibikes -u csv_data -p csv_data -d ORCLPDB1
+
+Loading file test/resources/201811-citibike-tripdata.csv.gz
+Done
+```
+
+`csv2db` `--verbose` option will provide verbose output.
+
+```bash
+$ ./csv2db load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
+Finding file(s).
+Establishing database connection.
+
+Loading file test/resources/201811-citibike-tripdata.csv
+10 rows loaded
+Done
+
+Closing database connection.
+```
+
+`csv2db` can load multiple files at once, using either wildcard characters (e.g. data*.csv.zip) or by passing on the folder containing CSV files.
+
+**Note:** Wildcart charaters will have to be enclosed in `""`
+
+```bash
+$ ./csv2db load -f "test/resources/2018*" -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
+Finding file(s).
+Establishing database connection.
+
+Loading file test/resources/201811-citibike-tripdata.csv
+10 rows loaded
+Done
+
+
+Loading file test/resources/201811-citibike-tripdata.csv.gz
+10 rows loaded
+Done
+
+
+Loading file test/resources/201811-citibike-tripdata.csv.zip
+10 rows loaded
+Done
+
+Closing database connection.
+```
+
+```bash
+$ ./csv2db load -f test/resources -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
+Finding file(s).
+Establishing database connection.
+
+Loading file test/resources/201811-citibike-tripdata.csv
+10 rows loaded
+Done
+
+
+Loading file test/resources/201811-citibike-tripdata.csv.gz
+10 rows loaded
+Done
+
+
+Loading file test/resources/201811-citibike-tripdata.csv.zip
+10 rows loaded
+Done
+
+Closing database connection.
+```
+
+`csv2db` will load all values as strings. You can either load all data into a staging table with all columns being strings as well, or rely on implicit data type converion on the database side.
+
 ### Create a staging table
 
 `csv2db` can generate the SQL statement for a staging table for your data using the `generate` command:
 
-![](resources/csv2db_generate.gif)
+```sql
+$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv
+CREATE TABLE <TABLE NAME>
+(
+  END_STATION_ID VARCHAR2(4000),
+  STOPTIME VARCHAR2(4000),
+  START_STATION_LATITUDE VARCHAR2(4000),
+  GENDER VARCHAR2(4000),
+  END_STATION_LATITUDE VARCHAR2(4000),
+  BIRTH_YEAR VARCHAR2(4000),
+  START_STATION_ID VARCHAR2(4000),
+  START_STATION_NAME VARCHAR2(4000),
+  STARTTIME VARCHAR2(4000),
+  USERTYPE VARCHAR2(4000),
+  END_STATION_LONGITUDE VARCHAR2(4000),
+  END_STATION_NAME VARCHAR2(4000),
+  BIKEID VARCHAR2(4000),
+  TRIPDURATION VARCHAR2(4000),
+  START_STATION_LONGITUDE VARCHAR2(4000)
+);
+```
 
 By default you will have to fill in the table name. You can also specify the table name via the `-t` option:
 
-![](resources/csv2db_generate_table.gif)
+```sql
+$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING
+CREATE TABLE STAGING
+(
+  END_STATION_LATITUDE VARCHAR2(4000),
+  GENDER VARCHAR2(4000),
+  START_STATION_LATITUDE VARCHAR2(4000),
+  END_STATION_NAME VARCHAR2(4000),
+  BIRTH_YEAR VARCHAR2(4000),
+  START_STATION_NAME VARCHAR2(4000),
+  STOPTIME VARCHAR2(4000),
+  END_STATION_ID VARCHAR2(4000),
+  STARTTIME VARCHAR2(4000),
+  START_STATION_LONGITUDE VARCHAR2(4000),
+  START_STATION_ID VARCHAR2(4000),
+  BIKEID VARCHAR2(4000),
+  USERTYPE VARCHAR2(4000),
+  TRIPDURATION VARCHAR2(4000),
+  END_STATION_LONGITUDE VARCHAR2(4000)
+);
+```
 
 `csv2db` will use `VARCHAR2(4000)` as default data type for all columns for the staging table. If you wish to use a different data type, you can specify it via the `-c` option:
 
-![](resources/csv2db_generate_table_column.gif)
+```sql
+$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING -c CLOB
+CREATE TABLE STAGING
+(
+  START_STATION_ID CLOB,
+  END_STATION_ID CLOB,
+  START_STATION_NAME CLOB,
+  STARTTIME CLOB,
+  START_STATION_LONGITUDE CLOB,
+  END_STATION_LONGITUDE CLOB,
+  GENDER CLOB,
+  BIKEID CLOB,
+  USERTYPE CLOB,
+  TRIPDURATION CLOB,
+  START_STATION_LATITUDE CLOB,
+  BIRTH_YEAR CLOB,
+  END_STATION_NAME CLOB,
+  STOPTIME CLOB,
+  END_STATION_LATITUDE CLOB
+);
+```
 
 The idea is that you have a staging table that you can load data into and then figure out the correct data types for each column.
 
