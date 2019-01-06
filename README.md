@@ -15,61 +15,63 @@ This is particularly useful if the format of the CSV files has changed over time
 
 ## Usage
 
-	$ ./csv2db -h
-	usage: csv2db [-h] {generate,gen,load,lo} ...
-	
-	A loader for CSV files.
-	
-	positional arguments:
-	  {generate,gen,load,lo}
-	    generate (gen)      Prints a CREATE TABLE SQL statement to create the
-	                        table and columns based on the header row of the CSV
-	                        file(s).
-	    load (lo)           Loads the data from the CSV file(s) into the database.
-	
-	optional arguments:
-	  -h, --help            show this help message and exit
+```console
+$ ./csv2db -h
+usage: csv2db [-h] {generate,gen,load,lo} ...
+
+A loader for CSV files.
+
+positional arguments:
+  {generate,gen,load,lo}
+    generate (gen)      Prints a CREATE TABLE SQL statement to create the
+			table and columns based on the header row of the CSV
+			file(s).
+    load (lo)           Loads the data from the CSV file(s) into the database.
+
+optional arguments:
+  -h, --help            show this help message and exit
 
 
-	$ ./csv2db generate -h
-	usage: csv2db generate [-h] [-f FILE] [-v] [--debug] [-t TABLE]
-	                       [-c COLUMN_TYPE]
-	
-	optional arguments:
-	  -h, --help            show this help message and exit
-	  -f FILE, --file FILE  The file to load, by default all *.csv.zip files
-	  -v, --verbose         Verbose output.
-	  --debug               Debug output.
-	  -t TABLE, --table TABLE
-	                        The table name to use.
-	  -c COLUMN_TYPE, --column-type COLUMN_TYPE
-	                        The column type to use for the table generation.
+$ ./csv2db generate -h
+usage: csv2db generate [-h] [-f FILE] [-v] [--debug] [-t TABLE]
+		       [-c COLUMN_TYPE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  The file to load, by default all *.csv.zip files
+  -v, --verbose         Verbose output.
+  --debug               Debug output.
+  -t TABLE, --table TABLE
+			The table name to use.
+  -c COLUMN_TYPE, --column-type COLUMN_TYPE
+			The column type to use for the table generation.
 
 
-	$ ./csv2db load -h
-	usage: csv2db load [-h] [-f FILE] [-v] [--debug] [-t TABLE] [-o DBTYPE]
-	                   [-u USER] [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME]
-	                   [-b BATCH]
-	
-	optional arguments:
-	  -h, --help            show this help message and exit
-	  -f FILE, --file FILE  The file to load, by default all *.csv.zip files
-	  -v, --verbose         Verbose output.
-	  --debug               Debug output.
-	  -t TABLE, --table TABLE
-	                        The table name to use.
-	  -o DBTYPE, --dbtype DBTYPE
-	                        The database type. Choose one of ['oracle', 'mysql', 'postgres'].
-	  -u USER, --user USER  The database user to load data into.
-	  -p PASSWORD, --password PASSWORD
-	                        The database schema password.
-	  -m HOST, --host HOST  The host name on which the database is running on.
-	  -n PORT, --port PORT  The port on which the database is listening.
-	  -d DBNAME, --dbname DBNAME
-	                        The name of the database.
-	  -b BATCH, --batch BATCH
-	                        How many rows should be loaded at once.
-	$
+$ ./csv2db load -h
+usage: csv2db load [-h] [-f FILE] [-v] [--debug] [-t TABLE] [-o DBTYPE]
+		   [-u USER] [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME]
+		   [-b BATCH]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f FILE, --file FILE  The file to load, by default all *.csv.zip files
+  -v, --verbose         Verbose output.
+  --debug               Debug output.
+  -t TABLE, --table TABLE
+			The table name to use.
+  -o DBTYPE, --dbtype DBTYPE
+			The database type. Choose one of ['oracle', 'mysql', 'postgres'].
+  -u USER, --user USER  The database user to load data into.
+  -p PASSWORD, --password PASSWORD
+			The database schema password.
+  -m HOST, --host HOST  The host name on which the database is running on.
+  -n PORT, --port PORT  The port on which the database is listening.
+  -d DBNAME, --dbname DBNAME
+			The name of the database.
+  -b BATCH, --batch BATCH
+			How many rows should be loaded at once.
+$
+```
 
 ## How to use csv2db
 
@@ -77,7 +79,7 @@ This is particularly useful if the format of the CSV files has changed over time
 
 `csv2db` can load uncompressed and compressed csv files in `.zip` or `.gz` format without having to uncompress them first.
 
-```bash
+```console
 $ ./csv2db load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1
 
 Loading file test/resources/201811-citibike-tripdata.csv
@@ -91,7 +93,7 @@ Done
 
 `csv2db` `--verbose` option will provide verbose output.
 
-```bash
+```console
 $ ./csv2db load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
 Establishing database connection.
@@ -105,9 +107,9 @@ Closing database connection.
 
 `csv2db` can load multiple files at once, using either wildcard characters (e.g. data*.csv.zip) or by passing on the folder containing CSV files.
 
-**Note:** Wildcart charaters will have to be enclosed in `""`
+***Note:** Wildcart charaters will have to be enclosed in `""`*
 
-```bash
+```console
 $ ./csv2db load -f "test/resources/2018*" -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
 Establishing database connection.
@@ -129,7 +131,7 @@ Done
 Closing database connection.
 ```
 
-```bash
+```console
 $ ./csv2db load -f test/resources -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
 Establishing database connection.
@@ -233,13 +235,17 @@ The idea is that you have a staging table that you can load data into and then f
 
 You can install `csv2db` either by cloning this Git repository
 
-    git clone https://github.com/gvenzl/csv2db
+```console
+$ git clone https://github.com/gvenzl/csv2db
+```
 
 or by downloading one of the releases
 
-    wget https://github.com/gvenzl/csv2db/releases/latest
-    unzip csv2db.zip
-    cd csv2db
+```console
+$ wget https://github.com/gvenzl/csv2db/releases/latest
+$ unzip csv2db.zip
+$ cd csv2db
+```
     
 In order for `csv2db` to work you will have to install the appropriate database driver(s).
 The following drivers are being used, all available on [pypi.org](https://pypi.org/):
@@ -250,9 +256,11 @@ The following drivers are being used, all available on [pypi.org](https://pypi.o
 
 You can install any of these drivers via `pip`:
 
-    pip install cx_Oracle
-    pip install mysql-connector-python
-    pip install psycopg2-binary
+```console
+$ pip install cx_Oracle
+$ pip install mysql-connector-python
+$ pip install psycopg2-binary
+```
 
 **NOTE:** You only have to install the driver for the database(s) that you want to load the data into.
 
