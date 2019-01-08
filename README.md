@@ -2,15 +2,15 @@
 A loader for CSV files.
 
 `csv2db` takes CSV files and loads them into a database.
-Rather than having to potentially go through TBs of CSV data to find out what columns and data types are present in the CSV files,
+Rather than having to go through the CSV data first and find out what columns and data types are present in the CSV files,
 `csv2db` will read the header in each CSV file and automatically load data into the columns of the same name into the target table.
 Spaces in the header column names are automatically replaced with `_` characters,
 for example the column `station id` in the CSV file will be interpreted as `station_id` column in the table.
 
 This approach allows you to get data into the database first and worry about the data cleansing part later,
-which is usually much easier once the data is in the database than in the CSV files.
+which is usually much easier once the data is in the database rather than in the CSV files.
 
-`csv2db` is capable of scanning all CSV file headers at once and derive a `CREATE TABLE` statement with all the column names from.
+`csv2db` is capable of scanning all CSV file headers at once and generate a `CREATE TABLE` statement with all the column names present.
 This is particularly useful if the format of the CSV files has changed over time or because you want to load different CSV file types into the same database table.
 
 ## Usage
@@ -77,7 +77,7 @@ $
 
 ### Loading CSV files into the database
 
-`csv2db` can load uncompressed and compressed csv files in `.zip` or `.gz` format without having to uncompress them first.
+`csv2db` can load plain text csv files as well as compressed csv files in `.zip` or `.gz` format without having to uncompress them first.
 
 ```console
 $ ./csv2db load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1
@@ -107,7 +107,7 @@ Closing database connection.
 
 `csv2db` can load multiple files at once, using either wildcard characters (e.g. data*.csv.zip) or by passing on the folder containing CSV files.
 
-***Note:** Wildcart charaters will have to be enclosed in `""`*
+***Note:** Wildcard characters have to be enclosed in `""`*
 
 ```console
 $ ./csv2db load -f "test/resources/2018*" -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
@@ -229,7 +229,7 @@ CREATE TABLE STAGING
 );
 ```
 
-The idea is that you have a staging table that you can load data into and then figure out the correct data types for each column.
+The idea is to have a staging table that data can be loaded into first and then figure out the correct data types for each column.
 
 ## Installation
 
@@ -262,7 +262,7 @@ $ pip install mysql-connector-python
 $ pip install psycopg2-binary
 ```
 
-**NOTE:** You only have to install the driver for the database(s) that you want to load the data into.
+**NOTE:** You only have to install the driver for the database(s) that you want to load data into.
 
 # LICENSE
 
