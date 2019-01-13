@@ -65,6 +65,14 @@ def run(cmd):
         # Set DB type
         cfg.db_type = args.dbtype
 
+        if args.port is None:
+            if cfg.db_type == f.DBType.ORACLE.value:
+                args.port = "1521"
+            elif cfg.db_type == f.DBType.MYSQL.value:
+                args.port = "3306"
+            elif cfg.db_type == f.DBType.POSTGRES.value:
+                args.port = "5432"
+
         # Set batch size
         f.debug("Batch size: {0}".format(args.batch))
         cfg.batch_size = int(args.batch)
@@ -281,8 +289,10 @@ def parse_arguments(cmd):
                              help="The database schema password.")
     parser_load.add_argument("-m", "--host", default="localhost",
                              help="The host name on which the database is running on.")
-    parser_load.add_argument("-n", "--port", default="1521",
-                             help="The port on which the database is listening.")
+    parser_load.add_argument("-n", "--port",
+                             help="The port on which the database is listening. " +
+                                  "If not passed on the default port will be used " +
+                                  "(Oracle: 1521, MySQL: 3306, PostgreSQL: 5432).")
     parser_load.add_argument("-d", "--dbname", default="ORCLPDB1",
                              help="The name of the database.")
     parser_load.add_argument("-b", "--batch", default="10000",
