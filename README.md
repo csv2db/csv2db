@@ -242,9 +242,9 @@ $ git clone https://github.com/gvenzl/csv2db
 or by downloading one of the releases
 
 ```console
-$ wget https://github.com/gvenzl/csv2db/releases/latest
+$ LOCATION=$(curl -s https://api.github.com/repos/gvenzl/csv2db/releases/latest | grep "tag_name" | awk '{print "https://github.com/gvenzl/csv2db/archive/" substr($2, 2, length($2)-3) ".zip"}') ; curl -L -o csv2db.zip $LOCATION
 $ unzip csv2db.zip
-$ cd csv2db
+$ cd csv2db*
 ```
     
 In order for `csv2db` to work you will have to install the appropriate database driver(s).
