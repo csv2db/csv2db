@@ -20,13 +20,21 @@
 # limitations under the License.
 #
 
-import zipfile
-import gzip
-import glob
-import os
 import datetime
+import glob
+import gzip
+import os
+import zipfile
 from enum import Enum
+
 import config as cfg
+
+
+class DBType(Enum):
+    ORACLE = "oracle"
+    MYSQL = "mysql"
+    POSTGRES = "postgres"
+    DB2 = "db2"
 
 
 def open_file(file):
@@ -163,6 +171,13 @@ def get_db_connection(db_type, user, password, host, port, db_name):
                                        port='{3}' 
                                        dbname='{4}'""".format(user, password, host, port, db_name)
                                     )
+        elif db_type == DBType.DB2.value:
+            import ibm_db
+            import ibm_db_dbi
+            conn = ibm_db.connect("UID={0};PWD={1};HOSTNAME={2};PORT={3};DATABASE={4};CURRENTSCHEMA={4}"
+                                  .format(user, password, host, port, db_name), "", "")
+            return ibm_db_dbi.Connection(conn)
+
         else:
             raise ValueError("Database type '{0}' is not supported.".format(db_type))
     except ModuleNotFoundError as err:
@@ -221,7 +236,24 @@ def raw_input_to_set(raw_line, header=False):
     return set(raw_input_to_list(raw_line, header))
 
 
-class DBType(Enum):
-    ORACLE = "oracle"
-    MYSQL = "mysql"
-    POSTGRES = "postgres"
+def get_default_db_port(db_type):
+    """Returns the default port for a database.
+
+    Parameters
+    ----------
+    db_type : str
+        The database type
+
+    Returns
+    -------
+    str
+        The default port
+    """
+    if db_type == DBType.ORACLE.value:
+        return "1521"
+    elif db_type == DBType.MYSQL.value:
+        return "3306"
+    elif db_type == DBType.POSTGRES.value:
+        return "5432"
+    elif db_type == DBType.DB2.value:
+        return "50000"

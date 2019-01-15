@@ -20,10 +20,11 @@
 # limitations under the License.
 #
 
-import sys
 import argparse
-import functions as f
+import sys
+
 import config as cfg
+import functions as f
 
 
 def run(cmd):
@@ -63,15 +64,12 @@ def run(cmd):
         generate_table_sql(file_names, args.column_type)
     else:
         # Set DB type
+        f.debug("DB type: {0}".format(args.dbtype))
         cfg.db_type = args.dbtype
-
+        # Set DB default port, if needed
         if args.port is None:
-            if cfg.db_type == f.DBType.ORACLE.value:
-                args.port = "1521"
-            elif cfg.db_type == f.DBType.MYSQL.value:
-                args.port = "3306"
-            elif cfg.db_type == f.DBType.POSTGRES.value:
-                args.port = "5432"
+            args.port = f.get_default_db_port(args.dbtype)
+            f.debug("Using default port {0}".format(args.port))
 
         # Set batch size
         f.debug("Batch size: {0}".format(args.batch))
@@ -218,8 +216,8 @@ def load_data(col_map, data):
         f.debug("Commit")
         cfg.conn.commit()
         cur.close()
-        cfg.input_data.clear()
         f.verbose("{0} rows loaded".format(len(cfg.input_data)))
+        cfg.input_data.clear()
 
 
 def generate_statement(col_map):
@@ -232,6 +230,8 @@ def generate_statement(col_map):
     """
     if cfg.db_type == f.DBType.ORACLE.value:
         values = ":" + ", :".join(col_map)
+    elif cfg.db_type == f.DBType.DB2.value:
+        values = ("?," * len(col_map))[:-1]
     else:
         values = ("%s, " * len(col_map))[:-2]
     return "INSERT INTO {0} ({1}) VALUES ({2})".format(cfg.table_name, ", ".join(col_map), values)
@@ -292,7 +292,7 @@ def parse_arguments(cmd):
     parser_load.add_argument("-n", "--port",
                              help="The port on which the database is listening. " +
                                   "If not passed on the default port will be used " +
-                                  "(Oracle: 1521, MySQL: 3306, PostgreSQL: 5432).")
+                                  "(Oracle: 1521, MySQL: 3306, PostgreSQL: 5432, DB2: 50000).")
     parser_load.add_argument("-d", "--dbname", default="ORCLPDB1",
                              help="The name of the database.")
     parser_load.add_argument("-b", "--batch", default="10000",

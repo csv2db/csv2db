@@ -60,7 +60,7 @@ optional arguments:
   -t TABLE, --table TABLE
 			The table name to use.
   -o DBTYPE, --dbtype DBTYPE
-			The database type. Choose one of ['oracle', 'mysql', 'postgres'].
+			The database type. Choose one of ['oracle', 'mysql', 'postgres', 'db2'].
   -u USER, --user USER  The database user to load data into.
   -p PASSWORD, --password PASSWORD
 			The database schema password.
@@ -253,6 +253,7 @@ The following drivers are being used, all available on [pypi.org](https://pypi.o
 * Oracle: [cx_Oracle](https://pypi.org/project/cx_Oracle/) version 7.0.0+
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
 * PostgreSQL: [psycopg2-binary](https://pypi.org/project/psycopg2-binary/) version 2.7.6.1+
+* DB2: [ibm_db](https://pypi.org/project/ibm_db/) version 2.0.9+
 
 You can install any of these drivers via `pip`:
 
@@ -260,6 +261,7 @@ You can install any of these drivers via `pip`:
 $ pip install cx_Oracle
 $ pip install mysql-connector-python
 $ pip install psycopg2-binary
+$ pip install ibm_db
 ```
 
 **NOTE:** You only have to install the driver for the database(s) that you want to load data into.

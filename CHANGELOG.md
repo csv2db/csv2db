@@ -7,3 +7,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Set default port for all database types (Oracle: 1521, MySQL: 3306, PostgreSQL: 5432).
+- Provide DB2 LUW support
