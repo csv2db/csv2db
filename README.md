@@ -1,5 +1,5 @@
 # csv2db
-A loader for CSV files.
+A DB loader for CSV files.
 
 `csv2db` takes CSV files and loads them into a database.
 Rather than having to go through the CSV data first and find out what columns and data types are present in the CSV files,
