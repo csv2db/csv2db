@@ -19,7 +19,7 @@ This is particularly useful if the format of the CSV files has changed over time
 $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
-A loader for CSV files.
+A DB loader for CSV files.
 
 positional arguments:
   {generate,gen,load,lo}
