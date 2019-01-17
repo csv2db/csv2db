@@ -174,7 +174,7 @@ def get_db_connection(db_type, user, password, host, port, db_name):
         elif db_type == DBType.DB2.value:
             import ibm_db
             import ibm_db_dbi
-            conn = ibm_db.connect("UID={0};PWD={1};HOSTNAME={2};PORT={3};DATABASE={4};CURRENTSCHEMA={4}"
+            conn = ibm_db.connect("UID={0};PWD={1};HOSTNAME={2};PORT={3};DATABASE={4};"
                                   .format(user, password, host, port, db_name), "", "")
             return ibm_db_dbi.Connection(conn)
 
