@@ -250,7 +250,10 @@ def parse_arguments(cmd):
     arg
         Argparse object
     """
-    parser = argparse.ArgumentParser(prog="csv2db", description="A loader for CSV files.")
+    parser = argparse.ArgumentParser(prog="csv2db",
+                                     formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description="A DB loader for CSV files.\nVersion: {0}\n(c) Gerald Venzl"
+                                     .format(cfg.version))
 
     subparsers = parser.add_subparsers(dest="command")
     subparsers.required = True

@@ -20,6 +20,8 @@
 # limitations under the License.
 #
 
+version = "1.1.0"
+
 verbose = False
 debug = False
 batch_size = 10000
