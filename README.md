@@ -236,13 +236,13 @@ The idea is to have a staging table that data can be loaded into first and then 
 You can install `csv2db` either by cloning this Git repository
 
 ```console
-$ git clone https://github.com/gvenzl/csv2db
+$ git clone https://github.com/csv2db/csv2db
 ```
 
 or by downloading one of the releases
 
 ```console
-$ LOCATION=$(curl -s https://api.github.com/repos/gvenzl/csv2db/releases/latest | grep "tag_name" | awk '{print "https://github.com/gvenzl/csv2db/archive/" substr($2, 2, length($2)-3) ".zip"}') ; curl -L -o csv2db.zip $LOCATION
+$ LOCATION=$(curl -s https://api.github.com/repos/csv2db/csv2db/releases/latest | grep "tag_name" | awk '{print "https://github.com/csv2db/csv2db/archive/" substr($2, 2, length($2)-3) ".zip"}') ; curl -L -o csv2db.zip $LOCATION
 $ unzip csv2db.zip
 $ cd csv2db*
 ```
