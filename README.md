@@ -107,7 +107,7 @@ Closing database connection.
 
 `csv2db` can load multiple files at once, using either wildcard characters (e.g. data*.csv.zip) or by passing on the folder containing CSV files.
 
-***Note:** Wildcard characters have to be enclosed in `""`*
+***Note:** String including wildcard characters have to be enclosed in `""`*
 
 ```console
 $ ./csv2db load -f "test/resources/2018*" -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
