@@ -22,7 +22,8 @@
 
 # Check whether python 3 is available
 if command -v python3 &>/dev/null; then
-    ./src/python/csv2db.py "$@"
+    CSV2DB_HOME_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+    ${CSV2DB_HOME_DIR}/src/python/csv2db.py "$@"
 else
     echo "Python 3 is not installed, please install Python 3 first."
     echo "For more information see https://www.python.org/downloads/"

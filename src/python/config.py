@@ -20,7 +20,7 @@
 # limitations under the License.
 #
 
-version = "1.1.0"
+version = "1.1.1"
 
 verbose = False
 debug = False
