@@ -207,7 +207,8 @@ def load_data(col_map, data):
                 values.pop()
             cfg.input_data.append(values)
 
-    if (len(cfg.input_data) == cfg.batch_size) or (data is None):
+    # If batch size has been reached or input array should be flushed
+    if (len(cfg.input_data) == cfg.batch_size) or (data is None and len(cfg.input_data) > 0):
         f.debug("Executing statement:")
         stmt = generate_statement(col_map)
         f.debug(stmt)

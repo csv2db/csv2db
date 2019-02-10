@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Don't execute batch flush on emtpy data set (bug #6)
+
 ## [1.1.1] - 2019-02-09
 
 ### Fixed
