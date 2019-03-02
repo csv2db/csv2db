@@ -52,6 +52,11 @@ def run(cmd):
 
     # Set table name
     cfg.table_name = args.table
+    f.debug("Table name: {0}".format(cfg.table_name))
+
+    # Set column separator characters(s)
+    cfg.column_separator = args.separator
+    f.debug("Column separator: {0}".format(cfg.column_separator))
 
     # Find all files
     f.verbose("Finding file(s).")
@@ -273,6 +278,8 @@ def parse_arguments(cmd):
                                  help="The table name to use.")
     parser_generate.add_argument("-c", "--column-type", default="VARCHAR2(4000)",
                                  help="The column type to use for the table generation.")
+    parser_generate.add_argument("-s", "--separator", default=",",
+                                 help="The columns separator character(s).")
 
     # Sub Parser load
     parser_load = subparsers.add_parser("load", aliases=["lo"],
@@ -301,6 +308,8 @@ def parse_arguments(cmd):
                              help="The name of the database.")
     parser_load.add_argument("-b", "--batch", default="10000",
                              help="How many rows should be loaded at once.")
+    parser_load.add_argument("-s", "--separator", default=",",
+                                 help="The columns separator character(s).")
 
     return parser.parse_args(cmd)
 

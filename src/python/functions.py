@@ -207,7 +207,7 @@ def raw_input_to_list(raw_line, header=False):
     # If empty string return None, i.e. skip empty lines
     if not ret:
         return None
-    ret = ret.split(",")
+    ret = ret.split(cfg.column_separator)
     for n in range(len(ret)):
         val = ret[n].replace('"', '').strip()
         # If line is a header line, i.e. column number, replace spaces with '_' and make names UPPER

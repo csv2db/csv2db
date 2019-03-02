@@ -20,21 +20,24 @@ $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
 A DB loader for CSV files.
+Version: 1.2.0
+(c) Gerald Venzl
 
 positional arguments:
   {generate,gen,load,lo}
     generate (gen)      Prints a CREATE TABLE SQL statement to create the
-			table and columns based on the header row of the CSV
-			file(s).
+                        table and columns based on the header row of the CSV
+                        file(s).
     load (lo)           Loads the data from the CSV file(s) into the database.
 
 optional arguments:
   -h, --help            show this help message and exit
+```
 
-
+```console
 $ ./csv2db generate -h
 usage: csv2db generate [-h] [-f FILE] [-v] [--debug] [-t TABLE]
-		       [-c COLUMN_TYPE]
+                       [-c COLUMN_TYPE] [-s SEPARATOR]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -42,15 +45,17 @@ optional arguments:
   -v, --verbose         Verbose output.
   --debug               Debug output.
   -t TABLE, --table TABLE
-			The table name to use.
+                        The table name to use.
   -c COLUMN_TYPE, --column-type COLUMN_TYPE
-			The column type to use for the table generation.
+                        The column type to use for the table generation.
+  -s SEPARATOR, --separator SEPARATOR
+                        The columns separator character(s).
+```
 
-
-$ ./csv2db load -h
+```console
 usage: csv2db load [-h] [-f FILE] [-v] [--debug] [-t TABLE] [-o DBTYPE]
-		   [-u USER] [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME]
-		   [-b BATCH]
+                   [-u USER] [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME]
+                   [-b BATCH] [-s SEPARATOR]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -58,19 +63,23 @@ optional arguments:
   -v, --verbose         Verbose output.
   --debug               Debug output.
   -t TABLE, --table TABLE
-			The table name to use.
+                        The table name to use.
   -o DBTYPE, --dbtype DBTYPE
-			The database type. Choose one of ['oracle', 'mysql', 'postgres', 'db2'].
+                        The database type. Choose one of ['oracle', 'mysql',
+                        'postgres', 'db2'].
   -u USER, --user USER  The database user to load data into.
   -p PASSWORD, --password PASSWORD
-			The database schema password.
+                        The database schema password.
   -m HOST, --host HOST  The host name on which the database is running on.
-  -n PORT, --port PORT  The port on which the database is listening.
+  -n PORT, --port PORT  The port on which the database is listening. If not
+                        passed on the default port will be used (Oracle: 1521,
+                        MySQL: 3306, PostgreSQL: 5432, DB2: 50000).
   -d DBNAME, --dbname DBNAME
-			The name of the database.
+                        The name of the database.
   -b BATCH, --batch BATCH
-			How many rows should be loaded at once.
-$
+                        How many rows should be loaded at once.
+  -s SEPARATOR, --separator SEPARATOR
+                        The columns separator character(s).
 ```
 
 ## How to use csv2db

@@ -21,10 +21,15 @@
 #
 
 import functions as f
+import config as cfg
 import unittest
 
 
 class CSV2DBTestCase(unittest.TestCase):
+
+    def setUp(self):
+        # Set the default column separator for all tests
+        cfg.column_separator = ","
 
     def test_open_csv_file(self):
         with f.open_file("../resources/201811-citibike-tripdata.csv") as file:
@@ -53,6 +58,22 @@ class CSV2DBTestCase(unittest.TestCase):
                               "END_STATION_LONGITUDE", "END_STATION_NAME", "GENDER", "STARTTIME",
                               "START_STATION_ID", "START_STATION_LATITUDE", "START_STATION_LONGITUDE",
                               "START_STATION_NAME", "STOPTIME", "TRIPDURATION", "USERTYPE"})
+
+    def test_tab_separated_file(self):
+        cfg.column_separator = "\t"
+        with f.open_file("../resources/201812-citibike-tripdata.tsv") as file:
+            content = [f.raw_input_to_list(file.readline(), True)]
+            for raw_line in file:
+                content.append(f.raw_input_to_list(raw_line))
+            self.assertEqual(len(content), 11)
+
+    def test_pipe_separated_file(self):
+        cfg.column_separator = "|"
+        with f.open_file("../resources/201812-citibike-tripdata.psv") as file:
+            content = [f.raw_input_to_list(file.readline(), True)]
+            for raw_line in file:
+                content.append(f.raw_input_to_list(raw_line))
+            self.assertEqual(len(content), 11)
 
 
 if __name__ == '__main__':
