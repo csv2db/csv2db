@@ -20,7 +20,7 @@
 # limitations under the License.
 #
 
-version = "1.1.1"
+version = "1.2.0"
 
 verbose = False
 debug = False
@@ -30,3 +30,4 @@ table_name = ""
 column_type = "VARCHAR2(4000)"
 input_data = []
 db_type = None
+column_separator = ""
