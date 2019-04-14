@@ -71,6 +71,7 @@ def run(cmd):
         # Set DB type
         f.debug("DB type: {0}".format(args.dbtype))
         cfg.db_type = args.dbtype
+        cfg.direct_path = args.directpath
         # Set DB default port, if needed
         if args.port is None:
             args.port = f.get_default_db_port(args.dbtype)
@@ -79,6 +80,11 @@ def run(cmd):
         # Set batch size
         f.debug("Batch size: {0}".format(args.batch))
         cfg.batch_size = int(args.batch)
+        # If batch size is lower than 10k and direct path has been specified, overwrite batch size to 10k.
+        if cfg.direct_path and cfg.batch_size < 10000:
+            f.debug("Direct path was specified but batch size is less than 10000.")
+            f.debug("Overwriting the batch size to 10000 for direct path load to make sense.")
+            cfg.batch_size = 10000
 
         f.verbose("Establishing database connection.")
         f.debug("Database details:")
@@ -234,13 +240,19 @@ def generate_statement(col_map):
     col_map : [str,]
         The columns to load the data into
     """
+    append_hint = ""
     if cfg.db_type == f.DBType.ORACLE.value:
         values = ":" + ", :".join(col_map)
+        if cfg.direct_path:
+            append_hint = "/*+ APPEND_VALUES */"
     elif cfg.db_type == f.DBType.DB2.value:
         values = ("?," * len(col_map))[:-1]
     else:
         values = ("%s, " * len(col_map))[:-2]
-    return "INSERT INTO {0} ({1}) VALUES ({2})".format(cfg.table_name, ", ".join(col_map), values)
+    return "INSERT INTO {0} {1} ({2}) VALUES ({3})".format(append_hint,
+                                                           cfg.table_name,
+                                                           ", ".join(col_map),
+                                                           values)
 
 
 def parse_arguments(cmd):
@@ -309,7 +321,9 @@ def parse_arguments(cmd):
     parser_load.add_argument("-b", "--batch", default="10000",
                              help="How many rows should be loaded at once.")
     parser_load.add_argument("-s", "--separator", default=",",
-                                 help="The columns separator character(s).")
+                             help="The columns separator character(s).")
+    parser_load.add_argument("-a", "--directpath", action="store_true", default=False,
+                             help="Execute a direct path INSERT load operation (Oracle only).")
 
     return parser.parse_args(cmd)
 

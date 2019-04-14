@@ -20,10 +20,11 @@
 # limitations under the License.
 #
 
-version = "1.2.0"
+version = "1.3.0"
 
 verbose = False
 debug = False
+direct_path = False
 batch_size = 10000
 conn = None
 table_name = ""
