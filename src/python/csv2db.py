@@ -58,6 +58,10 @@ def run(cmd):
     cfg.column_separator = args.separator
     f.debug("Column separator: {0}".format(cfg.column_separator))
 
+    # Set quote character(s)
+    cfg.quote_char = args.quote
+    f.debug("Columns escape character: {0}".format(cfg.quote_char))
+
     # Find all files
     f.verbose("Finding file(s).")
     file_names = f.find_all_files(args.file)
@@ -83,7 +87,7 @@ def run(cmd):
         # If batch size is lower than 10k and direct path has been specified, overwrite batch size to 10k.
         if cfg.direct_path and cfg.batch_size < 10000:
             f.debug("Direct path was specified but batch size is less than 10000.")
-            f.debug("Overwriting the batch size to 10000 for direct path load to make sense.")
+            f.debug("Overwriting the batch size to 10000 for direct-path load to make sense.")
             cfg.batch_size = 10000
 
         f.verbose("Establishing database connection.")
@@ -114,9 +118,9 @@ def generate_table_sql(file_names, column_data_type):
     col_set = set()
     for file_name in file_names:
         file = f.open_file(file_name)
-        columns_to_add = f.read_header(file)
+        reader = f.get_csv_reader(file)
+        columns_to_add = f.read_header(reader)
         col_set = add_to_col_set(col_set, columns_to_add)
-        file.close()
     print_table_and_col_set(col_set, column_data_type)
 
 
@@ -176,7 +180,10 @@ def load_files(file_names):
         print("Loading file {0}".format(file_name))
         f.debug("Opening file handler for '{0}'".format(file_name))
         with f.open_file(file_name) as file:
-            read_and_load_file(file)
+            try:
+                read_and_load_file(file)
+            except Exception as err:
+                print("Error in file: {0}".format(file.name), err)
         print("Done")
         print()
 
@@ -189,14 +196,12 @@ def read_and_load_file(file):
     file : file_object
         The file to load
     """
-    col_map = f.raw_input_to_list(file.readline(), True)
+    reader = f.get_csv_reader(file)
+    col_map = f.read_header(reader)
     f.debug("Column map: {0}".format(col_map))
-    try:
-        for raw_line in file:
-            load_data(col_map, raw_line)
-        load_data(col_map, None)
-    except Exception as err:
-        print("Error in file: {0}".format(file.name), err)
+    for line in reader:
+        load_data(col_map, line)
+    load_data(col_map, None)
 
 
 def load_data(col_map, data):
@@ -206,11 +211,11 @@ def load_data(col_map, data):
     ----------
     col_map : [str,]
         The columns to load the data into
-    data : bytes, bytearray, str
+    data : [str,]
         The data to load
     """
     if data is not None:
-        values = f.raw_input_to_list(data)
+        values = f.format_list(data)
         if values:
             # If the data has more values than the header provided, ignore the end (green data set has that)
             while len(values) > len(col_map):
@@ -292,6 +297,8 @@ def parse_arguments(cmd):
                                  help="The column type to use for the table generation.")
     parser_generate.add_argument("-s", "--separator", default=",",
                                  help="The columns separator character(s).")
+    parser_generate.add_argument("-q", "--quote", default='"',
+                                 help="The quote character on which a string won't be split.")
 
     # Sub Parser load
     parser_load = subparsers.add_parser("load", aliases=["lo"],
@@ -322,6 +329,8 @@ def parse_arguments(cmd):
                              help="How many rows should be loaded at once.")
     parser_load.add_argument("-s", "--separator", default=",",
                              help="The columns separator character(s).")
+    parser_load.add_argument("-q", "--quote", default='"',
+                             help="The quote character on which a string won't be split.")
     parser_load.add_argument("-a", "--directpath", action="store_true", default=False,
                              help="Execute a direct path INSERT load operation (Oracle only).")
 

@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Provide support for direct path loading with Oracle DB (ER #8)
+- Provide support for direct-path loading with Oracle DB (ER #8)
+- Provide support for custom quote characters (ER #10)
 
 ## [1.2.0] - 2019-03-09
 

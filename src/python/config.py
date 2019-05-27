@@ -32,3 +32,4 @@ column_type = "VARCHAR2(4000)"
 input_data = []
 db_type = None
 column_separator = ""
+quote_char = ""

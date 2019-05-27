@@ -24,8 +24,10 @@ import datetime
 import glob
 import gzip
 import os
+import io
 import zipfile
 from enum import Enum
+import csv
 
 import config as cfg
 
@@ -54,29 +56,30 @@ def open_file(file):
     """
     if file.endswith(".zip"):
         zip_file = zipfile.ZipFile(file, mode="r")
-        return zip_file.open(zip_file.infolist()[0], mode="r")
+        file = zip_file.open(zip_file.infolist()[0], mode="r")
+        return io.TextIOWrapper(file)
     elif file.endswith(".gz"):
-        return gzip.open(file, mode="r")
+        return gzip.open(file, mode="rt")
     else:
         return open(file, mode='r')
 
 
-def read_header(file):
+def read_header(reader):
     """Reads header and returns the column list.
 
     This function reads the first row of the CSV file and parses it for the column names.
 
     Parameters
     ----------
-    file : file_object
-        The file to read the header from
+    reader : _csv.reader
+        The CSV Reader object to read the header from
 
     Returns
     -------
     set([])
         A set with all the column names.
     """
-    return raw_input_to_set(file.readline(), True)
+    return format_list(reader.__next__(), True)
 
 
 def find_all_files(pattern):
@@ -184,12 +187,12 @@ def get_db_connection(db_type, user, password, host, port, db_name):
         raise ConnectionError("Database driver module is not installed: {0}. Please install it first.".format(str(err)))
 
 
-def raw_input_to_list(raw_line, header=False):
-    """Returns a list of values from a raw CSV input.
+def format_list(input_list, header=False):
+    """Returns a formatted list of values from a CSV list input.
 
     Parameters
     ----------
-    raw_line : bytes, bytearray, str
+    input_list : str
         The raw line to convert
     header : bool
         If true, values will be upper case and spaces replaced with '_'.
@@ -200,40 +203,19 @@ def raw_input_to_list(raw_line, header=False):
     [str,]
         A list of string values
     """
-    ret = raw_line
-    if isinstance(raw_line, (bytes, bytearray)):
-        ret = raw_line.decode()
-    ret = ret.splitlines()[0]
+
     # If empty string return None, i.e. skip empty lines
-    if not ret:
+    if not input_list:
         return None
-    ret = ret.split(cfg.column_separator)
-    for n in range(len(ret)):
-        val = ret[n].replace('"', '').strip()
+
+    output = []
+    for col in input_list:
+        val = col.replace('"', '').strip()
         # If line is a header line, i.e. column number, replace spaces with '_' and make names UPPER
         if header:
             val = val.replace(' ', '_',).upper()
-        ret[n] = val
-    return ret
-
-
-def raw_input_to_set(raw_line, header=False):
-    """Returns a set of values from a raw CSV input.
-
-    Parameters
-    ----------
-    raw_line : bytes, bytearray, str
-        The raw line to convert
-    header : bool
-        If true, values will be upper case and spaces replaced with '_'.
-        This is only good for header rows in the CSV files.
-
-    Returns
-    -------
-    set([str,])
-        A set of string values
-    """
-    return set(raw_input_to_list(raw_line, header))
+        output.append(val)
+    return output
 
 
 def get_default_db_port(db_type):
@@ -257,3 +239,14 @@ def get_default_db_port(db_type):
         return "5432"
     elif db_type == DBType.DB2.value:
         return "50000"
+
+
+def get_csv_reader(file):
+    """Returns a csv reader.
+
+    Parameters
+    ----------
+    file : file-object
+        A file object
+    """
+    return csv.reader(file, delimiter=cfg.column_separator, quotechar=cfg.quote_char)
