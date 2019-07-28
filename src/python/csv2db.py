@@ -60,7 +60,7 @@ def run(cmd):
 
     # Set quote character(s)
     cfg.quote_char = args.quote
-    f.debug("Columns escape character: {0}".format(cfg.quote_char))
+    f.debug("Column escape character: {0}".format(cfg.quote_char))
 
     # Find all files
     f.verbose("Finding file(s).")
