@@ -19,7 +19,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 import functions as f
 import config as cfg
 import unittest
@@ -30,6 +29,7 @@ class CSV2DBTestCase(unittest.TestCase):
     def setUp(self):
         # Set the default column separator for all tests
         cfg.column_separator = ","
+        cfg.quote_char = '"'
 
     def test_open_csv_file(self):
         with f.open_file("../resources/201811-citibike-tripdata.csv") as file:
@@ -43,36 +43,34 @@ class CSV2DBTestCase(unittest.TestCase):
         with f.open_file("../resources/201811-citibike-tripdata.csv.gz") as file:
             self.assertIsNotNone(file.read())
 
-    def test_raw_input_to_lit(self):
-        with f.open_file("../resources/201811-citibike-tripdata.csv") as file:
-            self.assertEqual(f.raw_input_to_list(file.readline()),
-                             ["tripduration", "starttime", "stoptime", "start station id", "start station name",
-                              "start station latitude", "start station longitude", "end station id",
-                              "end station name", "end station latitude", "end station longitude",
-                              "bikeid", "usertype", "birth year", "gender"])
-
     def test_read_header(self):
         with f.open_file("../resources/201811-citibike-tripdata.csv.gz") as file:
-            self.assertEqual(f.read_header(file),
-                             {"BIKEID", "BIRTH_YEAR", "END_STATION_ID", "END_STATION_LATITUDE",
-                              "END_STATION_LONGITUDE", "END_STATION_NAME", "GENDER", "STARTTIME",
-                              "START_STATION_ID", "START_STATION_LATITUDE", "START_STATION_LONGITUDE",
-                              "START_STATION_NAME", "STOPTIME", "TRIPDURATION", "USERTYPE"})
+            reader = f.get_csv_reader(file)
+            expected = ["BIKEID", "BIRTH_YEAR", "END_STATION_ID", "END_STATION_LATITUDE",
+                        "END_STATION_LONGITUDE", "END_STATION_NAME", "GENDER", "STARTTIME",
+                        "START_STATION_ID", "START_STATION_LATITUDE", "START_STATION_LONGITUDE",
+                        "START_STATION_NAME", "STOPTIME", "TRIPDURATION", "USERTYPE"]
+            expected.sort()
+            actual = f.read_header(reader)
+            actual.sort()
+            self.assertListEqual(actual, expected)
 
     def test_tab_separated_file(self):
         cfg.column_separator = "\t"
         with f.open_file("../resources/201812-citibike-tripdata.tsv") as file:
-            content = [f.raw_input_to_list(file.readline(), True)]
-            for raw_line in file:
-                content.append(f.raw_input_to_list(raw_line))
+            reader = f.get_csv_reader(file)
+            content = [f.read_header(reader)]
+            for line in reader:
+                content.append(line)
             self.assertEqual(len(content), 11)
 
     def test_pipe_separated_file(self):
         cfg.column_separator = "|"
         with f.open_file("../resources/201812-citibike-tripdata.psv") as file:
-            content = [f.raw_input_to_list(file.readline(), True)]
-            for raw_line in file:
-                content.append(f.raw_input_to_list(raw_line))
+            reader = f.get_csv_reader(file)
+            content = [f.read_header(reader)]
+            for line in reader:
+                content.append(line)
             self.assertEqual(len(content), 11)
 
 

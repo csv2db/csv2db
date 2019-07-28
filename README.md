@@ -20,7 +20,7 @@ $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
 A DB loader for CSV files.
-Version: 1.2.0
+Version: 1.3.0
 (c) Gerald Venzl
 
 positional arguments:
@@ -37,7 +37,7 @@ optional arguments:
 ```console
 $ ./csv2db generate -h
 usage: csv2db generate [-h] [-f FILE] [-v] [--debug] [-t TABLE]
-                       [-c COLUMN_TYPE] [-s SEPARATOR]
+                       [-c COLUMN_TYPE] [-s SEPARATOR] [-q QUOTE]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -50,12 +50,15 @@ optional arguments:
                         The column type to use for the table generation.
   -s SEPARATOR, --separator SEPARATOR
                         The columns separator character(s).
+  -q QUOTE, --quote QUOTE
+                        The quote character on which a string won't be split.
 ```
 
 ```console
+$ ./csv2db load -h
 usage: csv2db load [-h] [-f FILE] [-v] [--debug] [-t TABLE] [-o DBTYPE]
                    [-u USER] [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME]
-                   [-b BATCH] [-s SEPARATOR]
+                   [-b BATCH] [-s SEPARATOR] [-q QUOTE] [-a]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -80,6 +83,10 @@ optional arguments:
                         How many rows should be loaded at once.
   -s SEPARATOR, --separator SEPARATOR
                         The columns separator character(s).
+  -q QUOTE, --quote QUOTE
+                        The quote character on which a string won't be split.
+  -a, --directpath      Execute a direct path INSERT load operation (Oracle
+                        only).
 ```
 
 ## How to use csv2db
