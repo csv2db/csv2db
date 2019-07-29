@@ -254,7 +254,7 @@ def generate_statement(col_map):
         values = ("?," * len(col_map))[:-1]
     else:
         values = ("%s, " * len(col_map))[:-2]
-    return "INSERT INTO {0} {1} ({2}) VALUES ({3})".format(append_hint,
+    return "INSERT {0} INTO {1} ({2}) VALUES ({3})".format(append_hint,
                                                            cfg.table_name,
                                                            ", ".join(col_map),
                                                            values)
