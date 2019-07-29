@@ -20,7 +20,7 @@ $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
 A DB loader for CSV files.
-Version: 1.3.0
+Version: 1.3.1
 (c) Gerald Venzl
 
 positional arguments:

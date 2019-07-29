@@ -60,7 +60,7 @@ def run(cmd):
 
     # Set quote character(s)
     cfg.quote_char = args.quote
-    f.debug("Columns escape character: {0}".format(cfg.quote_char))
+    f.debug("Column escape character: {0}".format(cfg.quote_char))
 
     # Find all files
     f.verbose("Finding file(s).")
@@ -254,7 +254,7 @@ def generate_statement(col_map):
         values = ("?," * len(col_map))[:-1]
     else:
         values = ("%s, " * len(col_map))[:-2]
-    return "INSERT INTO {0} {1} ({2}) VALUES ({3})".format(append_hint,
+    return "INSERT {0} INTO {1} ({2}) VALUES ({3})".format(append_hint,
                                                            cfg.table_name,
                                                            ", ".join(col_map),
                                                            values)
