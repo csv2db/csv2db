@@ -275,7 +275,7 @@ def parse_arguments(cmd):
     """
     parser = argparse.ArgumentParser(prog="csv2db",
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description="A DB loader for CSV files.\nVersion: {0}\n(c) Gerald Venzl"
+                                     description="The CSV command line loader.\nVersion: {0}\n(c) Gerald Venzl"
                                      .format(cfg.version))
 
     subparsers = parser.add_subparsers(dest="command")

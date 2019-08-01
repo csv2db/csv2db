@@ -1,5 +1,14 @@
-# csv2db
-A DB loader for CSV files.
+```
+                  ___       ____  
+  ___________   _|__ \ ____/ / /_ 
+ / ___/ ___/ | / /_/ // __  / __ \
+/ /__(__  )| |/ / __// /_/ / /_/ /
+\___/____/ |___/____/\____/_____/ 
+                                  
+```
+
+
+The CSV command line loader.
 
 `csv2db` takes CSV files and loads them into a database.
 Rather than having to go through the CSV data first and find out what columns and data types are present in the CSV files,
@@ -19,7 +28,7 @@ This is particularly useful if the format of the CSV files has changed over time
 $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
-A DB loader for CSV files.
+The CSV command line loader.
 Version: 1.4.0
 (c) Gerald Venzl
 
