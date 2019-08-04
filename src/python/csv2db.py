@@ -309,13 +309,13 @@ def parse_arguments(cmd):
                              help="Verbose output.")
     parser_load.add_argument("--debug", action="store_true", default=False,
                              help="Debug output.")
-    parser_load.add_argument("-t", "--table",
+    parser_load.add_argument("-t", "--table", required=True,
                              help="The table name to use.")
-    parser_load.add_argument("-o", "--dbtype", default="oracle",
-                             help="The database type. Choose one of {0}.".format([e.value for e in f.DBType]))
-    parser_load.add_argument("-u", "--user",
+    parser_load.add_argument("-o", "--dbtype", default="oracle", choices=[e.value for e in f.DBType],
+                             help="The database type.")
+    parser_load.add_argument("-u", "--user", required=True,
                              help="The database user to load data into.")
-    parser_load.add_argument("-p", "--password",
+    parser_load.add_argument("-p", "--password", required=True,
                              help="The database schema password.")
     parser_load.add_argument("-m", "--host", default="localhost",
                              help="The host name on which the database is running on.")
