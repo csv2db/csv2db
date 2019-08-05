@@ -65,7 +65,10 @@ def run(cmd):
     # Find all files
     f.verbose("Finding file(s).")
     file_names = f.find_all_files(args.file)
-    f.debug("Found {0} files.".format(len(file_names)))
+    f.verbose("Found {0} file(s).".format(len(file_names)))
+    # Exit program if no files found.
+    if len(file_names) == 0:
+        return f.ReturnCodes.EXIT_SUCCESS.value
     f.debug(file_names)
 
     if args.command.startswith("gen"):
