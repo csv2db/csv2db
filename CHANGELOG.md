@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Introduced csv2db icon
+- Check for mandatory command line arguments (ER #14)
 
 ### Fixed
 - Pass correct exit return codes (bug #18)
