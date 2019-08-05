@@ -40,11 +40,11 @@ class DBType(Enum):
     DB2 = "db2"
 
 
-class ReturnCodes(Enum):
+class ExitCodes(Enum):
     """Program return code enumeration."""
-    EXIT_SUCCESS = 0
-    EXIT_GENERIC_ERROR = 1
-    EXIT_DATABASE_ERROR = 3  # value 2 is reserved for wrong arguments passed via argparse
+    SUCCESS = 0
+    GENERIC_ERROR = 1
+    DATABASE_ERROR = 3  # value 2 is reserved for wrong arguments passed via argparse
 
 
 def open_file(file):

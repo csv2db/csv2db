@@ -68,7 +68,7 @@ def run(cmd):
     f.verbose("Found {0} file(s).".format(len(file_names)))
     # Exit program if no files found.
     if len(file_names) == 0:
-        return f.ReturnCodes.EXIT_SUCCESS.value
+        return f.ExitCodes.SUCCESS.value
     f.debug(file_names)
 
     if args.command.startswith("gen"):
@@ -103,12 +103,12 @@ def run(cmd):
             cfg.conn.close()
         except Exception as err:
             print("Error connecting to the database: {0}".format(err))
-            return f.ReturnCodes.EXIT_DATABASE_ERROR.value
+            return f.ExitCodes.DATABASE_ERROR.value
         except KeyboardInterrupt:
             print("Exiting program")
             cfg.conn.close()
-            return f.ReturnCodes.EXIT_GENERIC_ERROR.value
-    return f.ReturnCodes.EXIT_SUCCESS.value
+            return f.ExitCodes.GENERIC_ERROR.value
+    return f.ExitCodes.SUCCESS.value
 
 
 def generate_table_sql(file_names, column_data_type):
