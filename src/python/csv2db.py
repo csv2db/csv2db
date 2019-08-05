@@ -123,10 +123,12 @@ def generate_table_sql(file_names, column_data_type):
     """
     col_set = set()
     for file_name in file_names:
-        file = f.open_file(file_name)
-        reader = f.get_csv_reader(file)
-        columns_to_add = f.read_header(reader)
-        col_set = add_to_col_set(col_set, columns_to_add)
+        f.debug("Reading file {0}".format(file_name))
+        with f.open_file(file_name) as file:
+            reader = f.get_csv_reader(file)
+            columns_to_add = f.read_header(reader)
+            f.debug("Columns to add {0}".format(columns_to_add))
+            col_set = add_to_col_set(col_set, columns_to_add)
     print_table_and_col_set(col_set, column_data_type)
 
 
