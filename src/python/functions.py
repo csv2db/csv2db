@@ -33,10 +33,18 @@ import config as cfg
 
 
 class DBType(Enum):
+    """Database type enumeration."""
     ORACLE = "oracle"
     MYSQL = "mysql"
     POSTGRES = "postgres"
     DB2 = "db2"
+
+
+class ReturnCodes(Enum):
+    """Program return code enumeration."""
+    EXIT_SUCCESS = 0
+    EXIT_GENERIC_ERROR = 1
+    EXIT_DATABASE_ERROR = 3  # value 2 is reserved for wrong arguments passed via argparse
 
 
 def open_file(file):

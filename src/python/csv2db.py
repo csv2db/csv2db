@@ -100,9 +100,12 @@ def run(cmd):
             cfg.conn.close()
         except Exception as err:
             print("Error connecting to the database: {0}".format(err))
+            return f.ReturnCodes.EXIT_DATABASE_ERROR.value
         except KeyboardInterrupt:
             print("Exiting program")
             cfg.conn.close()
+            return f.ReturnCodes.EXIT_GENERIC_ERROR.value
+    return f.ReturnCodes.EXIT_SUCCESS.value
 
 
 def generate_table_sql(file_names, column_data_type):
