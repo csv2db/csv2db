@@ -22,6 +22,7 @@
 import functions as f
 import config as cfg
 import unittest
+import csv2db
 
 
 class CSV2DBTestCase(unittest.TestCase):
@@ -53,7 +54,7 @@ class CSV2DBTestCase(unittest.TestCase):
             expected.sort()
             actual = f.read_header(reader)
             actual.sort()
-            self.assertListEqual(actual, expected)
+            self.assertListEqual(expected, actual)
 
     def test_tab_separated_file(self):
         cfg.column_separator = "\t"
@@ -62,7 +63,7 @@ class CSV2DBTestCase(unittest.TestCase):
             content = [f.read_header(reader)]
             for line in reader:
                 content.append(line)
-            self.assertEqual(len(content), 11)
+            self.assertEqual(11, len(content))
 
     def test_pipe_separated_file(self):
         cfg.column_separator = "|"
@@ -71,7 +72,28 @@ class CSV2DBTestCase(unittest.TestCase):
             content = [f.read_header(reader)]
             for line in reader:
                 content.append(line)
-            self.assertEqual(len(content), 11)
+            self.assertEqual(11, len(content))
+
+    def test_exit_code_zero(self):
+        self.assertEqual(0, csv2db.run(["gen", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"]))
+
+    def test_exit_code_two(self):
+        # Test that command raises SystemExit exception
+        with self.assertRaises(SystemExit) as cm:
+            csv2db.run(["load", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"])
+        # Test that command threw SystemExit with status code 2
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_exit_code_three(self):
+        self.assertEqual(3,
+                         csv2db.run(
+                                    ["load",
+                                     "-f", "../resources/201811-citibike-tripdata.csv",
+                                     "-u", "test",
+                                     "-p", "test",
+                                     "-t", "STAGING"]
+                                    )
+                         )
 
 
 if __name__ == '__main__':
