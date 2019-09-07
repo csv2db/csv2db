@@ -47,6 +47,13 @@ class ExitCodes(Enum):
     DATABASE_ERROR = 3  # value 2 is reserved for wrong arguments passed via argparse
 
 
+class TerminalColor(Enum):
+    GREEN = "\x1b[32m"
+    RED = "\x1b[31m"
+    YELLOW = "\x1b[33m"
+    RESET = "\x1b[0m"
+
+
 def open_file(file):
     """Opens a CSV file.
 
@@ -109,12 +116,30 @@ def find_all_files(pattern):
     return sorted(glob.glob(pattern))
 
 
+def print_color(color, output):
+    """Print colored output.
+    
+    Parameters
+    ----------
+    color : TerminalColor
+        The color to be used.
+    output : Any
+        The output to be printed
+    """
+    if os.getenv('NO_COLOR') is None:
+        print(color.value, end='')
+        print(output)
+        print(TerminalColor.RESET.value, end='')
+    else:
+        print(output)
+
+
 def verbose(output):
     """Print verbose output.
 
     Parameters
     ----------
-    output : str
+    output : Any
         The output to print
     """
     if cfg.verbose:
@@ -127,13 +152,25 @@ def debug(output):
     Parameters
     ----------
     output : Any
-        The output to print"""
+        The output to print
+    """
     if cfg.debug:
         if isinstance(output, list):
             output = ", ".join(output)
         elif isinstance(output, dict):
             output = ", ".join(str(key) + ": " + str(value) for key, value in output.items())
-        print("DEBUG: {0}: {1}".format(datetime.datetime.now(), output))
+        print_color(TerminalColor.YELLOW, "DEBUG: {0}: {1}".format(datetime.datetime.now(), output))
+
+
+def error(output):
+    """Print error output.
+
+    Parameters
+    ----------
+    output : Any
+        The output to be printed
+    """
+    print_color(TerminalColor.RED, output)
 
 
 def get_db_connection(db_type, user, password, host, port, db_name):

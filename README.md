@@ -291,6 +291,12 @@ $ pip install ibm_db
 
 **NOTE:** You only have to install the driver for the database(s) that you want to load data into.
 
+## Miscellaneous
+`csv2db` is capable of color coded output and will do so by default.  
+<span style="color:yellow">Debug output is yellow.</span>  
+<span style="color:red">Error output is red.</span>  
+This can be deactivated by setting the `$NO_COLOR` environment variable. For more details on `$NO_COLOR` see https://no-color.org/
+
 # LICENSE
 
 	Copyright 2019 Gerald Venzl

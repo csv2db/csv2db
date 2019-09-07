@@ -102,7 +102,7 @@ def run(cmd):
             f.verbose("Closing database connection.")
             cfg.conn.close()
         except Exception as err:
-            print("Error connecting to the database: {0}".format(err))
+            f.error("Error connecting to the database: {0}".format(err))
             return f.ExitCodes.DATABASE_ERROR.value
         except KeyboardInterrupt:
             print("Exiting program")
@@ -191,8 +191,8 @@ def load_files(file_names):
             try:
                 read_and_load_file(file)
             except Exception as err:
-                print("Error while loading file: {0}".format(file.name))
-                print(err)
+                f.error("Error while loading file: {0}".format(file.name))
+                f.error(err)
         print("Done")
         print()
 
