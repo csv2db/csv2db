@@ -191,7 +191,8 @@ def load_files(file_names):
             try:
                 read_and_load_file(file)
             except Exception as err:
-                print("Error in file: {0}".format(file.name), err)
+                print("Error while loading file: {0}".format(file.name))
+                print(err)
         print("Done")
         print()
 
@@ -220,7 +221,7 @@ def load_data(col_map, data):
     col_map : [str,]
         The columns to load the data into
     data : [str,]
-        The data to load
+        The data to load. If data is None the array will be loaded and flushed.
     """
     if data is not None:
         values = f.format_list(data)
