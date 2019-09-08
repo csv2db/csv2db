@@ -200,12 +200,12 @@ def get_db_connection(db_type, user, password, host, port, db_name):
     try:
         if db_type == DBType.ORACLE.value:
             import cx_Oracle
-            return cx_Oracle.connect(user,
+            conn = cx_Oracle.connect(user,
                                      password,
                                      host + ":" + port + "/" + db_name)
         elif db_type == DBType.MYSQL.value:
             import mysql.connector
-            return mysql.connector.connect(
+            conn = mysql.connector.connect(
                                        user=user,
                                        password=password,
                                        host=host,
@@ -213,7 +213,7 @@ def get_db_connection(db_type, user, password, host, port, db_name):
                                        database=db_name)
         elif db_type == DBType.POSTGRES.value:
             import psycopg2
-            return psycopg2.connect("""user='{0}' 
+            conn = psycopg2.connect("""user='{0}' 
                                        password='{1}' 
                                        host='{2}' 
                                        port='{3}' 
@@ -224,10 +224,16 @@ def get_db_connection(db_type, user, password, host, port, db_name):
             import ibm_db_dbi
             conn = ibm_db.connect("UID={0};PWD={1};HOSTNAME={2};PORT={3};DATABASE={4};"
                                   .format(user, password, host, port, db_name), "", "")
+            # Set autocommit explicitly off
+            ibm_db.autocommit(conn, ibm_db.SQL_AUTOCOMMIT_OFF)
             return ibm_db_dbi.Connection(conn)
-
         else:
             raise ValueError("Database type '{0}' is not supported.".format(db_type))
+
+        # Set autocommit explicitly off for all database types
+        conn.autocommit = False
+        
+        return conn
     except ModuleNotFoundError as err:
         raise ConnectionError("Database driver module is not installed: {0}. Please install it first.".format(str(err)))
 
