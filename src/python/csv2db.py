@@ -121,45 +121,25 @@ def generate_table_sql(file_names, column_data_type):
     column_data_type : str
         The column data type to use
     """
-    col_set = set()
+    col_list = []
     for file_name in file_names:
         f.debug("Reading file {0}".format(file_name))
         with f.open_file(file_name) as file:
             reader = f.get_csv_reader(file)
             columns_to_add = f.read_header(reader)
             f.debug("Columns to add {0}".format(columns_to_add))
-            col_set = add_to_col_set(col_set, columns_to_add)
-    print_table_and_col_set(col_set, column_data_type)
+            # Add columns to list implicitly removing duplicates for when going over multiple files
+            col_list.extend(col for col in columns_to_add if col not in col_list)
+    print_table_and_columns(col_list, column_data_type)
 
 
-def add_to_col_set(col_set, columns_to_add):
-    """Adds a column set to another one, without duplicates.
-
-    Parameters
-    ----------
-    col_set : set()
-        The column set to add to
-    columns_to_add : set()
-        The columns to add to the first set
-
-    Returns
-    -------
-    set()
-        A new set with the two sets combined.
-    """
-    if col_set is None:
-        return columns_to_add
-    else:
-        return col_set.union(columns_to_add)
-
-
-def print_table_and_col_set(col_set, column_data_type):
+def print_table_and_columns(col_list, column_data_type):
     """Prints the SQL CREATE TABLE statement to stdout.
 
     Parameters
     ----------
-    col_set : set(str)
-        The column set for the table
+    col_list : [str,]
+        The column list for the table
     column_data_type : str
         The data type to use for all columns
     """
@@ -169,7 +149,7 @@ def print_table_and_col_set(col_set, column_data_type):
         print("CREATE TABLE <TABLE NAME>")
     print("(")
     cols = ""
-    for col in col_set:
+    for col in col_list:
         cols += "  " + col + " " + column_data_type + ",\n"
     cols = cols[:-2]
     print(cols)
@@ -224,14 +204,12 @@ def load_data(col_map, data):
     data : [str,]
         The data to load. If data is None the array will be loaded and flushed.
     """
-    if data is not None:
-        values = f.format_list(data)
-        if values:
-            # If the data has more values than the header provided, ignore the end (green data set has that)
-            while len(values) > len(col_map):
-                f.debug("Removing extra row value entry not present in the header.")
-                values.pop()
-            cfg.input_data.append(values)
+    if data is not None and len(data) > 0:
+        # If the data has more values than the header provided, ignore the end (green data set has that)
+        while len(data) > len(col_map):
+            f.debug("Removing extra row value entry not present in the header.")
+            data.pop()
+        cfg.input_data.append(data)
 
     # If batch size has been reached or input array should be flushed
     if (len(cfg.input_data) == cfg.batch_size) or (data is None and len(cfg.input_data) > 0):

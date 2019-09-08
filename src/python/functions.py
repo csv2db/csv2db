@@ -91,10 +91,12 @@ def read_header(reader):
 
     Returns
     -------
-    set([])
-        A set with all the column names.
+    [str,]
+        A list with all the column names.
     """
-    return format_list(reader.__next__(), True)
+    header = []
+    header.extend(col.replace(' ', '_',).upper() for col in reader.__next__())
+    return header
 
 
 def find_all_files(pattern):
@@ -236,37 +238,6 @@ def get_db_connection(db_type, user, password, host, port, db_name):
         return conn
     except ModuleNotFoundError as err:
         raise ConnectionError("Database driver module is not installed: {0}. Please install it first.".format(str(err)))
-
-
-def format_list(input_list, header=False):
-    """Returns a formatted list of values from a CSV list input.
-
-    Parameters
-    ----------
-    input_list : str
-        The raw line to convert
-    header : bool
-        If true, values will be upper case and spaces replaced with '_'.
-        This is only good for header rows in the CSV files.
-
-    Returns
-    -------
-    [str,]
-        A list of string values
-    """
-
-    # If empty string return None, i.e. skip empty lines
-    if not input_list:
-        return None
-
-    output = []
-    for col in input_list:
-        val = col.replace('"', '').strip()
-        # If line is a header line, i.e. column number, replace spaces with '_' and make names UPPER
-        if header:
-            val = val.replace(' ', '_',).upper()
-        output.append(val)
-    return output
 
 
 def get_default_db_port(db_type):
