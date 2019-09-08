@@ -258,15 +258,15 @@ def generate_statement(col_map):
     if cfg.db_type == f.DBType.ORACLE.value:
         values = ":" + ", :".join(col_map)
         if cfg.direct_path:
-            append_hint = "/*+ APPEND_VALUES */"
+            append_hint = " /*+ APPEND_VALUES */"
     elif cfg.db_type == f.DBType.DB2.value:
         values = ("?," * len(col_map))[:-1]
     else:
         values = ("%s, " * len(col_map))[:-2]
-    return "INSERT {0} INTO {1} ({2}) VALUES ({3})".format(append_hint,
-                                                           cfg.table_name,
-                                                           ", ".join(col_map),
-                                                           values)
+    return "INSERT{0} INTO {1} ({2}) VALUES ({3})".format(append_hint,
+                                                          cfg.table_name,
+                                                          ", ".join(col_map),
+                                                          values)
 
 
 def parse_arguments(cmd):
