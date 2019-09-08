@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More debug statements for file reading operations (ER #15)
 - Color coded output (can be turned off via $NO_COLOR) (ER #20)
 - Provide failing data record as debug output (ER #19)
+- More precise status output (ER #24)
 
 ### Fixed
 - Pass correct exit return codes (bug #18)
