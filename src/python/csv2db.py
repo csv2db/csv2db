@@ -238,7 +238,28 @@ def load_data(col_map, data):
         stmt = generate_statement(col_map)
         f.debug(stmt)
         cur = cfg.conn.cursor()
-        cur.executemany(stmt, cfg.input_data)
+        try:
+            cur.executemany(stmt, cfg.input_data)
+        except Exception as err:
+            # Rollback old batch (needed for at least Postgres to finish transaction)
+            cfg.conn.rollback()
+            # If debug output is enabled, find failing record
+            if cfg.debug:
+                for record in cfg.input_data:
+                    try:
+                        cur.execute(stmt, record)
+                    except Exception as err1:
+                        f.debug("Error with record: {0}".format(record))
+                        # Rollback old batch (needed for at least Postgres to finish transaction)
+                        cfg.conn.rollback()
+                        cur.close()
+                        cfg.input_data.clear()
+                        raise
+            # Debug output is not enabled, clear current batch and raise error
+            else:
+                cur.close()
+                cfg.input_data.clear()
+                raise
         f.debug("Commit")
         cfg.conn.commit()
         cur.close()

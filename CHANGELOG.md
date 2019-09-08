@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Exit program immediately if no files were found (ER #17)
 - More debug statements for file reading operations (ER #15)
 - Color coded output (can be turned off via $NO_COLOR) (ER #20)
+- Provide failing data record as debug output (ER #19)
 
 ### Fixed
 - Pass correct exit return codes (bug #18)
 - Autocommit is explicitly turned off (bug #22)
+- Record list cleared on error (bug #23)
 
 ## [1.3.1] - 2019-07-28
 
