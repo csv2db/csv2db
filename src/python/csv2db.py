@@ -302,7 +302,7 @@ def parse_arguments(cmd):
                                  help="Debug output.")
     parser_generate.add_argument("-t", "--table",
                                  help="The table name to use.")
-    parser_generate.add_argument("-c", "--column-type", default="VARCHAR2(4000)",
+    parser_generate.add_argument("-c", "--column-type", default="VARCHAR(1000)",
                                  help="The column type to use for the table generation.")
     parser_generate.add_argument("-s", "--separator", default=",",
                                  help="The columns separator character(s).")
