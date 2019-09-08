@@ -190,10 +190,11 @@ def load_files(file_names):
         with f.open_file(file_name) as file:
             try:
                 read_and_load_file(file)
+                print("File loaded.")
             except Exception as err:
                 f.error("Error while loading file: {0}".format(file.name))
                 f.error(err)
-        print("Done")
+                print("Skipping file.")
         print()
 
 
@@ -263,7 +264,7 @@ def load_data(col_map, data):
         f.debug("Commit")
         cfg.conn.commit()
         cur.close()
-        f.verbose("{0} rows loaded".format(len(cfg.input_data)))
+        f.verbose("{0} rows loaded.".format(len(cfg.input_data)))
         cfg.input_data.clear()
 
 
