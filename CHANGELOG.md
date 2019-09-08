@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Provide failing data record as debug output (ER #19)
 - More precise status output (ER #24)
 - Change default data type to VARCHAR(1000) (ER #26)
+- Add return code to indicate data loading issue (ER #25)
 
 ### Fixed
 - Pass correct exit return codes (bug #18)

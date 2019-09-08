@@ -22,7 +22,7 @@ which is usually much easier once the data is in the database rather than in the
 `csv2db` is capable of scanning all CSV file headers at once and generate a `CREATE TABLE` statement with all the column names present.
 This is particularly useful if the format of the CSV files has changed over time or because you want to load different CSV file types into the same database table.
 
-## Usage
+# Usage
 
 ```console
 $ ./csv2db -h
@@ -98,9 +98,9 @@ optional arguments:
                         only).
 ```
 
-## How to use csv2db
+# How to use csv2db
 
-### Loading CSV files into the database
+## Loading CSV files into the database
 
 `csv2db` can load plain text csv files as well as compressed csv files in `.zip` or `.gz` format without having to uncompress them first.
 
@@ -180,7 +180,7 @@ Closing database connection.
 
 `csv2db` will load all values as strings. You can either load all data into a staging table with all columns being strings as well, or rely on implicit data type converion on the database side.
 
-### Create a staging table
+## Create a staging table
 
 `csv2db` can generate the SQL statement for a staging table for your data using the `generate` command:
 
@@ -256,7 +256,7 @@ CREATE TABLE STAGING
 
 The idea is to have a staging table that data can be loaded into first and then figure out the correct data types for each column.
 
-## Installation
+# Installation
 
 You can install `csv2db` either by cloning this Git repository
 
@@ -291,7 +291,20 @@ $ pip install ibm_db
 
 **NOTE:** You only have to install the driver for the database(s) that you want to load data into.
 
-## Miscellaneous
+# Miscellaneous
+
+## Exit codes
+`csv2db` returns following exit codes:  
+
+Exit code          | Value | Meaning
+------------------ | ----- | -------
+SUCCESS            |     0 | Successful execution of the program.
+GENERIC_ERROR      |     1 | A generic error occurred.
+ARGUMENT_ERROR     |     2 | An argument is either missing or incorrect.
+DATABASE_ERROR     |     3 | A database error occurred.
+DATA_LOADING_ERROR |     4 | An error occurred during loading of data. `csv2db` will continue to process other files, if any.
+
+## `$NO_COLOR` support
 `csv2db` is capable of color coded output and will do so by default.  
 <span style="color:yellow">Debug output is yellow.</span>  
 <span style="color:red">Error output is red.</span>  

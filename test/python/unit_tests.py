@@ -74,25 +74,41 @@ class CSV2DBTestCase(unittest.TestCase):
                 content.append(line)
             self.assertEqual(11, len(content))
 
-    def test_exit_code_zero(self):
-        self.assertEqual(0, csv2db.run(["gen", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"]))
+    def test_exit_code_SUCCESS(self):
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(["gen", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"]))
 
-    def test_exit_code_two(self):
+    def test_exit_code_GENERIC_ERROR(self):
+        self.assertEqual(f.ExitCodes.GENERIC_ERROR.value,
+                         csv2db.run(["gen", "-f", "../resources/201811-citibike-tripdata-no-permissions.csv.gz"]))
+
+    def test_exit_code_ARGUMENT_ERROR(self):
         # Test that command raises SystemExit exception
         with self.assertRaises(SystemExit) as cm:
             csv2db.run(["load", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"])
         # Test that command threw SystemExit with status code 2
         self.assertEqual(cm.exception.code, 2)
 
-    def test_exit_code_three(self):
-        self.assertEqual(3,
+    def test_exit_code_DATABASE_ERROR(self):
+        self.assertEqual(f.ExitCodes.DATABASE_ERROR.value,
                          csv2db.run(
-                                    ["load",
-                                     "-f", "../resources/201811-citibike-tripdata.csv",
-                                     "-u", "test",
-                                     "-p", "test",
-                                     "-t", "STAGING"]
-                                    )
+                              ["load",
+                               "-f", "../resources/201811-citibike-tripdata.csv",
+                               "-u", "INVALIDUSER",
+                               "-p", "test",
+                               "-t", "STAGING"]
+                              )
+                         )
+
+    def test_exit_code_DATA_LOADING_ERROR(self):
+        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+                         csv2db.run(
+                              ["load",
+                               "-f", "../resources/201811-citibike-tripdata-bad-data.csv",
+                               "-u", "test",
+                               "-p", "test",
+                               "-t", "STAGING"]
+                              )
                          )
 
 

@@ -71,9 +71,17 @@ def run(cmd):
         return f.ExitCodes.SUCCESS.value
     f.debug(file_names)
 
+    # Generate CREATE TABLE SQL
     if args.command.startswith("gen"):
         f.verbose("Generating CREATE TABLE statement.")
-        generate_table_sql(file_names, args.column_type)
+        try:
+            generate_table_sql(file_names, args.column_type)
+            return f.ExitCodes.SUCCESS.value
+        except Exception as err:
+            f.error("Error generating statement: {0}".format(err))
+            return f.ExitCodes.GENERIC_ERROR.value
+
+    # Load data
     else:
         # Set DB type
         f.debug("DB type: {0}".format(args.dbtype))
@@ -96,19 +104,26 @@ def run(cmd):
         f.verbose("Establishing database connection.")
         f.debug("Database details:")
         f.debug({"dbtype": args.dbtype, "user": args.user, "host": args.host, "port": args.port, "dbname": args.dbname})
+
         try:
             cfg.conn = f.get_db_connection(cfg.db_type, args.user, args.password, args.host, args.port, args.dbname)
-            load_files(file_names)
-            f.verbose("Closing database connection.")
-            cfg.conn.close()
         except Exception as err:
             f.error("Error connecting to the database: {0}".format(err))
             return f.ExitCodes.DATABASE_ERROR.value
+
+        try:
+            load_files(file_names)
+            f.verbose("Closing database connection.")
+            cfg.conn.close()
+            return f.ExitCodes.SUCCESS.value if not cfg.data_loading_error else f.ExitCodes.DATA_LOADING_ERROR.value
         except KeyboardInterrupt:
             print("Exiting program")
             cfg.conn.close()
             return f.ExitCodes.GENERIC_ERROR.value
-    return f.ExitCodes.SUCCESS.value
+        except Exception as err:
+            f.error("Error loading file(s): {0}".format(err))
+            cfg.conn.close()
+            return f.ExitCodes.GENERIC_ERROR.value
 
 
 def generate_table_sql(file_names, column_data_type):
@@ -174,6 +189,7 @@ def load_files(file_names):
             except Exception as err:
                 f.error("Error while loading file: {0}".format(file.name))
                 f.error(err)
+                cfg.data_loading_error = True
                 print("Skipping file.")
         print()
 

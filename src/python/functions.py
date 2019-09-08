@@ -45,6 +45,7 @@ class ExitCodes(Enum):
     SUCCESS = 0
     GENERIC_ERROR = 1
     DATABASE_ERROR = 3  # value 2 is reserved for wrong arguments passed via argparse
+    DATA_LOADING_ERROR = 4
 
 
 class TerminalColor(Enum):
