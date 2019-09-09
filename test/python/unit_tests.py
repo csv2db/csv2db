@@ -101,7 +101,7 @@ class CSV2DBTestCase(unittest.TestCase):
     def test_exit_code_GENERIC_ERROR(self):
         print("test_exit_code_GENERIC_ERROR")
         self.assertEqual(f.ExitCodes.GENERIC_ERROR.value,
-                         csv2db.run(["gen", "-f", "../resources/201811-citibike-tripdata-invalid.csv.zip"]))
+                         csv2db.run(["gen", "-f", "../resources/bad/201811-citibike-tripdata-invalid.csv.zip"]))
 
     def test_exit_code_ARGUMENT_ERROR(self):
         print("test_exit_code_ARGUMENT_ERROR")
@@ -128,7 +128,7 @@ class CSV2DBTestCase(unittest.TestCase):
         self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
                          csv2db.run(
                               ["load",
-                               "-f", "../resources/201811-citibike-tripdata-bad-data.csv",
+                               "-f", "../resources/bad/201811-citibike-tripdata-bad-data.csv",
                                "-u", "test",
                                "-p", "test",
                                "-t", "DOES_NOT_EXIST"]
