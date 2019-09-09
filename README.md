@@ -108,12 +108,13 @@ optional arguments:
 $ ./csv2db load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1
 
 Loading file test/resources/201811-citibike-tripdata.csv
-Done
+File loaded.
 
 $ ./csv2db load -f test/resources/201811-citibike-tripdata.csv.gz -t citibikes -u csv_data -p csv_data -d ORCLPDB1
 
 Loading file test/resources/201811-citibike-tripdata.csv.gz
-Done
+File loaded.
+
 ```
 
 `csv2db` `--verbose` option will provide verbose output.
@@ -121,11 +122,12 @@ Done
 ```console
 $ ./csv2db load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
+Found 1 file(s).
 Establishing database connection.
 
 Loading file test/resources/201811-citibike-tripdata.csv
-10 rows loaded
-Done
+16 rows loaded.
+File loaded.
 
 Closing database connection.
 ```
@@ -135,23 +137,24 @@ Closing database connection.
 ***Note:** String including wildcard characters have to be enclosed in `""`*
 
 ```console
-$ ./csv2db load -f "test/resources/2018*" -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
+$ ./csv2db load -f "test/resources/201811-citibike-tripdata.*" -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
+Found 3 file(s).
 Establishing database connection.
 
 Loading file test/resources/201811-citibike-tripdata.csv
-10 rows loaded
-Done
+16 rows loaded.
+File loaded.
 
 
 Loading file test/resources/201811-citibike-tripdata.csv.gz
-10 rows loaded
-Done
+10 rows loaded.
+File loaded.
 
 
 Loading file test/resources/201811-citibike-tripdata.csv.zip
-10 rows loaded
-Done
+10 rows loaded.
+File loaded.
 
 Closing database connection.
 ```
@@ -159,26 +162,27 @@ Closing database connection.
 ```console
 $ ./csv2db load -f test/resources -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
+Found 3 file(s).
 Establishing database connection.
 
 Loading file test/resources/201811-citibike-tripdata.csv
-10 rows loaded
-Done
+16 rows loaded.
+File loaded.
 
 
 Loading file test/resources/201811-citibike-tripdata.csv.gz
-10 rows loaded
-Done
+10 rows loaded.
+File loaded.
 
 
 Loading file test/resources/201811-citibike-tripdata.csv.zip
-10 rows loaded
-Done
+10 rows loaded.
+File loaded.
 
 Closing database connection.
 ```
 
-`csv2db` will load all values as strings. You can either load all data into a staging table with all columns being strings as well, or rely on implicit data type converion on the database side.
+`csv2db` will load all values as strings. You can either load all data into a staging table with all columns being strings as well, or rely on implicit data type conversion on the database side.
 
 ## Create a staging table
 
