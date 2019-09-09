@@ -96,7 +96,7 @@ def read_header(reader):
         A list with all the column names.
     """
     header = []
-    header.extend(col.replace(' ', '_',).upper() for col in reader.__next__())
+    header.extend(col.replace(' ', '_',).upper() for col in next(reader))
     return header
 
 

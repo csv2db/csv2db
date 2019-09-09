@@ -186,6 +186,8 @@ def load_files(file_names):
             try:
                 read_and_load_file(file)
                 print("File loaded.")
+            except StopIteration:
+                print("File is empty: {0}".format(file_name))
             except Exception as err:
                 f.error("Error while loading file: {0}".format(file.name))
                 f.error(err)
