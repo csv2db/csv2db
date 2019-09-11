@@ -274,6 +274,7 @@ or by downloading one of the releases
 $ LOCATION=$(curl -s https://api.github.com/repos/csv2db/csv2db/releases/latest | grep "tag_name" | awk '{print "https://github.com/csv2db/csv2db/archive/" substr($2, 2, length($2)-3) ".zip"}') ; curl -L -o csv2db.zip $LOCATION
 $ unzip csv2db.zip
 $ cd csv2db*
+$ ./csv2db
 ```
     
 In order for `csv2db` to work you will have to install the appropriate database driver(s).
@@ -283,15 +284,21 @@ The following drivers are being used, all available on [pypi.org](https://pypi.o
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
 * PostgreSQL: [psycopg2-binary](https://pypi.org/project/psycopg2-binary/) version 2.7.6.1+
 * DB2: [ibm_db](https://pypi.org/project/ibm_db/) version 2.0.9+
+* SQL Server: [pymssql](https://pypi.org/project/pymssql/) version 2.1.4+
 
 You can install any of these drivers via `pip`:
 
 ```console
-$ pip install cx_Oracle
-$ pip install mysql-connector-python
-$ pip install psycopg2-binary
-$ pip install ibm_db
+$ python3 -m pip install cx_Oracle
+$ python3 -m pip install mysql-connector-python
+$ python3 -m pip install psycopg2-binary
+$ python3 -m pip install ibm_db
+$ python3 -m pip install pymssql
 ```
+
+For more instruction on how to install the driver(s) on your environment,
+please see the documentation of the individual driver or refer to the
+[csv2db Installation Guide](https://github.com/csv2db/csv2db/wiki/Installation-Guide).
 
 **NOTE:** You only have to install the driver for the database(s) that you want to load data into.
 

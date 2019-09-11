@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Introduced csv2db icon
+- Introduce csv2db icon
 - Check for mandatory command line arguments (ER #14)
 - Exit program immediately if no files were found (ER #17)
 - More debug statements for file reading operations (ER #15)
@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Provide failing data record as debug output (ER #19)
 - More precise status output (ER #24)
 - Change default data type to VARCHAR(1000) (ER #26)
-- Add return code to indicate data loading issue (ER #25)
+- Return code to indicate data loading issue (ER #25)
+- Introduce SQL Server support (ER #11)
 
 ### Fixed
 - Pass correct exit return codes (bug #18)

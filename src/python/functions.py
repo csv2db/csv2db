@@ -38,6 +38,7 @@ class DBType(Enum):
     MYSQL = "mysql"
     POSTGRES = "postgres"
     DB2 = "db2"
+    SQLSERVER = "sqlserver"
 
 
 class ExitCodes(Enum):
@@ -230,13 +231,20 @@ def get_db_connection(db_type, user, password, host, port, db_name):
             # Set autocommit explicitly off
             ibm_db.autocommit(conn, ibm_db.SQL_AUTOCOMMIT_OFF)
             return ibm_db_dbi.Connection(conn)
+        elif db_type == DBType.SQLSERVER.value:
+            import pymssql
+            conn = pymssql.connect(server=host, user=user, password=password, database=db_name)
+            # 'pymssql.Connection' object attribute 'autocommit' is read-only
+            conn.autocommit(False)
+            return conn
         else:
             raise ValueError("Database type '{0}' is not supported.".format(db_type))
 
         # Set autocommit explicitly off for all database types
         conn.autocommit = False
-        
+
         return conn
+
     except ModuleNotFoundError as err:
         raise ConnectionError("Database driver module is not installed: {0}. Please install it first.".format(str(err)))
 
@@ -262,6 +270,8 @@ def get_default_db_port(db_type):
         return "5432"
     elif db_type == DBType.DB2.value:
         return "50000"
+    elif db_type == DBType.SQLSERVER.value:
+        return "1433"
 
 
 def get_csv_reader(file):

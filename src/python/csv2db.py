@@ -208,7 +208,7 @@ def read_and_load_file(file):
     col_map = f.read_header(reader)
     f.debug("Column map: {0}".format(col_map))
     for line in reader:
-        load_data(col_map, line)
+        load_data(col_map, tuple(line))
     load_data(col_map, None)
 
 
@@ -219,7 +219,7 @@ def load_data(col_map, data):
     ----------
     col_map : [str,]
         The columns to load the data into
-    data : [str,]
+    data : (str,)
         The data to load. If data is None the array will be loaded and flushed.
     """
     if data is not None and len(data) > 0:
