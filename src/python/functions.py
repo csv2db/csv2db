@@ -37,8 +37,8 @@ class DBType(Enum):
     ORACLE = "oracle"
     MYSQL = "mysql"
     POSTGRES = "postgres"
-    DB2 = "db2"
     SQLSERVER = "sqlserver"
+    DB2 = "db2"
 
 
 class ExitCodes(Enum):

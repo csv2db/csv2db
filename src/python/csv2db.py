@@ -349,7 +349,7 @@ def parse_arguments(cmd):
     parser_load.add_argument("-n", "--port",
                              help="The port on which the database is listening. " +
                                   "If not passed on the default port will be used " +
-                                  "(Oracle: 1521, MySQL: 3306, PostgreSQL: 5432, DB2: 50000).")
+                                  "(Oracle: 1521, MySQL: 3306, PostgreSQL: 5432, SQL Server: 1433, DB2: 50000).")
     parser_load.add_argument("-d", "--dbname", default="ORCLPDB1",
                              help="The name of the database.")
     parser_load.add_argument("-b", "--batch", default="10000",

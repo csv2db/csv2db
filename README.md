@@ -65,9 +65,10 @@ optional arguments:
 
 ```console
 $ ./csv2db load -h
-usage: csv2db load [-h] [-f FILE] [-v] [--debug] [-t TABLE] [-o DBTYPE]
-                   [-u USER] [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME]
-                   [-b BATCH] [-s SEPARATOR] [-q QUOTE] [-a]
+usage: csv2db load [-h] [-f FILE] [-v] [--debug] -t TABLE
+                   [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER -p
+                   PASSWORD [-m HOST] [-n PORT] [-d DBNAME] [-b BATCH]
+                   [-s SEPARATOR] [-q QUOTE] [-a]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -76,16 +77,16 @@ optional arguments:
   --debug               Debug output.
   -t TABLE, --table TABLE
                         The table name to use.
-  -o DBTYPE, --dbtype DBTYPE
-                        The database type. Choose one of ['oracle', 'mysql',
-                        'postgres', 'db2'].
+  -o {oracle,mysql,postgres,sqlserver,db2}, --dbtype {oracle,mysql,postgres,sqlserver,db2}
+                        The database type.
   -u USER, --user USER  The database user to load data into.
   -p PASSWORD, --password PASSWORD
                         The database schema password.
   -m HOST, --host HOST  The host name on which the database is running on.
   -n PORT, --port PORT  The port on which the database is listening. If not
                         passed on the default port will be used (Oracle: 1521,
-                        MySQL: 3306, PostgreSQL: 5432, DB2: 50000).
+                        MySQL: 3306, PostgreSQL: 5432, SQL Server: 1433, DB2:
+                        50000).
   -d DBNAME, --dbname DBNAME
                         The name of the database.
   -b BATCH, --batch BATCH
@@ -283,8 +284,8 @@ The following drivers are being used, all available on [pypi.org](https://pypi.o
 * Oracle: [cx_Oracle](https://pypi.org/project/cx_Oracle/) version 7.0.0+
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
 * PostgreSQL: [psycopg2-binary](https://pypi.org/project/psycopg2-binary/) version 2.7.6.1+
-* DB2: [ibm_db](https://pypi.org/project/ibm_db/) version 2.0.9+
 * SQL Server: [pymssql](https://pypi.org/project/pymssql/) version 2.1.4+
+* DB2: [ibm_db](https://pypi.org/project/ibm_db/) version 2.0.9+
 
 You can install any of these drivers via `pip`:
 
@@ -292,8 +293,8 @@ You can install any of these drivers via `pip`:
 $ python3 -m pip install cx_Oracle
 $ python3 -m pip install mysql-connector-python
 $ python3 -m pip install psycopg2-binary
-$ python3 -m pip install ibm_db
 $ python3 -m pip install pymssql
+$ python3 -m pip install ibm_db
 ```
 
 For more instruction on how to install the driver(s) on your environment,
