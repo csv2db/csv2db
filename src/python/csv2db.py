@@ -65,12 +65,23 @@ def run(cmd):
     # Find all files
     f.verbose("Finding file(s).")
     file_names = f.find_all_files(args.file)
-    f.debug("Found {0} files.".format(len(file_names)))
+    f.verbose("Found {0} file(s).".format(len(file_names)))
+    # Exit program if no files found.
+    if len(file_names) == 0:
+        return f.ExitCodes.SUCCESS.value
     f.debug(file_names)
 
+    # Generate CREATE TABLE SQL
     if args.command.startswith("gen"):
         f.verbose("Generating CREATE TABLE statement.")
-        generate_table_sql(file_names, args.column_type)
+        try:
+            generate_table_sql(file_names, args.column_type)
+            return f.ExitCodes.SUCCESS.value
+        except Exception as err:
+            f.error("Error generating statement: {0}".format(err))
+            return f.ExitCodes.GENERIC_ERROR.value
+
+    # Load data
     else:
         # Set DB type
         f.debug("DB type: {0}".format(args.dbtype))
@@ -93,16 +104,26 @@ def run(cmd):
         f.verbose("Establishing database connection.")
         f.debug("Database details:")
         f.debug({"dbtype": args.dbtype, "user": args.user, "host": args.host, "port": args.port, "dbname": args.dbname})
+
         try:
             cfg.conn = f.get_db_connection(cfg.db_type, args.user, args.password, args.host, args.port, args.dbname)
+        except Exception as err:
+            f.error("Error connecting to the database: {0}".format(err))
+            return f.ExitCodes.DATABASE_ERROR.value
+
+        try:
             load_files(file_names)
             f.verbose("Closing database connection.")
             cfg.conn.close()
-        except Exception as err:
-            print("Error connecting to the database: {0}".format(err))
+            return f.ExitCodes.SUCCESS.value if not cfg.data_loading_error else f.ExitCodes.DATA_LOADING_ERROR.value
         except KeyboardInterrupt:
             print("Exiting program")
             cfg.conn.close()
+            return f.ExitCodes.GENERIC_ERROR.value
+        except Exception as err:
+            f.error("Error loading file(s): {0}".format(err))
+            cfg.conn.close()
+            return f.ExitCodes.GENERIC_ERROR.value
 
 
 def generate_table_sql(file_names, column_data_type):
@@ -115,43 +136,25 @@ def generate_table_sql(file_names, column_data_type):
     column_data_type : str
         The column data type to use
     """
-    col_set = set()
+    col_list = []
     for file_name in file_names:
-        file = f.open_file(file_name)
-        reader = f.get_csv_reader(file)
-        columns_to_add = f.read_header(reader)
-        col_set = add_to_col_set(col_set, columns_to_add)
-    print_table_and_col_set(col_set, column_data_type)
+        f.debug("Reading file {0}".format(file_name))
+        with f.open_file(file_name) as file:
+            reader = f.get_csv_reader(file)
+            columns_to_add = f.read_header(reader)
+            f.debug("Columns to add {0}".format(columns_to_add))
+            # Add columns to list implicitly removing duplicates for when going over multiple files
+            col_list.extend(col for col in columns_to_add if col not in col_list)
+    print_table_and_columns(col_list, column_data_type)
 
 
-def add_to_col_set(col_set, columns_to_add):
-    """Adds a column set to another one, without duplicates.
-
-    Parameters
-    ----------
-    col_set : set()
-        The column set to add to
-    columns_to_add : set()
-        The columns to add to the first set
-
-    Returns
-    -------
-    set()
-        A new set with the two sets combined.
-    """
-    if col_set is None:
-        return columns_to_add
-    else:
-        return col_set.union(columns_to_add)
-
-
-def print_table_and_col_set(col_set, column_data_type):
+def print_table_and_columns(col_list, column_data_type):
     """Prints the SQL CREATE TABLE statement to stdout.
 
     Parameters
     ----------
-    col_set : set(str)
-        The column set for the table
+    col_list : [str,]
+        The column list for the table
     column_data_type : str
         The data type to use for all columns
     """
@@ -161,7 +164,7 @@ def print_table_and_col_set(col_set, column_data_type):
         print("CREATE TABLE <TABLE NAME>")
     print("(")
     cols = ""
-    for col in col_set:
+    for col in col_list:
         cols += "  " + col + " " + column_data_type + ",\n"
     cols = cols[:-2]
     print(cols)
@@ -182,9 +185,14 @@ def load_files(file_names):
         with f.open_file(file_name) as file:
             try:
                 read_and_load_file(file)
+                print("File loaded.")
+            except StopIteration:
+                print("File is empty: {0}".format(file_name))
             except Exception as err:
-                print("Error in file: {0}".format(file.name), err)
-        print("Done")
+                f.error("Error while loading file: {0}".format(file.name))
+                f.error(err)
+                cfg.data_loading_error = True
+                print("Skipping file.")
         print()
 
 
@@ -200,7 +208,7 @@ def read_and_load_file(file):
     col_map = f.read_header(reader)
     f.debug("Column map: {0}".format(col_map))
     for line in reader:
-        load_data(col_map, line)
+        load_data(col_map, tuple(line))
     load_data(col_map, None)
 
 
@@ -211,17 +219,15 @@ def load_data(col_map, data):
     ----------
     col_map : [str,]
         The columns to load the data into
-    data : [str,]
-        The data to load
+    data : (str,)
+        The data to load. If data is None the array will be loaded and flushed.
     """
-    if data is not None:
-        values = f.format_list(data)
-        if values:
-            # If the data has more values than the header provided, ignore the end (green data set has that)
-            while len(values) > len(col_map):
-                f.debug("Removing extra row value entry not present in the header.")
-                values.pop()
-            cfg.input_data.append(values)
+    if data is not None and len(data) > 0:
+        # If the data has more values than the header provided, ignore the end (green data set has that)
+        while len(data) > len(col_map):
+            f.debug("Removing extra row value entry not present in the header.")
+            data.pop()
+        cfg.input_data.append(data)
 
     # If batch size has been reached or input array should be flushed
     if (len(cfg.input_data) == cfg.batch_size) or (data is None and len(cfg.input_data) > 0):
@@ -229,11 +235,32 @@ def load_data(col_map, data):
         stmt = generate_statement(col_map)
         f.debug(stmt)
         cur = cfg.conn.cursor()
-        cur.executemany(stmt, cfg.input_data)
+        try:
+            cur.executemany(stmt, cfg.input_data)
+        except Exception as err:
+            # Rollback old batch (needed for at least Postgres to finish transaction)
+            cfg.conn.rollback()
+            # If debug output is enabled, find failing record
+            if cfg.debug:
+                for record in cfg.input_data:
+                    try:
+                        cur.execute(stmt, record)
+                    except Exception as err1:
+                        f.debug("Error with record: {0}".format(record))
+                        # Rollback old batch (needed for at least Postgres to finish transaction)
+                        cfg.conn.rollback()
+                        cur.close()
+                        cfg.input_data.clear()
+                        raise
+            # Debug output is not enabled, clear current batch and raise error
+            else:
+                cur.close()
+                cfg.input_data.clear()
+                raise
         f.debug("Commit")
         cfg.conn.commit()
         cur.close()
-        f.verbose("{0} rows loaded".format(len(cfg.input_data)))
+        f.verbose("{0} rows loaded.".format(len(cfg.input_data)))
         cfg.input_data.clear()
 
 
@@ -249,15 +276,15 @@ def generate_statement(col_map):
     if cfg.db_type == f.DBType.ORACLE.value:
         values = ":" + ", :".join(col_map)
         if cfg.direct_path:
-            append_hint = "/*+ APPEND_VALUES */"
+            append_hint = " /*+ APPEND_VALUES */"
     elif cfg.db_type == f.DBType.DB2.value:
         values = ("?," * len(col_map))[:-1]
     else:
         values = ("%s, " * len(col_map))[:-2]
-    return "INSERT {0} INTO {1} ({2}) VALUES ({3})".format(append_hint,
-                                                           cfg.table_name,
-                                                           ", ".join(col_map),
-                                                           values)
+    return "INSERT{0} INTO {1} ({2}) VALUES ({3})".format(append_hint,
+                                                          cfg.table_name,
+                                                          ", ".join(col_map),
+                                                          values)
 
 
 def parse_arguments(cmd):
@@ -275,7 +302,7 @@ def parse_arguments(cmd):
     """
     parser = argparse.ArgumentParser(prog="csv2db",
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     description="A DB loader for CSV files.\nVersion: {0}\n(c) Gerald Venzl"
+                                     description="The CSV command line loader.\nVersion: {0}\n(c) Gerald Venzl"
                                      .format(cfg.version))
 
     subparsers = parser.add_subparsers(dest="command")
@@ -293,7 +320,7 @@ def parse_arguments(cmd):
                                  help="Debug output.")
     parser_generate.add_argument("-t", "--table",
                                  help="The table name to use.")
-    parser_generate.add_argument("-c", "--column-type", default="VARCHAR2(4000)",
+    parser_generate.add_argument("-c", "--column-type", default="VARCHAR(1000)",
                                  help="The column type to use for the table generation.")
     parser_generate.add_argument("-s", "--separator", default=",",
                                  help="The columns separator character(s).")
@@ -309,20 +336,20 @@ def parse_arguments(cmd):
                              help="Verbose output.")
     parser_load.add_argument("--debug", action="store_true", default=False,
                              help="Debug output.")
-    parser_load.add_argument("-t", "--table",
+    parser_load.add_argument("-t", "--table", required=True,
                              help="The table name to use.")
-    parser_load.add_argument("-o", "--dbtype", default="oracle",
-                             help="The database type. Choose one of {0}.".format([e.value for e in f.DBType]))
-    parser_load.add_argument("-u", "--user",
+    parser_load.add_argument("-o", "--dbtype", default="oracle", choices=[e.value for e in f.DBType],
+                             help="The database type.")
+    parser_load.add_argument("-u", "--user", required=True,
                              help="The database user to load data into.")
-    parser_load.add_argument("-p", "--password",
+    parser_load.add_argument("-p", "--password", required=True,
                              help="The database schema password.")
     parser_load.add_argument("-m", "--host", default="localhost",
                              help="The host name on which the database is running on.")
     parser_load.add_argument("-n", "--port",
                              help="The port on which the database is listening. " +
                                   "If not passed on the default port will be used " +
-                                  "(Oracle: 1521, MySQL: 3306, PostgreSQL: 5432, DB2: 50000).")
+                                  "(Oracle: 1521, MySQL: 3306, PostgreSQL: 5432, SQL Server: 1433, DB2: 50000).")
     parser_load.add_argument("-d", "--dbname", default="ORCLPDB1",
                              help="The name of the database.")
     parser_load.add_argument("-b", "--batch", default="10000",

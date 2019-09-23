@@ -20,7 +20,7 @@
 # limitations under the License.
 #
 
-version = "1.3.1"
+version = "1.4.0"
 
 verbose = False
 debug = False
@@ -28,8 +28,9 @@ direct_path = False
 batch_size = 10000
 conn = None
 table_name = ""
-column_type = "VARCHAR2(4000)"
+column_type = "VARCHAR(1000)"
 input_data = []
 db_type = None
 column_separator = ""
 quote_char = ""
+data_loading_error = False

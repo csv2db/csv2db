@@ -33,10 +33,27 @@ import config as cfg
 
 
 class DBType(Enum):
+    """Database type enumeration."""
     ORACLE = "oracle"
     MYSQL = "mysql"
     POSTGRES = "postgres"
+    SQLSERVER = "sqlserver"
     DB2 = "db2"
+
+
+class ExitCodes(Enum):
+    """Program return code enumeration."""
+    SUCCESS = 0
+    GENERIC_ERROR = 1
+    DATABASE_ERROR = 3  # value 2 is reserved for wrong arguments passed via argparse
+    DATA_LOADING_ERROR = 4
+
+
+class TerminalColor(Enum):
+    GREEN = "\x1b[32m"
+    RED = "\x1b[31m"
+    YELLOW = "\x1b[33m"
+    RESET = "\x1b[0m"
 
 
 def open_file(file):
@@ -76,10 +93,12 @@ def read_header(reader):
 
     Returns
     -------
-    set([])
-        A set with all the column names.
+    [str,]
+        A list with all the column names.
     """
-    return format_list(reader.__next__(), True)
+    header = []
+    header.extend(col.replace(' ', '_',).upper() for col in next(reader))
+    return header
 
 
 def find_all_files(pattern):
@@ -101,12 +120,30 @@ def find_all_files(pattern):
     return sorted(glob.glob(pattern))
 
 
+def print_color(color, output):
+    """Print colored output.
+    
+    Parameters
+    ----------
+    color : TerminalColor
+        The color to be used.
+    output : Any
+        The output to be printed
+    """
+    if os.getenv('NO_COLOR') is None:
+        print(color.value, end='')
+        print(output)
+        print(TerminalColor.RESET.value, end='')
+    else:
+        print(output)
+
+
 def verbose(output):
     """Print verbose output.
 
     Parameters
     ----------
-    output : str
+    output : Any
         The output to print
     """
     if cfg.verbose:
@@ -119,13 +156,25 @@ def debug(output):
     Parameters
     ----------
     output : Any
-        The output to print"""
+        The output to print
+    """
     if cfg.debug:
         if isinstance(output, list):
             output = ", ".join(output)
         elif isinstance(output, dict):
             output = ", ".join(str(key) + ": " + str(value) for key, value in output.items())
-        print(("DEBUG: {0}: " + output).format(datetime.datetime.now()))
+        print_color(TerminalColor.YELLOW, "DEBUG: {0}: {1}".format(datetime.datetime.now(), output))
+
+
+def error(output):
+    """Print error output.
+
+    Parameters
+    ----------
+    output : Any
+        The output to be printed
+    """
+    print_color(TerminalColor.RED, output)
 
 
 def get_db_connection(db_type, user, password, host, port, db_name):
@@ -155,12 +204,12 @@ def get_db_connection(db_type, user, password, host, port, db_name):
     try:
         if db_type == DBType.ORACLE.value:
             import cx_Oracle
-            return cx_Oracle.connect(user,
+            conn = cx_Oracle.connect(user,
                                      password,
                                      host + ":" + port + "/" + db_name)
         elif db_type == DBType.MYSQL.value:
             import mysql.connector
-            return mysql.connector.connect(
+            conn = mysql.connector.connect(
                                        user=user,
                                        password=password,
                                        host=host,
@@ -168,7 +217,7 @@ def get_db_connection(db_type, user, password, host, port, db_name):
                                        database=db_name)
         elif db_type == DBType.POSTGRES.value:
             import psycopg2
-            return psycopg2.connect("""user='{0}' 
+            conn = psycopg2.connect("""user='{0}' 
                                        password='{1}' 
                                        host='{2}' 
                                        port='{3}' 
@@ -179,43 +228,25 @@ def get_db_connection(db_type, user, password, host, port, db_name):
             import ibm_db_dbi
             conn = ibm_db.connect("UID={0};PWD={1};HOSTNAME={2};PORT={3};DATABASE={4};"
                                   .format(user, password, host, port, db_name), "", "")
+            # Set autocommit explicitly off
+            ibm_db.autocommit(conn, ibm_db.SQL_AUTOCOMMIT_OFF)
             return ibm_db_dbi.Connection(conn)
-
+        elif db_type == DBType.SQLSERVER.value:
+            import pymssql
+            conn = pymssql.connect(server=host, user=user, password=password, database=db_name)
+            # 'pymssql.Connection' object attribute 'autocommit' is read-only
+            conn.autocommit(False)
+            return conn
         else:
             raise ValueError("Database type '{0}' is not supported.".format(db_type))
+
+        # Set autocommit explicitly off for all database types
+        conn.autocommit = False
+
+        return conn
+
     except ModuleNotFoundError as err:
         raise ConnectionError("Database driver module is not installed: {0}. Please install it first.".format(str(err)))
-
-
-def format_list(input_list, header=False):
-    """Returns a formatted list of values from a CSV list input.
-
-    Parameters
-    ----------
-    input_list : str
-        The raw line to convert
-    header : bool
-        If true, values will be upper case and spaces replaced with '_'.
-        This is only good for header rows in the CSV files.
-
-    Returns
-    -------
-    [str,]
-        A list of string values
-    """
-
-    # If empty string return None, i.e. skip empty lines
-    if not input_list:
-        return None
-
-    output = []
-    for col in input_list:
-        val = col.replace('"', '').strip()
-        # If line is a header line, i.e. column number, replace spaces with '_' and make names UPPER
-        if header:
-            val = val.replace(' ', '_',).upper()
-        output.append(val)
-    return output
 
 
 def get_default_db_port(db_type):
@@ -239,6 +270,8 @@ def get_default_db_port(db_type):
         return "5432"
     elif db_type == DBType.DB2.value:
         return "50000"
+    elif db_type == DBType.SQLSERVER.value:
+        return "1433"
 
 
 def get_csv_reader(file):

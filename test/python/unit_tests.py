@@ -22,6 +22,7 @@
 import functions as f
 import config as cfg
 import unittest
+import csv2db
 
 
 class CSV2DBTestCase(unittest.TestCase):
@@ -30,20 +31,25 @@ class CSV2DBTestCase(unittest.TestCase):
         # Set the default column separator for all tests
         cfg.column_separator = ","
         cfg.quote_char = '"'
+        cfg.data_loading_error = False
 
     def test_open_csv_file(self):
+        print("test_open_csv_file")
         with f.open_file("../resources/201811-citibike-tripdata.csv") as file:
             self.assertIsNotNone(file.read())
 
     def test_open_zip_file(self):
+        print("test_open_zip_file")
         with f.open_file("../resources/201811-citibike-tripdata.csv.zip") as file:
             self.assertIsNotNone(file.read())
 
     def test_open_gzip_file(self):
+        print("test_open_gzip_file")
         with f.open_file("../resources/201811-citibike-tripdata.csv.gz") as file:
             self.assertIsNotNone(file.read())
 
     def test_read_header(self):
+        print("test_read_header")
         with f.open_file("../resources/201811-citibike-tripdata.csv.gz") as file:
             reader = f.get_csv_reader(file)
             expected = ["BIKEID", "BIRTH_YEAR", "END_STATION_ID", "END_STATION_LATITUDE",
@@ -53,25 +59,93 @@ class CSV2DBTestCase(unittest.TestCase):
             expected.sort()
             actual = f.read_header(reader)
             actual.sort()
-            self.assertListEqual(actual, expected)
+            self.assertListEqual(expected, actual)
 
     def test_tab_separated_file(self):
+        print("test_tab_separated_file")
         cfg.column_separator = "\t"
         with f.open_file("../resources/201812-citibike-tripdata.tsv") as file:
             reader = f.get_csv_reader(file)
             content = [f.read_header(reader)]
             for line in reader:
                 content.append(line)
-            self.assertEqual(len(content), 11)
+            self.assertEqual(11, len(content))
 
     def test_pipe_separated_file(self):
+        print("test_pipe_separated_file")
         cfg.column_separator = "|"
         with f.open_file("../resources/201812-citibike-tripdata.psv") as file:
             reader = f.get_csv_reader(file)
             content = [f.read_header(reader)]
             for line in reader:
                 content.append(line)
-            self.assertEqual(len(content), 11)
+            self.assertEqual(11, len(content))
+
+    def test_loading(self):
+        print("test_loading")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                              ["load",
+                               "-f", "../resources/201811-citibike-tripdata.csv",
+                               "-u", "test",
+                               "-p", "test",
+                               "-t", "STAGING"]
+                              )
+                         )
+
+    def test_exit_code_SUCCESS(self):
+        print("test_exit_code_SUCCESS")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(["gen", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"]))
+
+    def test_exit_code_GENERIC_ERROR(self):
+        print("test_exit_code_GENERIC_ERROR")
+        self.assertEqual(f.ExitCodes.GENERIC_ERROR.value,
+                         csv2db.run(["gen", "-f", "../resources/bad/201811-citibike-tripdata-invalid.csv.zip"]))
+
+    def test_exit_code_ARGUMENT_ERROR(self):
+        print("test_exit_code_ARGUMENT_ERROR")
+        # Test that command raises SystemExit exception
+        with self.assertRaises(SystemExit) as cm:
+            csv2db.run(["load", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"])
+        # Test that command threw SystemExit with status code 2
+        self.assertEqual(cm.exception.code, 2)
+
+    def test_exit_code_DATABASE_ERROR(self):
+        print("test_exit_code_DATABASE_ERROR")
+        self.assertEqual(f.ExitCodes.DATABASE_ERROR.value,
+                         csv2db.run(
+                              ["load",
+                               "-f", "../resources/201811-citibike-tripdata.csv",
+                               "-u", "INVALIDUSER",
+                               "-p", "test",
+                               "-t", "STAGING"]
+                              )
+                         )
+
+    def test_exit_code_DATA_LOADING_ERROR(self):
+        print("test_exit_code_DATA_LOADING_ERROR")
+        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+                         csv2db.run(
+                              ["load",
+                               "-f", "../resources/bad/201811-citibike-tripdata-bad-data.csv",
+                               "-u", "test",
+                               "-p", "test",
+                               "-t", "DOES_NOT_EXIST"]
+                              )
+                         )
+
+    def test_empty_file(self):
+        print("test_empty_file")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", "../resources/201811-citibike-tripdata-empty.csv",
+                              "-u", "test",
+                              "-p", "test",
+                              "-t", "STAGING"]
+                             )
+                        )
 
 
 if __name__ == '__main__':
