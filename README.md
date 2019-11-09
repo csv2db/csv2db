@@ -281,11 +281,11 @@ $ ./csv2db
 In order for `csv2db` to work you will have to install the appropriate database driver(s).
 The following drivers are being used, all available on [pypi.org](https://pypi.org/):
 
-* Oracle: [cx_Oracle](https://pypi.org/project/cx_Oracle/) version 7.0.0+
+* Oracle: [cx-Oracle](https://pypi.org/project/cx-Oracle/) version 7.0.0+
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
 * PostgreSQL: [psycopg2-binary](https://pypi.org/project/psycopg2-binary/) version 2.7.6.1+
 * SQL Server: [pymssql](https://pypi.org/project/pymssql/) version 2.1.4+
-* DB2: [ibm_db](https://pypi.org/project/ibm_db/) version 2.0.9+
+* DB2: [ibm-db](https://pypi.org/project/ibm-db/) version 2.0.9+
 
 You can install any of these drivers via `pip`:
 
