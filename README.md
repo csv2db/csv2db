@@ -290,11 +290,11 @@ The following drivers are being used, all available on [pypi.org](https://pypi.o
 You can install any of these drivers via `pip`:
 
 ```console
-$ python3 -m pip install cx_Oracle
+$ python3 -m pip install cx-Oracle
 $ python3 -m pip install mysql-connector-python
 $ python3 -m pip install psycopg2-binary
 $ python3 -m pip install pymssql
-$ python3 -m pip install ibm_db
+$ python3 -m pip install ibm-db
 ```
 
 For more instruction on how to install the driver(s) on your environment,
