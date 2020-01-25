@@ -24,6 +24,7 @@ import datetime
 import glob
 import gzip
 import os
+import platform
 import io
 import zipfile
 from enum import Enum
@@ -122,6 +123,9 @@ def find_all_files(pattern):
 
 def print_color(color, output):
     """Print colored output.
+
+    If $NO_COLOR is set then no colored output will be printed.
+    On Windows no colored output will be printed.
     
     Parameters
     ----------
@@ -130,7 +134,7 @@ def print_color(color, output):
     output : Any
         The output to be printed
     """
-    if os.getenv('NO_COLOR') is None:
+    if os.getenv('NO_COLOR') is None and platform.system() != "Windows":
         print(color.value, end='')
         print(output)
         print(TerminalColor.RESET.value, end='')
