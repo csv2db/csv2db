@@ -29,7 +29,7 @@ $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
 The CSV command line loader.
-Version: 1.4.0
+Version: 1.4.1
 (c) Gerald Venzl
 
 positional arguments:
@@ -317,7 +317,7 @@ DATABASE_ERROR     |     3 | A database error occurred.
 DATA_LOADING_ERROR |     4 | An error occurred during loading of data. `csv2db` will continue to process other files, if any.
 
 ## `$NO_COLOR` support
-`csv2db` is capable of color coded output and will do so by default.  
+`csv2db` is capable of color coded output and will do so by default (except on Windows).  
 <span style="color:yellow">Debug output is yellow.</span>  
 <span style="color:red">Error output is red.</span>  
 This can be deactivated by setting the `$NO_COLOR` environment variable. For more details on `$NO_COLOR` see https://no-color.org/
