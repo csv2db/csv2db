@@ -8,9 +8,9 @@
 ```
 
 
-The CSV command line loader.
+The CSV to database command line loader.
 
-`csv2db` takes CSV files and loads them into a database.
+`csv2db` reads CSV files and loads them into a database.
 Rather than having to go through the CSV data first and find out what columns and data types are present in the CSV files,
 `csv2db` will read the header in each CSV file and automatically load data into the columns of the same name into the target table.
 Spaces in the header column names are automatically replaced with `_` characters,
@@ -28,8 +28,8 @@ This is particularly useful if the format of the CSV files has changed over time
 $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
-The CSV command line loader.
-Version: 1.4.1
+The CSV to database command line loader.
+Version: 1.4.2
 (c) Gerald Venzl
 
 positional arguments:
