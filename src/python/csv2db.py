@@ -21,6 +21,7 @@
 #
 
 import argparse
+import getpass
 import sys
 
 import config as cfg
@@ -104,7 +105,8 @@ def run(cmd):
         f.verbose("Establishing database connection.")
         f.debug("Database details:")
         f.debug({"dbtype": args.dbtype, "user": args.user, "host": args.host, "port": args.port, "dbname": args.dbname})
-
+        if args.password is None:
+            args.password =  getpass.getpass()
         try:
             cfg.conn = f.get_db_connection(cfg.db_type, args.user, args.password, args.host, args.port, args.dbname)
         except Exception as err:
@@ -343,8 +345,8 @@ def parse_arguments(cmd):
                              help="The database type.")
     parser_load.add_argument("-u", "--user", required=True,
                              help="The database user to load data into.")
-    parser_load.add_argument("-p", "--password", required=True,
-                             help="The database schema password.")
+    parser_load.add_argument("-p", "--password", required=False,
+                             help="The database schema password. Will prompt if -p or --password is missing (more secure).")
     parser_load.add_argument("-m", "--host", default="localhost",
                              help="The host name on which the database is running on.")
     parser_load.add_argument("-n", "--port",
