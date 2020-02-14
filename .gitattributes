@@ -32,4 +32,3 @@
 # .gitattributes for Linux/Mac OS X script
 
 csv2db    text eol=lf
-
