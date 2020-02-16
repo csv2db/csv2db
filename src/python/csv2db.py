@@ -102,11 +102,15 @@ def run(cmd):
             f.debug("Overwriting the batch size to 10000 for direct-path load to make sense.")
             cfg.batch_size = 10000
 
+        # If password hasn't been specified via parameter, prompt for it
+        if args.password is None:
+            f.debug("Password has not been provided via parameter, prompting for it.")
+            args.password = getpass.getpass(prompt='DB user password: ')
+
         f.verbose("Establishing database connection.")
         f.debug("Database details:")
         f.debug({"dbtype": args.dbtype, "user": args.user, "host": args.host, "port": args.port, "dbname": args.dbname})
-        if args.password is None:
-            args.password =  getpass.getpass()
+
         try:
             cfg.conn = f.get_db_connection(cfg.db_type, args.user, args.password, args.host, args.port, args.dbname)
         except Exception as err:
@@ -345,8 +349,9 @@ def parse_arguments(cmd):
                              help="The database type.")
     parser_load.add_argument("-u", "--user", required=True,
                              help="The database user to load data into.")
-    parser_load.add_argument("-p", "--password", required=False,
-                             help="The database schema password. Will prompt if -p or --password is missing (more secure).")
+    parser_load.add_argument("-p", "--password",
+                             help="The database schema password. csv2db will prompt for the password " +
+                                  "if the parameter is missing which is a more secure method of providing a password.")
     parser_load.add_argument("-m", "--host", default="localhost",
                              help="The host name on which the database is running on.")
     parser_load.add_argument("-n", "--port",
