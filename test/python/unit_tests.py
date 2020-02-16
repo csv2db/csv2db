@@ -140,12 +140,12 @@ class CSV2DBTestCase(unittest.TestCase):
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
-                              "-f", "../resources/201811-citibike-tripdata-empty.csv",
+                              "-f", "../resources/bad/201811-citibike-tripdata-empty.csv",
                               "-u", "test",
                               "-p", "test",
                               "-t", "STAGING"]
                              )
-                        )
+                         )
 
 
 if __name__ == '__main__':
