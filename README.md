@@ -29,7 +29,7 @@ $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
 The CSV to database command line loader.
-Version: 1.4.2
+Version: 1.5.0
 (c) Gerald Venzl
 
 positional arguments:
@@ -66,8 +66,8 @@ optional arguments:
 ```console
 $ ./csv2db load -h
 usage: csv2db load [-h] [-f FILE] [-v] [--debug] -t TABLE
-                   [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER -p
-                   PASSWORD [-m HOST] [-n PORT] [-d DBNAME] [-b BATCH]
+                   [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER
+                   [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME] [-b BATCH]
                    [-s SEPARATOR] [-q QUOTE] [-a]
 
 optional arguments:
@@ -81,7 +81,9 @@ optional arguments:
                         The database type.
   -u USER, --user USER  The database user to load data into.
   -p PASSWORD, --password PASSWORD
-                        The database schema password.
+                        The database schema password. csv2db will prompt for
+                        the password if the parameter is missing which is a
+                        more secure method of providing a password.
   -m HOST, --host HOST  The host name on which the database is running on.
   -n PORT, --port PORT  The port on which the database is listening. If not
                         passed on the default port will be used (Oracle: 1521,
