@@ -1,0 +1,34 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Basic .gitattributes for a python repo.
+
+# Source files
+# ============
+*.pxd     text
+*.py      text
+*.py3     text
+*.pyw     text
+*.pyx     text
+
+# Binary files
+# ============
+*.db      binary
+*.p       binary
+*.pkl     binary
+*.pyc     binary
+*.pyd     binary
+*.pyo     binary
+
+# Note: .db, .p, and .pkl files are associated
+# with the python modules ``pickle``, ``dbm.*``,
+# ``shelve``, ``marshal``, ``anydbm``, & ``bsddb``
+# (among others).
+
+# .gitattributes for Windows BAT file
+
+*.bat     text eol=crlf
+
+# .gitattributes for Linux/Mac OS X script
+
+csv2db    text eol=lf
