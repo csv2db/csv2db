@@ -23,9 +23,10 @@
 import argparse
 import getpass
 import sys
-
+import os
 import config as cfg
 import functions as f
+os.environ['TNS_ADMIN'] = '/usr/local/lib/network/admin'
 
 
 def run(cmd):
@@ -99,7 +100,8 @@ def run(cmd):
         # If batch size is lower than 10k and direct path has been specified, overwrite batch size to 10k.
         if cfg.direct_path and cfg.batch_size < 10000:
             f.debug("Direct path was specified but batch size is less than 10000.")
-            f.debug("Overwriting the batch size to 10000 for direct-path load to make sense.")
+            f.debug(
+                "Overwriting the batch size to 10000 for direct-path load to make sense.")
             cfg.batch_size = 10000
 
         # If password hasn't been specified via parameter, prompt for it
@@ -109,10 +111,12 @@ def run(cmd):
 
         f.verbose("Establishing database connection.")
         f.debug("Database details:")
-        f.debug({"dbtype": args.dbtype, "user": args.user, "host": args.host, "port": args.port, "dbname": args.dbname})
+        f.debug({"dbtype": args.dbtype, "user": args.user,
+                 "host": args.host, "port": args.port, "dbname": args.dbname})
 
         try:
-            cfg.conn = f.get_db_connection(cfg.db_type, args.user, args.password, args.host, args.port, args.dbname)
+            cfg.conn = f.get_db_connection(
+                cfg.db_type, args.user, args.password, args.host, args.port, args.dbname)
         except Exception as err:
             f.error("Error connecting to the database: {0}".format(err))
             return f.ExitCodes.DATABASE_ERROR.value
@@ -150,7 +154,8 @@ def generate_table_sql(file_names, column_data_type):
             columns_to_add = f.read_header(reader)
             f.debug("Columns to add {0}".format(columns_to_add))
             # Add columns to list implicitly removing duplicates for when going over multiple files
-            col_list.extend(col for col in columns_to_add if col not in col_list)
+            col_list.extend(
+                col for col in columns_to_add if col not in col_list)
     print_table_and_columns(col_list, column_data_type)
 
 
@@ -309,7 +314,8 @@ def parse_arguments(cmd):
     parser = argparse.ArgumentParser(
         prog="csv2db",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="The CSV to database command line loader.\nVersion: {0}\n(c) Gerald Venzl".format(cfg.version)
+        description="The CSV to database command line loader.\nVersion: {0}\n(c) Gerald Venzl".format(
+            cfg.version)
     )
 
     subparsers = parser.add_subparsers(dest="command")

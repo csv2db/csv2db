@@ -27,8 +27,10 @@ import os
 import platform
 import io
 import zipfile
+import chardet
 from enum import Enum
 import csv
+import locale
 
 import config as cfg
 
@@ -72,6 +74,7 @@ def open_file(file):
     file-object
         A file object
     """
+    print(f"File appears to be encoded as {get_char_encoding(file)}")
     if file.endswith(".zip"):
         zip_file = zipfile.ZipFile(file, mode="r")
         file = zip_file.open(zip_file.infolist()[0], mode="r")
@@ -79,7 +82,7 @@ def open_file(file):
     elif file.endswith(".gz"):
         return gzip.open(file, mode="rt")
     else:
-        return open(file, mode='r')
+        return open(file, mode='r', encoding='utf-8')
 
 
 def read_header(reader):
@@ -126,7 +129,7 @@ def print_color(color, output):
 
     If $NO_COLOR is set then no colored output will be printed.
     On Windows no colored output will be printed.
-    
+
     Parameters
     ----------
     color : TerminalColor
@@ -166,8 +169,10 @@ def debug(output):
         if isinstance(output, list):
             output = ", ".join(output)
         elif isinstance(output, dict):
-            output = ", ".join(str(key) + ": " + str(value) for key, value in output.items())
-        print_color(TerminalColor.YELLOW, "DEBUG: {0}: {1}".format(datetime.datetime.now(), output))
+            output = ", ".join(str(key) + ": " + str(value)
+                               for key, value in output.items())
+        print_color(TerminalColor.YELLOW, "DEBUG: {0}: {1}".format(
+            datetime.datetime.now(), output))
 
 
 def error(output):
@@ -208,23 +213,27 @@ def get_db_connection(db_type, user, password, host, port, db_name):
     try:
         if db_type == DBType.ORACLE.value:
             import cx_Oracle
+            # conn = cx_Oracle.connect(user,
+            #                          password,
+            #                          host + ":" + port + "/" + db_name)
             conn = cx_Oracle.connect(user,
                                      password,
-                                     host + ":" + port + "/" + db_name)
+                                     db_name,
+                                     encoding="UTF-8", nencoding="UTF-8")
         elif db_type == DBType.MYSQL.value:
             import mysql.connector
             conn = mysql.connector.connect(
-                                       user=user,
-                                       password=password,
-                                       host=host,
-                                       port=int(port),
-                                       database=db_name)
+                user=user,
+                password=password,
+                host=host,
+                port=int(port),
+                database=db_name)
         elif db_type == DBType.POSTGRES.value:
             import psycopg2
-            conn = psycopg2.connect("""user='{0}' 
-                                       password='{1}' 
-                                       host='{2}' 
-                                       port='{3}' 
+            conn = psycopg2.connect("""user='{0}'
+                                       password='{1}'
+                                       host='{2}'
+                                       port='{3}'
                                        dbname='{4}'""".format(user, password, host, port, db_name)
                                     )
         elif db_type == DBType.DB2.value:
@@ -237,12 +246,14 @@ def get_db_connection(db_type, user, password, host, port, db_name):
             return ibm_db_dbi.Connection(conn)
         elif db_type == DBType.SQLSERVER.value:
             import pymssql
-            conn = pymssql.connect(server=host, user=user, password=password, database=db_name)
+            conn = pymssql.connect(
+                server=host, user=user, password=password, database=db_name)
             # 'pymssql.Connection' object attribute 'autocommit' is read-only
             conn.autocommit(False)
             return conn
         else:
-            raise ValueError("Database type '{0}' is not supported.".format(db_type))
+            raise ValueError(
+                "Database type '{0}' is not supported.".format(db_type))
 
         # Set autocommit explicitly off for all database types
         conn.autocommit = False
@@ -250,7 +261,8 @@ def get_db_connection(db_type, user, password, host, port, db_name):
         return conn
 
     except ModuleNotFoundError as err:
-        raise ConnectionError("Database driver module is not installed: {0}. Please install it first.".format(str(err)))
+        raise ConnectionError(
+            "Database driver module is not installed: {0}. Please install it first.".format(str(err)))
 
 
 def get_default_db_port(db_type):
@@ -278,6 +290,12 @@ def get_default_db_port(db_type):
         return "1433"
 
 
+def get_char_encoding(FILE_PATH):
+    with open(FILE_PATH, 'rb') as rawdata:
+        result = chardet.detect(rawdata.read(100000))
+    return result['encoding']
+
+
 def get_csv_reader(file):
     """Returns a csv reader.
 
@@ -286,4 +304,5 @@ def get_csv_reader(file):
     file : file-object
         A file object
     """
+    print(locale.getpreferredencoding())
     return csv.reader(file, delimiter=cfg.column_separator, quotechar=cfg.quote_char)
