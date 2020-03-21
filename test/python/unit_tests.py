@@ -24,6 +24,13 @@ import config as cfg
 import unittest
 import csv2db
 
+login = {
+    "user": "test",
+    "password": "LetsDocker1",
+    "database": "test",
+    "table": "STAGING"
+}
+
 
 class CSV2DBTestCase(unittest.TestCase):
 
@@ -81,16 +88,64 @@ class CSV2DBTestCase(unittest.TestCase):
                 content.append(line)
             self.assertEqual(11, len(content))
 
-    def test_loading(self):
+    def test_loading_MySQL(self):
+        print("test_loading")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", "../resources/201811-citibike-tripdata.csv",
+                              "-o", "mysql",
+                              "-u", login["user"],
+                              "-p", login["password"],
+                              "-d", login["database"],
+                              "-t", login["table"]
+                              ]
+                            )
+                         )
+
+    def test_loading_Postgres(self):
+        print("test_loading")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", "../resources/201811-citibike-tripdata.csv",
+                              "-o", "postgres",
+                              "-u", login["user"],
+                              "-p", login["password"],
+                              "-d", login["database"],
+                              "-t", login["table"]
+                              ]
+                            )
+                         )
+
+    def test_loading_SqlServer(self):
         print("test_loading")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                               ["load",
                                "-f", "../resources/201811-citibike-tripdata.csv",
-                               "-u", "test",
-                               "-p", "test",
-                               "-t", "STAGING"]
-                              )
+                               "-o", "sqlserver",
+                               "-u", login["user"],
+                               "-p", login["password"],
+                               "-d", login["database"],
+                               "-t", login["table"]
+                               ]
+                             )
+                         )
+
+    def test_loading_Db2(self):
+        print("test_loading")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                              ["load",
+                               "-f", "../resources/201811-citibike-tripdata.csv",
+                               "-o", "db2",
+                               "-u", login["user"],
+                               "-p", login["password"],
+                               "-d", login["database"],
+                               "-t", login["table"]
+                               ]
+                             )
                          )
 
     def test_exit_code_SUCCESS(self):
@@ -129,10 +184,12 @@ class CSV2DBTestCase(unittest.TestCase):
                          csv2db.run(
                               ["load",
                                "-f", "../resources/bad/201811-citibike-tripdata-bad-data.csv",
-                               "-u", "test",
-                               "-p", "test",
-                               "-t", "DOES_NOT_EXIST"]
-                              )
+                               "-u", login["user"],
+                               "-p", login["password"],
+                               "-d", login["database"],
+                               "-t", "DOES_NOT_EXIST"
+                               ]
+                             )
                          )
 
     def test_empty_file(self):
@@ -141,10 +198,12 @@ class CSV2DBTestCase(unittest.TestCase):
                          csv2db.run(
                              ["load",
                               "-f", "../resources/bad/201811-citibike-tripdata-empty.csv",
-                              "-u", "test",
-                              "-p", "test",
-                              "-t", "STAGING"]
-                             )
+                              "-u", login["user"],
+                              "-p", login["password"],
+                              "-d", login["database"],
+                              "-t", login["table"]
+                              ]
+                            )
                          )
 
 
