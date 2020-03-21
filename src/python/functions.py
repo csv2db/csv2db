@@ -230,7 +230,8 @@ def get_db_connection(db_type, user, password, host, port, db_name):
         elif db_type == DBType.DB2.value:
             import ibm_db
             import ibm_db_dbi
-            conn = ibm_db.connect("UID={0};PWD={1};HOSTNAME={2};PORT={3};DATABASE={4};"
+            conn = ibm_db.connect("PROTOCOL=TCPIP;AUTHENTICATION=SERVER;"
+                                  "UID={0};PWD={1};HOSTNAME={2};PORT={3};DATABASE={4};"
                                   .format(user, password, host, port, db_name), "", "")
             # Set autocommit explicitly off
             ibm_db.autocommit(conn, ibm_db.SQL_AUTOCOMMIT_OFF)
