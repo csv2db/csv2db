@@ -26,6 +26,7 @@ import csv2db
 
 login = {
     "user": "test",
+    "db2_user": "db2inst1",
     "password": "LetsDocker1",
     "database": "test",
     "table": "STAGING"
@@ -140,7 +141,7 @@ class CSV2DBTestCase(unittest.TestCase):
                               ["load",
                                "-f", "../resources/201811-citibike-tripdata.csv",
                                "-o", "db2",
-                               "-u", login["user"],
+                               "-u", login["db2_user"],
                                "-p", login["password"],
                                "-d", login["database"],
                                "-t", login["table"]
@@ -183,7 +184,7 @@ class CSV2DBTestCase(unittest.TestCase):
         self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
                          csv2db.run(
                               ["load",
-                               "-f", "../resources/bad/201811-citibike-tripdata-bad-data.csv",
+                               "-f", "../resources/201811-citibike-tripdata.csv",
                                "-u", login["user"],
                                "-p", login["password"],
                                "-d", login["database"],
@@ -204,6 +205,80 @@ class CSV2DBTestCase(unittest.TestCase):
                               "-t", login["table"]
                               ]
                             )
+                         )
+
+    def test_unicode_file_Oracle(self):
+        print("test_unicode_file")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", "../resources/allCountries.1000.txt.gz",
+                              "-u", login["user"],
+                              "-p", login["password"],
+                              "-d", login["database"],
+                              "-t", "LOCATIONS",
+                              "-s", "	"]
+                             )
+                         )
+
+    def test_unicode_file_MySQL(self):
+        print("test_unicode_file")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", "../resources/allCountries.1000.txt.gz",
+                              "-o", "mysql",
+                              "-u", login["user"],
+                              "-p", login["password"],
+                              "-d", login["database"],
+                              "-t", "LOCATIONS",
+                              "-s", "	"]
+                             )
+                         )
+
+    def test_unicode_file_Postgres(self):
+        print("test_unicode_file")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", "../resources/allCountries.1000.txt.gz",
+                              "-o", "postgres",
+                              "-u", login["user"],
+                              "-p", login["password"],
+                              "-d", login["database"],
+                              "-t", "LOCATIONS",
+                              "-s", "	"]
+                             )
+                         )
+
+    def test_unicode_file_SqlServer(self):
+        print("test_unicode_file")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", "../resources/allCountries.1000.txt.gz",
+                              "-o", "sqlserver",
+                              "-u", login["user"],
+                              "-p", login["password"],
+                              "-d", login["database"],
+                              "-t", "LOCATIONS",
+                              "-s", "	"]
+                             )
+                         )
+
+    def test_unicode_file_Db2(self):
+        print("test_unicode_file")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", "../resources/allCountries.1000.txt.gz",
+                              "-o", "db2",
+                              "-u", login["db2_user"],
+                              "-p", login["password"],
+                              "-d", login["database"],
+                              "-t", "LOCATIONS",
+                              "-s", "	"]
+                             )
                          )
 
 
