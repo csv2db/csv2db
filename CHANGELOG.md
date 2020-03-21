@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Convert row to tuple on array append (bug #35)
+- Use `UTF-8` connection encoding for Oracle (bug #36)
 
 ## [1.5.0] 2020-03-14
 

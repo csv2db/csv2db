@@ -210,7 +210,8 @@ def get_db_connection(db_type, user, password, host, port, db_name):
             import cx_Oracle
             conn = cx_Oracle.connect(user,
                                      password,
-                                     host + ":" + port + "/" + db_name)
+                                     host + ":" + port + "/" + db_name,
+                                     encoding="UTF-8", nencoding="UTF-8")
         elif db_type == DBType.MYSQL.value:
             import mysql.connector
             conn = mysql.connector.connect(
