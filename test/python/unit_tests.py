@@ -90,7 +90,7 @@ class CSV2DBTestCase(unittest.TestCase):
             self.assertEqual(11, len(content))
 
     def test_loading_MySQL(self):
-        print("test_loading")
+        print("test_loading MySQL")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
@@ -105,7 +105,7 @@ class CSV2DBTestCase(unittest.TestCase):
                          )
 
     def test_loading_Postgres(self):
-        print("test_loading")
+        print("test_loading Postgres")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
@@ -119,8 +119,23 @@ class CSV2DBTestCase(unittest.TestCase):
                             )
                          )
 
+    def test_loading_Oracle(self):
+        print("test_loading Oracle")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", "../resources/201811-citibike-tripdata.csv",
+                              "-o", "oracle",
+                              "-u", login["user"],
+                              "-p", login["password"],
+                              "-d", login["database"],
+                              "-t", login["table"]
+                              ]
+                            )
+                         )
+
     def test_loading_SqlServer(self):
-        print("test_loading")
+        print("test_loading SqlServer")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                               ["load",
@@ -135,7 +150,7 @@ class CSV2DBTestCase(unittest.TestCase):
                          )
 
     def test_loading_Db2(self):
-        print("test_loading")
+        print("test_loading Db2")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                               ["load",
