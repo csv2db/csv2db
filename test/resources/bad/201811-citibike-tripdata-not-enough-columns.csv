@@ -1,4 +1,4 @@
-"tripduration","starttime","stoptime","start station id","start station name","start station latitude","start station longitude","end station id","end station name","end station latitude","end station longitude","bikeid","usertype","birth year","gender"
+"tripduration","starttime","stoptime","start station id","start station name","start station latitude","start station longitude","end station id","end station name"
 254,"2018-11-01 00:00:12.9100","2018-11-01 00:04:27.3870",3522,"37 St & 24 Ave",40.7701477,-73.9120938,3513,"21 St & Hoyt Ave S",40.774645,-73.923706,34117,"Subscriber",1992,1
 833,"2018-11-01 00:00:16.3440","2018-11-01 00:14:09.4320",252,"MacDougal St & Washington Sq",40.73226398,-73.99852205,251,"Mott St & Prince St",40.72317958,-73.99480012,32569,"Subscriber",1986,2
 683,"2018-11-01 00:00:17.6630","2018-11-01 00:11:40.9170",3405,"5 St & 6 Ave",40.6704836,-73.98208968,3584,"Eastern Pkwy & Franklin Ave",40.6707767,-73.9576801,15795,"Subscriber",1985,1

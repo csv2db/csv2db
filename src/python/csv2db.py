@@ -214,7 +214,7 @@ def read_and_load_file(file):
     col_map = f.read_header(reader)
     f.debug("Column map: {0}".format(col_map))
     for line in reader:
-        load_data(col_map, tuple(line))
+        load_data(col_map, line)
     load_data(col_map, None)
 
 
@@ -225,7 +225,7 @@ def load_data(col_map, data):
     ----------
     col_map : [str,]
         The columns to load the data into
-    data : (str,)
+    data : [str,]
         The data to load. If data is None the array will be loaded and flushed.
     """
     if data is not None and len(data) > 0:
@@ -233,7 +233,8 @@ def load_data(col_map, data):
         while len(data) > len(col_map):
             f.debug("Removing extra row value entry not present in the header.")
             data.pop()
-        cfg.input_data.append(data)
+        # tuple or dictionary only for SQL Server
+        cfg.input_data.append(tuple(data))
 
     # If batch size has been reached or input array should be flushed
     if (len(cfg.input_data) == cfg.batch_size) or (data is None and len(cfg.input_data) > 0):

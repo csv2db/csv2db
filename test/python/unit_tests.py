@@ -40,6 +40,7 @@ class CSV2DBTestCase(unittest.TestCase):
         cfg.column_separator = ","
         cfg.quote_char = '"'
         cfg.data_loading_error = False
+        cfg.debug = False
 
     def test_open_csv_file(self):
         print("test_open_csv_file")
@@ -181,6 +182,21 @@ class CSV2DBTestCase(unittest.TestCase):
             csv2db.run(["load", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"])
         # Test that command threw SystemExit with status code 2
         self.assertEqual(cm.exception.code, 2)
+
+    def test_load_file_with_insufficient_columns(self):
+        print("test_load_file_with_insufficient_columns")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                              ["load",
+                               "-f", "../resources/bad/201811-citibike-tripdata-not-enough-columns.csv",
+                               "-u", login["user"],
+                               "-p", login["password"],
+                               "-d", login["database"],
+                               "-t", login["table"],
+                               "--debug"
+                               ]
+                             )
+                         )
 
     def test_exit_code_DATABASE_ERROR(self):
         print("test_exit_code_DATABASE_ERROR")

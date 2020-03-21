@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Added `PROTOCOL=TCPIP` and `AUTHENTICATION=SERVER` to the Db2 connect string.
 
+### Fixed
+- Convert row to tuple on array append (bug #35)
+
 ## [1.5.0] 2020-03-14
 
 ### Added
