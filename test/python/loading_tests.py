@@ -37,14 +37,14 @@ login = {
 class LoadingTestCaseSuite(unittest.TestCase):
 
     def setUp(self):
-        # Set the default column separator for all tests
+        # Set the defaults for all tests
         cfg.column_separator = ","
         cfg.quote_char = '"'
         cfg.data_loading_error = False
         cfg.debug = False
 
     def test_loading_MySQL(self):
-        print("test_loading MySQL")
+        print("test_loading_MySQL")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
@@ -59,7 +59,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
                          )
 
     def test_loading_Postgres(self):
-        print("test_loading Postgres")
+        print("test_loading_Postgres")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
@@ -74,7 +74,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
                          )
 
     def test_loading_Oracle(self):
-        print("test_loading Oracle")
+        print("test_loading_Oracle")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
@@ -89,7 +89,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
                          )
 
     def test_loading_SqlServer(self):
-        print("test_loading SqlServer")
+        print("test_loading_SqlServer")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                               ["load",
@@ -104,7 +104,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
                          )
 
     def test_loading_Db2(self):
-        print("test_loading Db2")
+        print("test_loading_Db2")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                               ["load",
@@ -175,7 +175,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
                          )
 
     def test_unicode_file_Oracle(self):
-        print("test_unicode_file")
+        print("test_unicode_file_Oracle")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
@@ -189,7 +189,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
                          )
 
     def test_unicode_file_MySQL(self):
-        print("test_unicode_file")
+        print("test_unicode_file_MySQL")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
@@ -204,7 +204,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
                          )
 
     def test_unicode_file_Postgres(self):
-        print("test_unicode_file")
+        print("test_unicode_file_Postgres")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
@@ -219,7 +219,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
                          )
 
     def test_unicode_file_SqlServer(self):
-        print("test_unicode_file")
+        print("test_unicode_file_SqlServer")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
@@ -234,7 +234,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
                          )
 
     def test_unicode_file_Db2(self):
-        print("test_unicode_file")
+        print("test_unicode_file_Db2")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
