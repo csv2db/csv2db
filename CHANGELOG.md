@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Added `PROTOCOL=TCPIP` and `AUTHENTICATION=SERVER` to the Db2 connect string.
+- Using `psycopg2.extras.execute_batch()` to speed up data load with Postgres (ER #39)
 
 ### Fixed
 - Convert row to tuple on array append (bug #35)

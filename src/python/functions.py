@@ -306,3 +306,24 @@ def get_csv_reader(file):
         A file object
     """
     return csv.reader(file, delimiter=cfg.column_separator, quotechar=cfg.quote_char)
+
+
+def executemany(cur, stmt):
+    """Opens a cursor and runs executemany on the value set.
+
+    This function is a wrapper around the Python Database API 'executemany'
+    to accommodate for psycopg2 slow 'executemany' implementation.
+
+    Parameters
+    ----------
+    cur : cursor
+        The cursor to run the statement with
+    stmt : str
+        The SQL statement to execute on
+    """
+    if cur is not None:
+        if cfg.db_type != DBType.POSTGRES.value:
+            cur.executemany(stmt, cfg.input_data)
+        else:
+            import psycopg2.extras as p
+            p.execute_batch(cur, stmt, cfg.input_data)

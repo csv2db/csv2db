@@ -251,7 +251,7 @@ def load_data(col_map, data):
         f.debug(stmt)
         cur = cfg.conn.cursor()
         try:
-            cur.executemany(stmt, cfg.input_data)
+            f.executemany(cur, stmt)
         except Exception as err:
             # Rollback old batch (needed for at least Postgres to finish transaction)
             cfg.conn.rollback()
