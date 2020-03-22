@@ -2,8 +2,8 @@
 #
 # Since: January, 2019
 # Author: gvenzl
-# Name: unit_tests.py
-# Description: Unit tests file for csv2db
+# Name: loading_tests.py
+# Description: Loading unit tests for csv2db
 #
 # Copyright 2019 Gerald Venzl
 #
@@ -19,6 +19,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import functions as f
 import config as cfg
 import unittest
@@ -33,7 +34,7 @@ login = {
 }
 
 
-class CSV2DBTestCase(unittest.TestCase):
+class LoadingTestCaseSuite(unittest.TestCase):
 
     def setUp(self):
         # Set the default column separator for all tests
@@ -41,54 +42,6 @@ class CSV2DBTestCase(unittest.TestCase):
         cfg.quote_char = '"'
         cfg.data_loading_error = False
         cfg.debug = False
-
-    def test_open_csv_file(self):
-        print("test_open_csv_file")
-        with f.open_file("../resources/201811-citibike-tripdata.csv") as file:
-            self.assertIsNotNone(file.read())
-
-    def test_open_zip_file(self):
-        print("test_open_zip_file")
-        with f.open_file("../resources/201811-citibike-tripdata.csv.zip") as file:
-            self.assertIsNotNone(file.read())
-
-    def test_open_gzip_file(self):
-        print("test_open_gzip_file")
-        with f.open_file("../resources/201811-citibike-tripdata.csv.gz") as file:
-            self.assertIsNotNone(file.read())
-
-    def test_read_header(self):
-        print("test_read_header")
-        with f.open_file("../resources/201811-citibike-tripdata.csv.gz") as file:
-            reader = f.get_csv_reader(file)
-            expected = ["BIKEID", "BIRTH_YEAR", "END_STATION_ID", "END_STATION_LATITUDE",
-                        "END_STATION_LONGITUDE", "END_STATION_NAME", "GENDER", "STARTTIME",
-                        "START_STATION_ID", "START_STATION_LATITUDE", "START_STATION_LONGITUDE",
-                        "START_STATION_NAME", "STOPTIME", "TRIPDURATION", "USERTYPE"]
-            expected.sort()
-            actual = f.read_header(reader)
-            actual.sort()
-            self.assertListEqual(expected, actual)
-
-    def test_tab_separated_file(self):
-        print("test_tab_separated_file")
-        cfg.column_separator = "\t"
-        with f.open_file("../resources/201812-citibike-tripdata.tsv") as file:
-            reader = f.get_csv_reader(file)
-            content = [f.read_header(reader)]
-            for line in reader:
-                content.append(line)
-            self.assertEqual(11, len(content))
-
-    def test_pipe_separated_file(self):
-        print("test_pipe_separated_file")
-        cfg.column_separator = "|"
-        with f.open_file("../resources/201812-citibike-tripdata.psv") as file:
-            reader = f.get_csv_reader(file)
-            content = [f.read_header(reader)]
-            for line in reader:
-                content.append(line)
-            self.assertEqual(11, len(content))
 
     def test_loading_MySQL(self):
         print("test_loading MySQL")
@@ -164,24 +117,6 @@ class CSV2DBTestCase(unittest.TestCase):
                                ]
                              )
                          )
-
-    def test_exit_code_SUCCESS(self):
-        print("test_exit_code_SUCCESS")
-        self.assertEqual(f.ExitCodes.SUCCESS.value,
-                         csv2db.run(["gen", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"]))
-
-    def test_exit_code_GENERIC_ERROR(self):
-        print("test_exit_code_GENERIC_ERROR")
-        self.assertEqual(f.ExitCodes.GENERIC_ERROR.value,
-                         csv2db.run(["gen", "-f", "../resources/bad/201811-citibike-tripdata-invalid.csv.zip"]))
-
-    def test_exit_code_ARGUMENT_ERROR(self):
-        print("test_exit_code_ARGUMENT_ERROR")
-        # Test that command raises SystemExit exception
-        with self.assertRaises(SystemExit) as cm:
-            csv2db.run(["load", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"])
-        # Test that command threw SystemExit with status code 2
-        self.assertEqual(cm.exception.code, 2)
 
     def test_load_file_with_insufficient_columns(self):
         print("test_load_file_with_insufficient_columns")
