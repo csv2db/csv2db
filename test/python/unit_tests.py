@@ -219,7 +219,8 @@ class CSV2DBTestCase(unittest.TestCase):
                                "-u", login["user"],
                                "-p", login["password"],
                                "-d", login["database"],
-                               "-t", "DOES_NOT_EXIST"
+                               "-t", "DOES_NOT_EXIST",
+                               "--debug"
                                ]
                              )
                          )

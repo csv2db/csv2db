@@ -27,6 +27,8 @@ import os
 import platform
 import io
 import zipfile
+import sys
+import traceback
 from enum import Enum
 import csv
 
@@ -179,6 +181,21 @@ def error(output):
         The output to be printed
     """
     print_color(TerminalColor.RED, output)
+
+
+def get_exception_details():
+    """Return usable exception string and its traceback as string.
+
+    The string will be in the format "(Exception class name): (Exception message)"
+
+    Returns
+    -------
+    (str, traceback)
+        The string and traceback (as string) of the exception
+    """
+    exception_type, exception_message, tb = sys.exc_info()
+    traceback_str = "Traceback:\n" + ''.join(traceback.format_tb(tb))
+    return "{0}: {1}".format(exception_type.__name__, exception_message), traceback_str
 
 
 def get_db_connection(db_type, user, password, host, port, db_name):

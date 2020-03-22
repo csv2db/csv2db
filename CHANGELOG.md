@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added loading tests for all databases
+- Enhanced error reporting (ER #37)
 
 ### Changed
 - Added `PROTOCOL=TCPIP` and `AUTHENTICATION=SERVER` to the Db2 connect string.

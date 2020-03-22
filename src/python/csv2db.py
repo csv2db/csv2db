@@ -79,7 +79,9 @@ def run(cmd):
             generate_table_sql(file_names, args.column_type)
             return f.ExitCodes.SUCCESS.value
         except Exception as err:
-            f.error("Error generating statement: {0}".format(err))
+            exception, tb_str = f.get_exception_details()
+            f.error("Error generating statement: {0}".format(exception))
+            f.debug(tb_str)
             return f.ExitCodes.GENERIC_ERROR.value
 
     # Load data
@@ -114,7 +116,9 @@ def run(cmd):
         try:
             cfg.conn = f.get_db_connection(cfg.db_type, args.user, args.password, args.host, args.port, args.dbname)
         except Exception as err:
-            f.error("Error connecting to the database: {0}".format(err))
+            exception, tb_str = f.get_exception_details()
+            f.error("Error connecting to the database: {0}".format(exception))
+            f.debug(tb_str)
             return f.ExitCodes.DATABASE_ERROR.value
 
         try:
@@ -127,7 +131,9 @@ def run(cmd):
             cfg.conn.close()
             return f.ExitCodes.GENERIC_ERROR.value
         except Exception as err:
-            f.error("Error loading file(s): {0}".format(err))
+            exception, tb_str = f.get_exception_details()
+            f.error("Error loading file(s): {0}".format(exception))
+            f.debug(tb_str)
             cfg.conn.close()
             return f.ExitCodes.GENERIC_ERROR.value
 
@@ -195,8 +201,10 @@ def load_files(file_names):
             except StopIteration:
                 print("File is empty: {0}".format(file_name))
             except Exception as err:
-                f.error("Error while loading file: {0}".format(file.name))
-                f.error(err)
+                f.error("Error while loading file into table: {0}".format(file.name))
+                exception, traceback = f.get_exception_details()
+                f.error(exception)
+                f.debug(traceback)
                 cfg.data_loading_error = True
                 print("Skipping file.")
         print()
