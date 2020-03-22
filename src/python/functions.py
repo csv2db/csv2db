@@ -309,7 +309,7 @@ def get_csv_reader(file):
 
 
 def executemany(cur, stmt):
-    """Opens a cursor and runs executemany on the value set.
+    """Runs executemany on the value set with the provided cursor.
 
     This function is a wrapper around the Python Database API 'executemany'
     to accommodate for psycopg2 slow 'executemany' implementation.
