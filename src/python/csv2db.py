@@ -79,7 +79,9 @@ def run(cmd):
             generate_table_sql(file_names, args.column_type)
             return f.ExitCodes.SUCCESS.value
         except Exception as err:
-            f.error("Error generating statement: {0}".format(err))
+            exception, tb_str = f.get_exception_details()
+            f.error("Error generating statement: {0}".format(exception))
+            f.debug(tb_str)
             return f.ExitCodes.GENERIC_ERROR.value
 
     # Load data
@@ -114,7 +116,9 @@ def run(cmd):
         try:
             cfg.conn = f.get_db_connection(cfg.db_type, args.user, args.password, args.host, args.port, args.dbname)
         except Exception as err:
-            f.error("Error connecting to the database: {0}".format(err))
+            exception, tb_str = f.get_exception_details()
+            f.error("Error connecting to the database: {0}".format(exception))
+            f.debug(tb_str)
             return f.ExitCodes.DATABASE_ERROR.value
 
         try:
@@ -127,7 +131,9 @@ def run(cmd):
             cfg.conn.close()
             return f.ExitCodes.GENERIC_ERROR.value
         except Exception as err:
-            f.error("Error loading file(s): {0}".format(err))
+            exception, tb_str = f.get_exception_details()
+            f.error("Error loading file(s): {0}".format(exception))
+            f.debug(tb_str)
             cfg.conn.close()
             return f.ExitCodes.GENERIC_ERROR.value
 
@@ -195,8 +201,10 @@ def load_files(file_names):
             except StopIteration:
                 print("File is empty: {0}".format(file_name))
             except Exception as err:
-                f.error("Error while loading file: {0}".format(file.name))
-                f.error(err)
+                f.error("Error while loading file into table: {0}".format(file.name))
+                exception, traceback = f.get_exception_details()
+                f.error(exception)
+                f.debug(traceback)
                 cfg.data_loading_error = True
                 print("Skipping file.")
         print()
@@ -214,7 +222,7 @@ def read_and_load_file(file):
     col_map = f.read_header(reader)
     f.debug("Column map: {0}".format(col_map))
     for line in reader:
-        load_data(col_map, tuple(line))
+        load_data(col_map, line)
     load_data(col_map, None)
 
 
@@ -225,7 +233,7 @@ def load_data(col_map, data):
     ----------
     col_map : [str,]
         The columns to load the data into
-    data : (str,)
+    data : [str,]
         The data to load. If data is None the array will be loaded and flushed.
     """
     if data is not None and len(data) > 0:
@@ -233,7 +241,8 @@ def load_data(col_map, data):
         while len(data) > len(col_map):
             f.debug("Removing extra row value entry not present in the header.")
             data.pop()
-        cfg.input_data.append(data)
+        # tuple or dictionary only for SQL Server
+        cfg.input_data.append(tuple(data))
 
     # If batch size has been reached or input array should be flushed
     if (len(cfg.input_data) == cfg.batch_size) or (data is None and len(cfg.input_data) > 0):
@@ -242,7 +251,7 @@ def load_data(col_map, data):
         f.debug(stmt)
         cur = cfg.conn.cursor()
         try:
-            cur.executemany(stmt, cfg.input_data)
+            f.executemany(cur, stmt)
         except Exception as err:
             # Rollback old batch (needed for at least Postgres to finish transaction)
             cfg.conn.rollback()

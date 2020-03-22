@@ -27,6 +27,8 @@ import os
 import platform
 import io
 import zipfile
+import sys
+import traceback
 from enum import Enum
 import csv
 
@@ -181,6 +183,21 @@ def error(output):
     print_color(TerminalColor.RED, output)
 
 
+def get_exception_details():
+    """Return usable exception string and its traceback as string.
+
+    The string will be in the format "(Exception class name): (Exception message)"
+
+    Returns
+    -------
+    (str, traceback)
+        The string and traceback (as string) of the exception
+    """
+    exception_type, exception_message, tb = sys.exc_info()
+    traceback_str = "Traceback:\n" + ''.join(traceback.format_tb(tb))
+    return "{0}: {1}".format(exception_type.__name__, exception_message), traceback_str
+
+
 def get_db_connection(db_type, user, password, host, port, db_name):
     """ Connects to the database.
 
@@ -210,7 +227,8 @@ def get_db_connection(db_type, user, password, host, port, db_name):
             import cx_Oracle
             conn = cx_Oracle.connect(user,
                                      password,
-                                     host + ":" + port + "/" + db_name)
+                                     host + ":" + port + "/" + db_name,
+                                     encoding="UTF-8", nencoding="UTF-8")
         elif db_type == DBType.MYSQL.value:
             import mysql.connector
             conn = mysql.connector.connect(
@@ -230,7 +248,8 @@ def get_db_connection(db_type, user, password, host, port, db_name):
         elif db_type == DBType.DB2.value:
             import ibm_db
             import ibm_db_dbi
-            conn = ibm_db.connect("UID={0};PWD={1};HOSTNAME={2};PORT={3};DATABASE={4};"
+            conn = ibm_db.connect("PROTOCOL=TCPIP;AUTHENTICATION=SERVER;"
+                                  "UID={0};PWD={1};HOSTNAME={2};PORT={3};DATABASE={4};"
                                   .format(user, password, host, port, db_name), "", "")
             # Set autocommit explicitly off
             ibm_db.autocommit(conn, ibm_db.SQL_AUTOCOMMIT_OFF)
@@ -287,3 +306,24 @@ def get_csv_reader(file):
         A file object
     """
     return csv.reader(file, delimiter=cfg.column_separator, quotechar=cfg.quote_char)
+
+
+def executemany(cur, stmt):
+    """Runs executemany on the value set with the provided cursor.
+
+    This function is a wrapper around the Python Database API 'executemany'
+    to accommodate for psycopg2 slow 'executemany' implementation.
+
+    Parameters
+    ----------
+    cur : cursor
+        The cursor to run the statement with
+    stmt : str
+        The SQL statement to execute on
+    """
+    if cur is not None:
+        if cfg.db_type != DBType.POSTGRES.value:
+            cur.executemany(stmt, cfg.input_data)
+        else:
+            import psycopg2.extras as p
+            p.execute_batch(cur, stmt, cfg.input_data)

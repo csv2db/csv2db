@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 #
-# Since: January, 2019
+# Since: March, 2020
 # Author: gvenzl
-# Name: unit_tests.py
-# Description: Unit tests file for csv2db
+# Name: functional_tests.py
+# Description: Functional unit tests for csv2db
 #
 # Copyright 2019 Gerald Venzl
 #
@@ -19,19 +19,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
 import functions as f
 import config as cfg
 import unittest
 import csv2db
 
 
-class CSV2DBTestCase(unittest.TestCase):
+class FunctionalTestCaseSuite(unittest.TestCase):
 
     def setUp(self):
         # Set the default column separator for all tests
         cfg.column_separator = ","
         cfg.quote_char = '"'
         cfg.data_loading_error = False
+        cfg.debug = False
 
     def test_open_csv_file(self):
         print("test_open_csv_file")
@@ -81,18 +83,6 @@ class CSV2DBTestCase(unittest.TestCase):
                 content.append(line)
             self.assertEqual(11, len(content))
 
-    def test_loading(self):
-        print("test_loading")
-        self.assertEqual(f.ExitCodes.SUCCESS.value,
-                         csv2db.run(
-                              ["load",
-                               "-f", "../resources/201811-citibike-tripdata.csv",
-                               "-u", "test",
-                               "-p", "test",
-                               "-t", "STAGING"]
-                              )
-                         )
-
     def test_exit_code_SUCCESS(self):
         print("test_exit_code_SUCCESS")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
@@ -110,42 +100,6 @@ class CSV2DBTestCase(unittest.TestCase):
             csv2db.run(["load", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"])
         # Test that command threw SystemExit with status code 2
         self.assertEqual(cm.exception.code, 2)
-
-    def test_exit_code_DATABASE_ERROR(self):
-        print("test_exit_code_DATABASE_ERROR")
-        self.assertEqual(f.ExitCodes.DATABASE_ERROR.value,
-                         csv2db.run(
-                              ["load",
-                               "-f", "../resources/201811-citibike-tripdata.csv",
-                               "-u", "INVALIDUSER",
-                               "-p", "test",
-                               "-t", "STAGING"]
-                              )
-                         )
-
-    def test_exit_code_DATA_LOADING_ERROR(self):
-        print("test_exit_code_DATA_LOADING_ERROR")
-        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
-                         csv2db.run(
-                              ["load",
-                               "-f", "../resources/bad/201811-citibike-tripdata-bad-data.csv",
-                               "-u", "test",
-                               "-p", "test",
-                               "-t", "DOES_NOT_EXIST"]
-                              )
-                         )
-
-    def test_empty_file(self):
-        print("test_empty_file")
-        self.assertEqual(f.ExitCodes.SUCCESS.value,
-                         csv2db.run(
-                             ["load",
-                              "-f", "../resources/bad/201811-citibike-tripdata-empty.csv",
-                              "-u", "test",
-                              "-p", "test",
-                              "-t", "STAGING"]
-                             )
-                         )
 
 
 if __name__ == '__main__':
