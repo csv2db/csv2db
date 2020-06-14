@@ -104,9 +104,10 @@ def run(cmd):
             f.debug("Using default port {0}".format(args.port))
 
         # Set batch size
-        f.debug("Batch size: {0}".format(args.batch))
         cfg.batch_size = int(args.batch)
-        # If batch size is lower than 10k and direct path has been specified, overwrite batch size to 10k.
+        f.debug("Batch size: {0}".format(cfg.batch_size))
+
+        # If direct path has been specified and batch size is lower than 10k, overwrite batch size to 10k.
         if cfg.direct_path and cfg.batch_size < 10000:
             f.debug("Direct path was specified but batch size is less than 10000.")
             f.debug("Overwriting the batch size to 10000 for direct-path load to make sense.")
