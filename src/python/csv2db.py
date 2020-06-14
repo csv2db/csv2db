@@ -87,9 +87,17 @@ def run(cmd):
     # Load data
     else:
         # Set DB type
-        f.debug("DB type: {0}".format(args.dbtype))
         cfg.db_type = args.dbtype
-        cfg.direct_path = args.directpath
+        f.debug("DB type: {0}".format(cfg.db_type))
+
+        if args.directpath:
+            cfg.direct_path = args.directpath
+            f.debug("DIRECT PATH loading option set by user")
+
+        if args.truncate:
+            cfg.truncate_before_load = args.truncate
+            f.debug("TRUNCATE TABLE set by user")
+
         # Set DB default port, if needed
         if args.port is None:
             args.port = f.get_default_db_port(args.dbtype)
@@ -122,7 +130,12 @@ def run(cmd):
             return f.ExitCodes.DATABASE_ERROR.value
 
         try:
+            if cfg.truncate_before_load:
+                f.verbose("Truncating table before load.")
+                truncate_table()
+
             load_files(file_names)
+
             f.verbose("Closing database connection.")
             cfg.conn.close()
             return f.ExitCodes.SUCCESS.value if not cfg.data_loading_error else f.ExitCodes.DATA_LOADING_ERROR.value
@@ -302,6 +315,17 @@ def generate_statement(col_map):
                                                           values)
 
 
+def truncate_table():
+    """Truncates the table to load data into.
+    """
+    cur = cfg.conn.cursor()
+    cur.execute("TRUNCATE TABLE {0}"
+                .format(cfg.table_name + " IMMEDIATE"
+                        if cfg.db_type == f.DBType.DB2.value
+                        else cfg.table_name))
+    cur.close()
+
+
 def parse_arguments(cmd):
     """Parses the arguments.
 
@@ -377,6 +401,8 @@ def parse_arguments(cmd):
                              help="The quote character on which a string won't be split.")
     parser_load.add_argument("-a", "--directpath", action="store_true", default=False,
                              help="Execute a direct path INSERT load operation (Oracle only).")
+    parser_load.add_argument("--truncate", action="store_true", default=False,
+                             help="Truncate/empty table before loading.")
 
     return parser.parse_args(cmd)
 

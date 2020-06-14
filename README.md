@@ -68,7 +68,7 @@ $ ./csv2db load -h
 usage: csv2db load [-h] [-f FILE] [-v] [--debug] -t TABLE
                    [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER
                    [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME] [-b BATCH]
-                   [-s SEPARATOR] [-q QUOTE] [-a]
+                   [-s SEPARATOR] [-q QUOTE] [-a] [--truncate]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -99,6 +99,7 @@ optional arguments:
                         The quote character on which a string won't be split.
   -a, --directpath      Execute a direct path INSERT load operation (Oracle
                         only).
+  --truncate            Truncate/empty table before loading.
 ```
 
 # How to use csv2db
