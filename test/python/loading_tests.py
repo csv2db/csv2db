@@ -45,6 +45,17 @@ class LoadingTestCaseSuite(unittest.TestCase):
         cfg.debug = False
         cfg.truncate_before_load = False
 
+    @classmethod
+    def tearDownClass(cls):
+        # Truncate tables
+        for db in f.DBType:
+            conn = helper_get_db_conn(db.value,
+                                      test_parameters["db2_user"] if db.value == f.DBType.DB2.value
+                                      else test_parameters["user"])
+            f.truncate_table(db.value, conn, test_parameters["table_staging"])
+            f.truncate_table(db.value, conn, test_parameters["table_locations"])
+            conn.close()
+
     def test_load_file_with_insufficient_columns(self):
         print("test_load_file_with_insufficient_columns")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
