@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Provide support to empty (truncate) table before load (ER #45)
+- Added truncate tests and negative truncate tests for all databases
 
 ## [1.5.1] 2020-03-21
 
