@@ -87,7 +87,7 @@ def run(cmd):
     # Load data
     else:
         # Set DB type
-        cfg.db_type = args.dbtype
+        cfg.db_type = f.DBType(args.dbtype)
         f.debug("DB type: {0}".format(cfg.db_type))
 
         if args.directpath:
@@ -100,7 +100,7 @@ def run(cmd):
 
         # Set DB default port, if needed
         if args.port is None:
-            args.port = f.get_default_db_port(args.dbtype)
+            args.port = f.get_default_db_port(cfg.db_type)
             f.debug("Using default port {0}".format(args.port))
 
         # Set batch size
@@ -302,11 +302,11 @@ def generate_statement(col_map):
         The columns to load the data into
     """
     append_hint = ""
-    if cfg.db_type == f.DBType.ORACLE.value:
+    if cfg.db_type is f.DBType.ORACLE:
         values = ":" + ", :".join(col_map)
         if cfg.direct_path:
             append_hint = " /*+ APPEND_VALUES */"
-    elif cfg.db_type == f.DBType.DB2.value:
+    elif cfg.db_type is f.DBType.DB2:
         values = ("?," * len(col_map))[:-1]
     else:
         values = ("%s, " * len(col_map))[:-2]

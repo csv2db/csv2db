@@ -203,7 +203,7 @@ def get_db_connection(db_type, user, password, host, port, db_name):
 
     Parameters
     ----------
-    db_type : str
+    db_type : DBType
         The database type
     user : str
         The database user
@@ -223,13 +223,13 @@ def get_db_connection(db_type, user, password, host, port, db_name):
     """
 
     try:
-        if db_type == DBType.ORACLE.value:
+        if db_type is DBType.ORACLE:
             import cx_Oracle
             conn = cx_Oracle.connect(user,
                                      password,
                                      host + ":" + port + "/" + db_name,
                                      encoding="UTF-8", nencoding="UTF-8")
-        elif db_type == DBType.MYSQL.value:
+        elif db_type is DBType.MYSQL:
             import mysql.connector
             conn = mysql.connector.connect(
                                        user=user,
@@ -237,7 +237,7 @@ def get_db_connection(db_type, user, password, host, port, db_name):
                                        host=host,
                                        port=int(port),
                                        database=db_name)
-        elif db_type == DBType.POSTGRES.value:
+        elif db_type is DBType.POSTGRES:
             import psycopg2
             conn = psycopg2.connect("""user='{0}' 
                                        password='{1}' 
@@ -245,7 +245,7 @@ def get_db_connection(db_type, user, password, host, port, db_name):
                                        port='{3}' 
                                        dbname='{4}'""".format(user, password, host, port, db_name)
                                     )
-        elif db_type == DBType.DB2.value:
+        elif db_type is DBType.DB2:
             import ibm_db
             import ibm_db_dbi
             conn = ibm_db.connect("PROTOCOL=TCPIP;AUTHENTICATION=SERVER;"
@@ -254,7 +254,7 @@ def get_db_connection(db_type, user, password, host, port, db_name):
             # Set autocommit explicitly off
             ibm_db.autocommit(conn, ibm_db.SQL_AUTOCOMMIT_OFF)
             return ibm_db_dbi.Connection(conn)
-        elif db_type == DBType.SQLSERVER.value:
+        elif db_type is DBType.SQLSERVER:
             import pymssql
             conn = pymssql.connect(server=host, user=user, password=password, database=db_name)
             # 'pymssql.Connection' object attribute 'autocommit' is read-only
@@ -277,7 +277,7 @@ def get_default_db_port(db_type):
 
     Parameters
     ----------
-    db_type : str
+    db_type : DBType
         The database type
 
     Returns
@@ -285,15 +285,15 @@ def get_default_db_port(db_type):
     str
         The default port
     """
-    if db_type == DBType.ORACLE.value:
+    if db_type is DBType.ORACLE:
         return "1521"
-    elif db_type == DBType.MYSQL.value:
+    elif db_type is DBType.MYSQL:
         return "3306"
-    elif db_type == DBType.POSTGRES.value:
+    elif db_type is DBType.POSTGRES:
         return "5432"
-    elif db_type == DBType.DB2.value:
+    elif db_type is DBType.DB2:
         return "50000"
-    elif db_type == DBType.SQLSERVER.value:
+    elif db_type is DBType.SQLSERVER:
         return "1433"
 
 
@@ -322,7 +322,7 @@ def executemany(cur, stmt):
         The SQL statement to execute on
     """
     if cur is not None:
-        if cfg.db_type != DBType.POSTGRES.value:
+        if cfg.db_type is not DBType.POSTGRES:
             cur.executemany(stmt, cfg.input_data)
         else:
             import psycopg2.extras as p
@@ -337,7 +337,7 @@ def truncate_table(db_type, conn, table_name):
 
     Parameters
     ----------
-    db_type : str
+    db_type : DBType
         The database type connected to
     conn
         The database connection to use
@@ -347,11 +347,11 @@ def truncate_table(db_type, conn, table_name):
     cur = conn.cursor()
     cur.execute("TRUNCATE TABLE {0}"
                 .format(table_name + " IMMEDIATE"
-                        if db_type == DBType.DB2.value
+                        if db_type is DBType.DB2
                         else table_name))
     cur.close()
 
     # Postgres and SQLServer handle TRUNCATE TABLE transactional
     # Db2 doesn't allow two TRUNCATE TABLE IMMEDIATE in one transaction, although it cannot be rolled back
-    if db_type in (DBType.POSTGRES.value, DBType.SQLSERVER.value, DBType.DB2.value):
+    if db_type in (DBType.POSTGRES, DBType.SQLSERVER, DBType.DB2):
         conn.commit()

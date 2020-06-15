@@ -49,11 +49,11 @@ class LoadingTestCaseSuite(unittest.TestCase):
     def tearDownClass(cls):
         # Truncate tables
         for db in f.DBType:
-            conn = helper_get_db_conn(db.value,
-                                      test_parameters["db2_user"] if db.value == f.DBType.DB2.value
+            conn = helper_get_db_conn(db,
+                                      test_parameters["db2_user"] if db is f.DBType.DB2
                                       else test_parameters["user"])
-            f.truncate_table(db.value, conn, test_parameters["table_staging"])
-            f.truncate_table(db.value, conn, test_parameters["table_locations"])
+            f.truncate_table(db, conn, test_parameters["table_staging"])
+            f.truncate_table(db, conn, test_parameters["table_locations"])
             conn.close()
 
     def test_load_file_with_insufficient_columns(self):
@@ -114,31 +114,31 @@ class LoadingTestCaseSuite(unittest.TestCase):
 
     def test_loading_MySQL(self):
         print("test_loading_MySQL")
-        helper_load_data(self, f.DBType.MYSQL.value, "../resources/201811-citibike-tripdata.csv")
+        helper_load_data(self, f.DBType.MYSQL, "../resources/201811-citibike-tripdata.csv")
 
     def test_loading_Postgres(self):
         print("test_loading_Postgres")
-        helper_load_data(self, f.DBType.POSTGRES.value, "../resources/201811-citibike-tripdata.csv")
+        helper_load_data(self, f.DBType.POSTGRES, "../resources/201811-citibike-tripdata.csv")
 
     def test_loading_Oracle(self):
         print("test_loading_Oracle")
-        helper_load_data(self, f.DBType.ORACLE.value, "../resources/201811-citibike-tripdata.csv")
+        helper_load_data(self, f.DBType.ORACLE, "../resources/201811-citibike-tripdata.csv")
 
     def test_loading_SQLServer(self):
         print("test_loading_SQLServer")
-        helper_load_data(self, f.DBType.SQLSERVER.value, "../resources/201811-citibike-tripdata.csv")
+        helper_load_data(self, f.DBType.SQLSERVER, "../resources/201811-citibike-tripdata.csv")
 
     def test_loading_Db2(self):
         print("test_loading_Db2")
         helper_load_data(self,
-                         f.DBType.DB2.value,
+                         f.DBType.DB2,
                          "../resources/201811-citibike-tripdata.csv",
                          username=test_parameters["db2_user"])
 
     def test_unicode_file_Oracle(self):
         print("test_unicode_file_Oracle")
         helper_load_data(self,
-                         f.DBType.ORACLE.value,
+                         f.DBType.ORACLE,
                          "../resources/allCountries.1000.txt.gz",
                          table=test_parameters["table_locations"],
                          separator="\t")
@@ -146,7 +146,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
     def test_unicode_file_MySQL(self):
         print("test_unicode_file_MySQL")
         helper_load_data(self,
-                         f.DBType.MYSQL.value,
+                         f.DBType.MYSQL,
                          "../resources/allCountries.1000.txt.gz",
                          table=test_parameters["table_locations"],
                          separator="\t")
@@ -154,7 +154,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
     def test_unicode_file_Postgres(self):
         print("test_unicode_file_Postgres")
         helper_load_data(self,
-                         f.DBType.POSTGRES.value,
+                         f.DBType.POSTGRES,
                          "../resources/allCountries.1000.txt.gz",
                          table=test_parameters["table_locations"],
                          separator="\t")
@@ -162,7 +162,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
     def test_unicode_file_SQLServer(self):
         print("test_unicode_file_SQLServer")
         helper_load_data(self,
-                         f.DBType.SQLSERVER.value,
+                         f.DBType.SQLSERVER,
                          "../resources/allCountries.1000.txt.gz",
                          table=test_parameters["table_locations"],
                          separator="\t")
@@ -170,7 +170,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
     def test_unicode_file_Db2(self):
         print("test_unicode_file_Db2")
         helper_load_data(self,
-                         f.DBType.DB2.value,
+                         f.DBType.DB2,
                          "../resources/allCountries.1000.txt.gz",
                          table=test_parameters["table_locations"],
                          separator="\t",
@@ -178,43 +178,43 @@ class LoadingTestCaseSuite(unittest.TestCase):
 
     def test_truncate_table_before_load_Oracle(self):
         print("test_truncate_table_before_load_Oracle")
-        helper_truncate_table_before_load(self, f.DBType.ORACLE.value)
+        helper_truncate_table_before_load(self, f.DBType.ORACLE)
 
     def test_truncate_table_before_load_MySQL(self):
         print("test_truncate_table_before_load_MySQL")
-        helper_truncate_table_before_load(self, f.DBType.MYSQL.value)
+        helper_truncate_table_before_load(self, f.DBType.MYSQL)
 
     def test_truncate_table_before_load_Postgres(self):
         print("test_truncate_table_before_load_Postgres")
-        helper_truncate_table_before_load(self, f.DBType.POSTGRES.value)
+        helper_truncate_table_before_load(self, f.DBType.POSTGRES)
 
     def test_truncate_table_before_load_SQLServer(self):
         print("test_truncate_table_before_load_SQLServer")
-        helper_truncate_table_before_load(self, f.DBType.SQLSERVER.value)
+        helper_truncate_table_before_load(self, f.DBType.SQLSERVER)
 
     def test_truncate_table_before_load_Db2(self):
         print("test_truncate_table_before_load_Db2")
-        helper_truncate_table_before_load(self, f.DBType.DB2.value, test_parameters["db2_user"])
+        helper_truncate_table_before_load(self, f.DBType.DB2, test_parameters["db2_user"])
 
     def test_negative_truncate_table_before_load_Oracle(self):
         print("test_negative_truncate_table_before_load_Oracle")
-        helper_negative_truncate_table_before_load(self, f.DBType.ORACLE.value)
+        helper_negative_truncate_table_before_load(self, f.DBType.ORACLE)
 
     def test_negative_truncate_table_before_load_MySQL(self):
         print("test_negative_truncate_table_before_load_MySQL")
-        helper_negative_truncate_table_before_load(self, f.DBType.MYSQL.value)
+        helper_negative_truncate_table_before_load(self, f.DBType.MYSQL)
 
     def test_negative_truncate_table_before_load_Postgres(self):
         print("test_negative_truncate_table_before_load_Postgres")
-        helper_negative_truncate_table_before_load(self, f.DBType.POSTGRES.value)
+        helper_negative_truncate_table_before_load(self, f.DBType.POSTGRES)
 
     def test_negative_truncate_table_before_load_SQLServer(self):
         print("test_negative_truncate_table_before_load_SQLServer")
-        helper_negative_truncate_table_before_load(self, f.DBType.SQLSERVER.value)
+        helper_negative_truncate_table_before_load(self, f.DBType.SQLSERVER)
 
     def test_negative_truncate_table_before_load_Db2(self):
         print("test_negative_truncate_table_before_load_Db2")
-        helper_negative_truncate_table_before_load(self, f.DBType.DB2.value, test_parameters["db2_user"])
+        helper_negative_truncate_table_before_load(self, f.DBType.DB2, test_parameters["db2_user"])
 
 
 def helper_negative_truncate_table_before_load(self, db_type, username=test_parameters["user"]):
@@ -241,7 +241,7 @@ def helper_load_data(self, db_type, file,
                      csv2db.run(
                          ["load",
                           "-f", file,
-                          "-o", db_type,
+                          "-o", db_type.value,
                           "-u", username,
                           "-p", test_parameters["password"],
                           "-d", test_parameters["database"],
@@ -256,7 +256,7 @@ def helper_load_data(self, db_type, file,
 def helper_truncate_table_before_load(self, db_type, username=test_parameters["user"]):
     params = ["load",
               "-f", "../resources/201811-citibike-tripdata.csv*",
-              "-o", db_type,
+              "-o", db_type.value,
               "-u", username,
               "-p", test_parameters["password"],
               "-d", test_parameters["database"],
