@@ -327,3 +327,30 @@ def executemany(cur, stmt):
         else:
             import psycopg2.extras as p
             p.execute_batch(cur, stmt, cfg.input_data)
+
+
+def truncate_table(db_type, conn, table_name):
+    """Truncates a database table.
+
+    This function executes a TRUNCATE TABLE on a database table.
+    The database user needs to have the right permissions to execute that statement.
+
+    Parameters
+    ----------
+    db_type : str
+        The database type connected to
+    conn
+        The database connection to use
+    table_name : str
+        The table name to be truncated
+    """
+    cur = conn.cursor()
+    cur.execute("TRUNCATE TABLE {0}"
+                .format(table_name + " IMMEDIATE"
+                        if db_type == DBType.DB2.value
+                        else table_name))
+    cur.close()
+
+    # Postgres and SQLServer handle TRUNCATE TABLE transactional
+    if db_type == DBType.POSTGRES.value or db_type == DBType.SQLSERVER.value:
+        conn.commit()

@@ -133,7 +133,7 @@ def run(cmd):
         try:
             if cfg.truncate_before_load:
                 f.verbose("Truncating table before load.")
-                truncate_table()
+                f.truncate_table(cfg.db_type, cfg.conn, cfg.table_name)
 
             load_files(file_names)
 
@@ -314,17 +314,6 @@ def generate_statement(col_map):
                                                           cfg.table_name,
                                                           ", ".join(col_map),
                                                           values)
-
-
-def truncate_table():
-    """Truncates the table to load data into.
-    """
-    cur = cfg.conn.cursor()
-    cur.execute("TRUNCATE TABLE {0}"
-                .format(cfg.table_name + " IMMEDIATE"
-                        if cfg.db_type == f.DBType.DB2.value
-                        else cfg.table_name))
-    cur.close()
 
 
 def parse_arguments(cmd):
