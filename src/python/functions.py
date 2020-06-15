@@ -352,5 +352,6 @@ def truncate_table(db_type, conn, table_name):
     cur.close()
 
     # Postgres and SQLServer handle TRUNCATE TABLE transactional
-    if db_type == DBType.POSTGRES.value or db_type == DBType.SQLSERVER.value:
+    # Db2 doesn't allow two TRUNCATE TABLE IMMEDIATE in one transaction, although it cannot be rolled back
+    if db_type in (DBType.POSTGRES.value, DBType.SQLSERVER.value, DBType.DB2.value):
         conn.commit()
