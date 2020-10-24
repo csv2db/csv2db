@@ -92,11 +92,11 @@ def run(cmd):
 
         if args.directpath:
             cfg.direct_path = args.directpath
-            f.debug("DIRECT PATH loading option set by user")
+            f.debug("'DIRECT PATH' loading option set by user")
 
         if args.truncate:
             cfg.truncate_before_load = args.truncate
-            f.debug("TRUNCATE TABLE set by user")
+            f.debug("'TRUNCATE TABLE' option set by user")
 
         # Set DB default port, if needed
         if args.port is None:
@@ -343,7 +343,7 @@ def parse_arguments(cmd):
                                             help="Prints a CREATE TABLE SQL statement to create the table " +
                                                  "and columns based on the header row of the CSV file(s).")
     parser_generate.add_argument("-f", "--file", default="*.csv.zip",
-                                 help="The file to load, by default all *.csv.zip files")
+                                 help="The file to read the header from, by default all *.csv.zip files")
     parser_generate.add_argument("-v", "--verbose", action="store_true", default=False,
                                  help="Verbose output.")
     parser_generate.add_argument("--debug", action="store_true", default=False,
