@@ -308,6 +308,17 @@ please see the documentation of the individual driver or refer to the
 
 # Miscellaneous
 
+## What `csv2db` is and, more importantly, what it is not!
+Since the very inception of `csv2db`, it has been a core principle for it not to become an ETL tool with all the bells and whistles.
+There are already many very good ETL tools out there and the world doesn't need yet another one.
+Instead, `csv2db` should aid users as a simple command-line tool to get rows from a delimited file into a database table, and not more!
+Following that core design goal, `csv2db` will most likely never provide many database-specific options or parameters for the end-user to set,
+it will not deal with explicit data type or character set conversion or globalization support that some databases offer.
+If a user requires any of these features or more, he or she should look for one of the already existing ETL tools out there.
+
+Simply put, `csv2db` does not do much more than taking rows from a delimited file and execute `INSERT INTO` statements with the values of these rows.
+It is there to help users to get the contents of a file into a database table quickly where the data can then be further processed.
+
 ## Exit codes
 `csv2db` returns following exit codes:  
 
