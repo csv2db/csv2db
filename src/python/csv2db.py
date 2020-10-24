@@ -78,7 +78,7 @@ def run(cmd):
         try:
             generate_table_sql(file_names, args.column_type)
             return f.ExitCodes.SUCCESS.value
-        except Exception as err:
+        except Exception:
             exception, tb_str = f.get_exception_details()
             f.error("Error generating statement: {0}".format(exception))
             f.debug(tb_str)
@@ -124,7 +124,7 @@ def run(cmd):
 
         try:
             cfg.conn = f.get_db_connection(cfg.db_type, args.user, args.password, args.host, args.port, args.dbname)
-        except Exception as err:
+        except Exception:
             exception, tb_str = f.get_exception_details()
             f.error("Error connecting to the database: {0}".format(exception))
             f.debug(tb_str)
@@ -144,7 +144,7 @@ def run(cmd):
             print("Exiting program")
             cfg.conn.close()
             return f.ExitCodes.GENERIC_ERROR.value
-        except Exception as err:
+        except Exception:
             exception, tb_str = f.get_exception_details()
             f.error("Error loading file(s): {0}".format(exception))
             f.debug(tb_str)
@@ -214,7 +214,7 @@ def load_files(file_names):
                 print("File loaded.")
             except StopIteration:
                 print("File is empty: {0}".format(file_name))
-            except Exception as err:
+            except Exception:
                 f.error("Error while loading file into table: {0}".format(file.name))
                 exception, traceback = f.get_exception_details()
                 f.error(exception)
@@ -266,7 +266,7 @@ def load_data(col_map, data):
         cur = cfg.conn.cursor()
         try:
             f.executemany(cur, stmt)
-        except Exception as err:
+        except Exception:
             # Rollback old batch (needed for at least Postgres to finish transaction)
             cfg.conn.rollback()
             # If debug output is enabled, find failing record
@@ -274,7 +274,7 @@ def load_data(col_map, data):
                 for record in cfg.input_data:
                     try:
                         cur.execute(stmt, record)
-                    except Exception as err1:
+                    except Exception:
                         f.debug("Error with record: {0}".format(record))
                         # Rollback old batch (needed for at least Postgres to finish transaction)
                         cfg.conn.rollback()
