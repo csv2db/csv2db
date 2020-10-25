@@ -216,6 +216,21 @@ class LoadingTestCaseSuite(unittest.TestCase):
         print("test_negative_truncate_table_before_load_Db2")
         helper_negative_truncate_table_before_load(self, f.DBType.DB2, test_parameters["db2_user"])
 
+    def test_negative_load_invalid_file_type(self):
+        print("test_negative_load_invalid_file_type")
+        self.assertEqual(f.ExitCodes.GENERIC_ERROR.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", "../resources/bad/201811-citibike-tripdata-invalid.csv.zip",
+                              "-u", test_parameters["user"],
+                              "-p", test_parameters["password"],
+                              "-d", test_parameters["database"],
+                              "-t", test_parameters["table_staging"],
+                              "--debug"
+                              ]
+                         )
+                         )
+
 
 def helper_negative_truncate_table_before_load(self, db_type, username=test_parameters["user"]):
     conn = helper_get_db_conn(db_type, username)
