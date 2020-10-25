@@ -260,8 +260,11 @@ def load_data(col_map, data):
         The data to load. If data is None the array will be loaded and flushed.
     """
     if data is not None and len(data) > 0:
-        if cfg.ignore_errors:
-            # If ignore errors is set and the data has more values than the header, ignore the additional values
+        # If ignore errors is set and log bad records is not
+        # check whether the row has more values than the header
+        # If just ignore errors is set, ignore the additional records
+        # If log errors is set, leave the additional values so that the row will be logged as an invalid one
+        if cfg.ignore_errors and not cfg.log_bad_records:
             while len(data) > len(col_map):
                 f.debug("Removing extra row value entry not present in the header.")
                 data.pop()
