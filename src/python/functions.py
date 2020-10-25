@@ -79,9 +79,9 @@ def open_file(file):
         file = zip_file.open(zip_file.infolist()[0], mode="r")
         return io.TextIOWrapper(file)
     elif file.endswith(".gz"):
-        return gzip.open(file, mode="rt")
+        return gzip.open(file, mode="rt", encoding='utf-8')
     else:
-        return open(file, mode='r')
+        return open(file, mode='r', encoding="utf-8")
 
 
 def read_header(reader):
