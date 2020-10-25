@@ -355,3 +355,43 @@ def truncate_table(db_type, conn, table_name):
     # Db2 doesn't allow two TRUNCATE TABLE IMMEDIATE in one transaction, although it cannot be rolled back
     if db_type in (DBType.POSTGRES, DBType.SQLSERVER, DBType.DB2):
         conn.commit()
+
+
+class BadRecordLogger:
+    """This class logs bad records into a file."""
+
+    def __init__(self, file_name):
+        """Initializes a BadRecordLogger object.
+
+        Parameters
+        ----------
+        file_name : str
+            The file name to log bad records to.
+        """
+        self.file_name = file_name
+        self.file = None
+
+    def write_bad_record(self, record):
+        """Writes a bad record.
+
+        Parameters
+        ----------
+        record : tuple
+            The record to write. A new line will be appended by this method.
+        """
+        if self.file is None:
+            self.file = open(self.file_name, mode="w", encoding="utf-8")
+        self.file.write(cfg.column_separator.join(record) + '\n')
+
+    def __enter__(self):
+        """Create context manager."""
+        return self
+
+    def __exit__(self, exc_type, exc_value, trace_back):
+        """Destroy context manager."""
+        self.__del__()
+
+    def __del__(self):
+        """Close file."""
+        if self.file is not None:
+            self.file.close()

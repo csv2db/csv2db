@@ -118,6 +118,13 @@ def run(cmd):
             f.debug("Password has not been provided via parameter, prompting for it.")
             args.password = getpass.getpass(prompt='DB user password: ')
 
+        # Set logging errors flag
+        cfg.log_bad_records = args.log
+        # Set ignore error flag (log_errors implies ignore errors
+        cfg.ignore_errors = (args.ignore or cfg.log_bad_records)
+        f.debug("Ignore errors: {0}".format(cfg.ignore_errors))
+        f.debug("Log errors: {0}".format(cfg.log_bad_records))
+
         f.verbose("Establishing database connection.")
         f.debug("Database details:")
         f.debug({"dbtype": args.dbtype, "user": args.user, "host": args.host, "port": args.port, "dbname": args.dbname})
@@ -235,6 +242,8 @@ def read_and_load_file(file):
     reader = f.get_csv_reader(file)
     col_map = f.read_header(reader)
     f.debug("Column map: {0}".format(col_map))
+    if cfg.log_bad_records:
+        cfg.bad_records_logger = f.BadRecordLogger(file.name + ".bad")
     for line in reader:
         load_data(col_map, line)
     load_data(col_map, None)
@@ -251,10 +260,11 @@ def load_data(col_map, data):
         The data to load. If data is None the array will be loaded and flushed.
     """
     if data is not None and len(data) > 0:
-        # If the data has more values than the header provided, ignore the end (green data set has that)
-        while len(data) > len(col_map):
-            f.debug("Removing extra row value entry not present in the header.")
-            data.pop()
+        if cfg.ignore_errors:
+            # If ignore errors is set and the data has more values than the header, ignore the additional values
+            while len(data) > len(col_map):
+                f.debug("Removing extra row value entry not present in the header.")
+                data.pop()
         # tuple or dictionary only for SQL Server
         cfg.input_data.append(tuple(data))
 
@@ -269,18 +279,27 @@ def load_data(col_map, data):
         except Exception:
             # Rollback old batch (needed for at least Postgres to finish transaction)
             cfg.conn.rollback()
-            # If debug output is enabled, find failing record
-            if cfg.debug:
+            # If ignore errors or debug output is enabled, find failing record
+            if cfg.ignore_errors or cfg.debug:
                 for record in cfg.input_data:
                     try:
                         cur.execute(stmt, record)
-                    except Exception:
-                        f.debug("Error with record: {0}".format(record))
-                        # Rollback old batch (needed for at least Postgres to finish transaction)
-                        cfg.conn.rollback()
-                        cur.close()
-                        cfg.input_data.clear()
-                        raise
+                    except Exception as err:
+                        if cfg.ignore_errors:
+                            f.verbose("Ignoring invalid record.")
+                        if cfg.log_bad_records:
+                            f.verbose("Logging invalid record.")
+                            cfg.bad_records_logger.write_bad_record(record)
+                        if cfg.debug:
+                            f.debug("Error with record: {0}".format(record))
+                            f.debug("Error: {0}".format(err))
+                        # If ignore errors is not set, raise error
+                        if not cfg.ignore_errors:
+                            # Rollback old batch (needed for at least Postgres to finish transaction)
+                            cfg.conn.rollback()
+                            cur.close()
+                            cfg.input_data.clear()
+                            raise
             # Debug output is not enabled, clear current batch and raise error
             else:
                 cur.close()
@@ -393,6 +412,10 @@ def parse_arguments(cmd):
                              help="Execute a direct path INSERT load operation (Oracle only).")
     parser_load.add_argument("--truncate", action="store_true", default=False,
                              help="Truncate/empty table before loading.")
+    parser_load.add_argument("-i", "--ignore", action="store_true", default=False,
+                             help="Ignore erroneous/invalid lines in files and continue the load.")
+    parser_load.add_argument("-l", "--log", action="store_true", default=False,
+                             help="Log erroneous/invalid lines in separate file (this implies the --ignore option).")
 
     return parser.parse_args(cmd)
 

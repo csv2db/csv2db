@@ -29,7 +29,7 @@ $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
 The CSV to database command line loader.
-Version: 1.5.1
+Version: 1.6.0
 (c) Gerald Venzl
 
 positional arguments:
@@ -68,7 +68,7 @@ $ ./csv2db load -h
 usage: csv2db load [-h] [-f FILE] [-v] [--debug] -t TABLE
                    [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER
                    [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME] [-b BATCH]
-                   [-s SEPARATOR] [-q QUOTE] [-a] [--truncate]
+                   [-s SEPARATOR] [-q QUOTE] [-a] [--truncate] [-i] [-l]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -100,6 +100,10 @@ optional arguments:
   -a, --directpath      Execute a direct path INSERT load operation (Oracle
                         only).
   --truncate            Truncate/empty table before loading.
+  -i, --ignore          Ignore erroneous/invalid lines in files and continue
+                        the load.
+  -l, --log             Log erroneous/invalid lines in separate file (this
+                        implies the --ignore option).
 ```
 
 # How to use csv2db

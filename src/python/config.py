@@ -35,3 +35,6 @@ column_separator = ""
 quote_char = ""
 data_loading_error = False
 truncate_before_load = False
+ignore_errors = False
+log_bad_records = False
+bad_records_logger = None
