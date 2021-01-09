@@ -23,6 +23,7 @@
 import functions as f
 import config as cfg
 import unittest
+import os
 import csv2db
 
 
@@ -100,6 +101,17 @@ class FunctionalTestCaseSuite(unittest.TestCase):
             csv2db.run(["load", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"])
         # Test that command threw SystemExit with status code 2
         self.assertEqual(cm.exception.code, 2)
+
+    def test_BadRecordLogger(self):
+        print("test_BadRecordLogger")
+        file_name = "test_file.bad.txt"
+        record = "This is a test."
+        with f.BadRecordLogger(file_name) as logger:
+            logger.write_bad_record((record,))
+        with open(file_name, "r") as file:
+            line = file.readline()[:-1]
+        os.remove(file_name)
+        self.assertEqual(record, line)
 
 
 if __name__ == '__main__':
