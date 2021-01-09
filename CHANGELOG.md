@@ -5,8 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Provide support to empty (truncate) table before load (ER #45)
-- Added truncate tests and negative truncate tests for all databases
+
+### Added
+- New option `--log` to log erroneous lines in a `*.bad` file of the same name (ER #46) 
+- New option `--ignore` to ignore errors in file and continue loading (ER #46)
+- New option `--truncate` to empty (truncate) the target table before the load (ER #45)
+
+### Changed
+- Read all input files with `UTF-8` encoding
 
 ## [1.5.1] 2020-03-21
 
