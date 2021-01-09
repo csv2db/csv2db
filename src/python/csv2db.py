@@ -418,7 +418,8 @@ def parse_arguments(cmd):
     parser_load.add_argument("-i", "--ignore", action="store_true", default=False,
                              help="Ignore erroneous/invalid lines in files and continue the load.")
     parser_load.add_argument("-l", "--log", action="store_true", default=False,
-                             help="Log erroneous/invalid lines in separate file (this implies the --ignore option).")
+                             help="Log erroneous/invalid lines in *.bad file of the same name as the input file " +
+                                  "(this implies the --ignore option).")
 
     return parser.parse_args(cmd)
 
