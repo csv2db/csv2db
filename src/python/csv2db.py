@@ -247,6 +247,8 @@ def read_and_load_file(file):
     for line in reader:
         load_data(col_map, line)
     load_data(col_map, None)
+    if cfg.log_bad_records:
+        cfg.bad_records_logger.close()
 
 
 def load_data(col_map, data):
@@ -279,15 +281,21 @@ def load_data(col_map, data):
         cur = cfg.conn.cursor()
         try:
             f.executemany(cur, stmt)
+            cur.close()
         except Exception:
             # Rollback old batch (needed for at least Postgres to finish transaction)
             cfg.conn.rollback()
+            cur.close()
             # If ignore errors or debug output is enabled, find failing record
             if cfg.ignore_errors or cfg.debug:
                 for record in cfg.input_data:
                     try:
+                        # Get new cursor for every row to avoid previous row variables name/number caching.
+                        cur = cfg.conn.cursor()
                         cur.execute(stmt, record)
+                        cur.close()
                     except Exception as err:
+                        cur.close()
                         if cfg.ignore_errors:
                             f.verbose("Ignoring invalid record.")
                         if cfg.log_bad_records:
@@ -299,17 +307,14 @@ def load_data(col_map, data):
                         if not cfg.ignore_errors:
                             # Rollback old batch (needed for at least Postgres to finish transaction)
                             cfg.conn.rollback()
-                            cur.close()
                             cfg.input_data.clear()
                             raise
             # Debug output is not enabled, clear current batch and raise error
             else:
-                cur.close()
                 cfg.input_data.clear()
                 raise
         f.debug("Commit")
         cfg.conn.commit()
-        cur.close()
         f.verbose("{0} rows loaded.".format(len(cfg.input_data)))
         cfg.input_data.clear()
 

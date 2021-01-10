@@ -383,6 +383,10 @@ class BadRecordLogger:
             self.file = open(self.file_name, mode="w", encoding="utf-8")
         self.file.write(cfg.column_separator.join(record) + '\n')
 
+    def close(self):
+        """Close file."""
+        self.file.close()
+
     def __enter__(self):
         """Create context manager."""
         return self
@@ -394,4 +398,4 @@ class BadRecordLogger:
     def __del__(self):
         """Close file."""
         if self.file is not None:
-            self.file.close()
+            self.close()
