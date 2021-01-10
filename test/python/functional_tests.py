@@ -38,22 +38,22 @@ class FunctionalTestCaseSuite(unittest.TestCase):
 
     def test_open_csv_file(self):
         print("test_open_csv_file")
-        with f.open_file("../resources/201811-citibike-tripdata.csv") as file:
+        with f.open_file("../resources/test_files/201811-citibike-tripdata.csv") as file:
             self.assertIsNotNone(file.read())
 
     def test_open_zip_file(self):
         print("test_open_zip_file")
-        with f.open_file("../resources/201811-citibike-tripdata.csv.zip") as file:
+        with f.open_file("../resources/test_files/201811-citibike-tripdata.csv.zip") as file:
             self.assertIsNotNone(file.read())
 
     def test_open_gzip_file(self):
         print("test_open_gzip_file")
-        with f.open_file("../resources/201811-citibike-tripdata.csv.gz") as file:
+        with f.open_file("../resources/test_files/201811-citibike-tripdata.csv.gz") as file:
             self.assertIsNotNone(file.read())
 
     def test_read_header(self):
         print("test_read_header")
-        with f.open_file("../resources/201811-citibike-tripdata.csv.gz") as file:
+        with f.open_file("../resources/test_files/201811-citibike-tripdata.csv.gz") as file:
             reader = f.get_csv_reader(file)
             expected = ["BIKEID", "BIRTH_YEAR", "END_STATION_ID", "END_STATION_LATITUDE",
                         "END_STATION_LONGITUDE", "END_STATION_NAME", "GENDER", "STARTTIME",
@@ -67,7 +67,7 @@ class FunctionalTestCaseSuite(unittest.TestCase):
     def test_tab_separated_file(self):
         print("test_tab_separated_file")
         cfg.column_separator = "\t"
-        with f.open_file("../resources/201812-citibike-tripdata.tsv") as file:
+        with f.open_file("../resources/test_files/201812-citibike-tripdata.tsv") as file:
             reader = f.get_csv_reader(file)
             content = [f.read_header(reader)]
             for line in reader:
@@ -77,7 +77,7 @@ class FunctionalTestCaseSuite(unittest.TestCase):
     def test_pipe_separated_file(self):
         print("test_pipe_separated_file")
         cfg.column_separator = "|"
-        with f.open_file("../resources/201812-citibike-tripdata.psv") as file:
+        with f.open_file("../resources/test_files/201812-citibike-tripdata.psv") as file:
             reader = f.get_csv_reader(file)
             content = [f.read_header(reader)]
             for line in reader:

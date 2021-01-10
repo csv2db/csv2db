@@ -28,7 +28,7 @@ import csv2db
 test_parameters = {
     "user": "test",
     "db2_user": "db2inst1",
-    "password": "LetsDocker1",
+    "password": "LetsTest1",
     "database": "test",
     "table_staging": "STAGING",
     "table_locations": "LOCATIONS"
@@ -56,6 +56,21 @@ class LoadingTestCaseSuite(unittest.TestCase):
             f.truncate_table(db, conn, test_parameters["table_locations"])
             conn.close()
 
+    def test_negative_load_file_with_insufficient_columns(self):
+        print("test_negative_load_file_with_insufficient_columns")
+        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+                         csv2db.run(
+                              ["load",
+                               "-f", "../resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
+                               "-u", test_parameters["user"],
+                               "-p", test_parameters["password"],
+                               "-d", test_parameters["database"],
+                               "-t", test_parameters["table_staging"],
+                               "--debug"
+                               ]
+                             )
+                         )
+
     def test_load_file_with_insufficient_columns(self):
         print("test_load_file_with_insufficient_columns")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
@@ -66,7 +81,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
                                "-p", test_parameters["password"],
                                "-d", test_parameters["database"],
                                "-t", test_parameters["table_staging"],
-                               "--debug"
+                               "--ignore"
                                ]
                              )
                          )
@@ -76,7 +91,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
         self.assertEqual(f.ExitCodes.DATABASE_ERROR.value,
                          csv2db.run(
                               ["load",
-                               "-f", "../resources/201811-citibike-tripdata.csv",
+                               "-f", "../resources/test_files/201811-citibike-tripdata.csv",
                                "-u", "INVALIDUSER",
                                "-p", "test",
                                "-t", "STAGING"]
@@ -88,7 +103,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
         self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
                          csv2db.run(
                               ["load",
-                               "-f", "../resources/201811-citibike-tripdata.csv",
+                               "-f", "../resources/test_files/201811-citibike-tripdata.csv",
                                "-u", test_parameters["user"],
                                "-p", test_parameters["password"],
                                "-d", test_parameters["database"],
@@ -114,32 +129,32 @@ class LoadingTestCaseSuite(unittest.TestCase):
 
     def test_loading_MySQL(self):
         print("test_loading_MySQL")
-        helper_load_data(self, f.DBType.MYSQL, "../resources/201811-citibike-tripdata.csv")
+        helper_load_data(self, f.DBType.MYSQL, "../resources/test_files/201811-citibike-tripdata.csv")
 
     def test_loading_Postgres(self):
         print("test_loading_Postgres")
-        helper_load_data(self, f.DBType.POSTGRES, "../resources/201811-citibike-tripdata.csv")
+        helper_load_data(self, f.DBType.POSTGRES, "../resources/test_files/201811-citibike-tripdata.csv")
 
     def test_loading_Oracle(self):
         print("test_loading_Oracle")
-        helper_load_data(self, f.DBType.ORACLE, "../resources/201811-citibike-tripdata.csv")
+        helper_load_data(self, f.DBType.ORACLE, "../resources/test_files/201811-citibike-tripdata.csv")
 
     def test_loading_SQLServer(self):
         print("test_loading_SQLServer")
-        helper_load_data(self, f.DBType.SQLSERVER, "../resources/201811-citibike-tripdata.csv")
+        helper_load_data(self, f.DBType.SQLSERVER, "../resources/test_files/201811-citibike-tripdata.csv")
 
     def test_loading_Db2(self):
         print("test_loading_Db2")
         helper_load_data(self,
                          f.DBType.DB2,
-                         "../resources/201811-citibike-tripdata.csv",
+                         "../resources/test_files/201811-citibike-tripdata.csv",
                          username=test_parameters["db2_user"])
 
     def test_unicode_file_Oracle(self):
         print("test_unicode_file_Oracle")
         helper_load_data(self,
                          f.DBType.ORACLE,
-                         "../resources/allCountries.1000.txt.gz",
+                         "../resources/test_files/allCountries.1000.txt.gz",
                          table=test_parameters["table_locations"],
                          separator="\t")
 
@@ -147,7 +162,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
         print("test_unicode_file_MySQL")
         helper_load_data(self,
                          f.DBType.MYSQL,
-                         "../resources/allCountries.1000.txt.gz",
+                         "../resources/test_files/allCountries.1000.txt.gz",
                          table=test_parameters["table_locations"],
                          separator="\t")
 
@@ -155,7 +170,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
         print("test_unicode_file_Postgres")
         helper_load_data(self,
                          f.DBType.POSTGRES,
-                         "../resources/allCountries.1000.txt.gz",
+                         "../resources/test_files/allCountries.1000.txt.gz",
                          table=test_parameters["table_locations"],
                          separator="\t")
 
@@ -163,7 +178,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
         print("test_unicode_file_SQLServer")
         helper_load_data(self,
                          f.DBType.SQLSERVER,
-                         "../resources/allCountries.1000.txt.gz",
+                         "../resources/test_files/allCountries.1000.txt.gz",
                          table=test_parameters["table_locations"],
                          separator="\t")
 
@@ -171,7 +186,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
         print("test_unicode_file_Db2")
         helper_load_data(self,
                          f.DBType.DB2,
-                         "../resources/allCountries.1000.txt.gz",
+                         "../resources/test_files/allCountries.1000.txt.gz",
                          table=test_parameters["table_locations"],
                          separator="\t",
                          username=test_parameters["db2_user"])
@@ -221,7 +236,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
         self.assertEqual(f.ExitCodes.GENERIC_ERROR.value,
                          csv2db.run(
                              ["load",
-                              "-f", "../resources/bad/201811-citibike-tripdata-invalid.csv.zip",
+                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-invalid.csv.zip",
                               "-u", test_parameters["user"],
                               "-p", test_parameters["password"],
                               "-d", test_parameters["database"],
@@ -237,11 +252,11 @@ def helper_negative_truncate_table_before_load(self, db_type, username=test_para
     f.truncate_table(db_type, conn, test_parameters["table_staging"])
     conn.close()
     count1 = helper_load_data(self, db_type,
-                              file="../resources/201811-citibike-tripdata.csv",
+                              file="../resources/test_files/201811-citibike-tripdata.csv",
                               table=test_parameters["table_staging"],
                               username=username)
     count2 = helper_load_data(self, db_type,
-                              file="../resources/201811-citibike-tripdata.csv",
+                              file="../resources/test_files/201811-citibike-tripdata.csv",
                               table=test_parameters["table_staging"],
                               username=username)
     # Assert that double the amount of rows have been loaded (2 * first count == second count)
