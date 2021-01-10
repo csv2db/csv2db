@@ -22,6 +22,7 @@
 
 import functions as f
 import config as cfg
+import os
 import unittest
 import csv2db
 
@@ -42,6 +43,8 @@ class LoadingTestCaseSuite(unittest.TestCase):
         cfg.column_separator = ","
         cfg.quote_char = '"'
         cfg.data_loading_error = False
+        cfg.ignore_errors = False
+        cfg.log_bad_records = False
         cfg.debug = False
         cfg.truncate_before_load = False
 
@@ -242,9 +245,75 @@ class LoadingTestCaseSuite(unittest.TestCase):
                               "-d", test_parameters["database"],
                               "-t", test_parameters["table_staging"],
                               "--debug"
-                              ]
+                              ])
                          )
+
+    def test_negative_error_bad_data(self):
+        print("test_negative_error_bad_data")
+        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-errors.csv",
+                              "-u", test_parameters["user"],
+                              "-p", test_parameters["password"],
+                              "-d", test_parameters["database"],
+                              "-t", test_parameters["table_staging"]
+                              ])
                          )
+
+    def test_ignore_bad_data(self):
+        print("test_ignore_bad_data")
+        good_records = 7
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-o", f.DBType.MYSQL.value,
+                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-errors.csv",
+                              "-u", test_parameters["user"],
+                              "-p", test_parameters["password"],
+                              "-d", test_parameters["database"],
+                              "-t", test_parameters["table_staging"],
+                              "--ignore",
+                              "--debug"
+                              ])
+                         )
+        self.assertEqual(good_records,
+                         helper_get_count_from_table(
+                                                     f.DBType.MYSQL,
+                                                     test_parameters["user"],
+                                                     test_parameters["table_staging"])
+                         )
+
+    def test_log_bad_rows(self):
+        print("test_ignore_bad_data")
+        bad_rows = 3
+        bad_rows_found = 0
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-o", f.DBType.MYSQL.value,
+                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-errors.csv",
+                              "-u", test_parameters["user"],
+                              "-p", test_parameters["password"],
+                              "-d", test_parameters["database"],
+                              "-t", test_parameters["table_staging"],
+                              "--log",
+                              "--debug"
+                              ])
+                         )
+
+        with f.open_file("../resources/test_files/bad/201811-citibike-tripdata-errors.csv.bad") as bad_file:
+            bad_reader = f.get_csv_reader(bad_file)
+            for bad_line in bad_reader:
+                with f.open_file("../resources/test_files/bad/201811-citibike-tripdata-errors.csv") as file:
+                    reader = f.get_csv_reader(file)
+                    for line in reader:
+                        if bad_line == line:
+                            bad_rows_found += 1
+                            break
+
+        self.assertEqual(bad_rows, bad_rows_found)
+        os.remove("../resources/test_files/bad/201811-citibike-tripdata-errors.csv.bad")
 
 
 def helper_negative_truncate_table_before_load(self, db_type, username=test_parameters["user"]):
