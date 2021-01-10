@@ -293,9 +293,8 @@ def load_data(col_map, data):
                         if cfg.log_bad_records:
                             f.verbose("Logging invalid record.")
                             cfg.bad_records_logger.write_bad_record(record)
-                        if cfg.debug:
-                            f.debug("Error with record: {0}".format(record))
-                            f.debug("Error: {0}".format(err))
+                        f.debug("Error with record: {0}".format(record))
+                        f.debug("Error: {0}".format(err))
                         # If ignore errors is not set, raise error
                         if not cfg.ignore_errors:
                             # Rollback old batch (needed for at least Postgres to finish transaction)
