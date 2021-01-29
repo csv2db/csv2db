@@ -307,6 +307,23 @@ please see the documentation of the individual driver or refer to the
 
 # Miscellaneous
 
+## Use docker image
+
+```shell
+# build docker image
+docker build -t csv2db -f ./Dockerfile .
+
+# quick test the image
+docker run --rm -t csv2db --help
+
+# or if you want to use an interactive shell inside the container
+docker run --rm -it --entrypoint bash csv2db
+
+# bind mount test folder and load
+docker run --rm -it -v "$(pwd)/test:/test" csv2db \
+  load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1
+```
+
 ## Exit codes
 `csv2db` returns following exit codes:  
 
