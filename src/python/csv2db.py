@@ -177,7 +177,7 @@ def print_table_and_columns(col_list, column_data_type):
     print("(")
     cols = ""
     for col in col_list:
-        cols += "  " + col + " " + column_data_type + ",\n"
+        cols += "  `" + col + "` " + column_data_type + ",\n"
     cols = cols[:-2]
     print(cols)
     print(");")
@@ -220,6 +220,12 @@ def read_and_load_file(file):
     """
     reader = f.get_csv_reader(file)
     col_map = f.read_header(reader)
+
+    col_list = []
+    for col in col_map:
+        col_list.append("`" + col + "`")
+    col_map = col_list
+
     f.debug("Column map: {0}".format(col_map))
     for line in reader:
         load_data(col_map, line)
