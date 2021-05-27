@@ -2,7 +2,7 @@
 #
 # Since: March, 2020
 # Author: gvenzl
-# Name: functional_tests.py
+# Name: tests_functional.py
 # Description: Functional unit tests for csv2db
 #
 # Copyright 2019 Gerald Venzl

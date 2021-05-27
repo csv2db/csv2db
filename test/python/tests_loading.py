@@ -2,7 +2,7 @@
 #
 # Since: January, 2019
 # Author: gvenzl
-# Name: loading_tests.py
+# Name: tests_loading.py
 # Description: Loading unit tests for csv2db
 #
 # Copyright 2019 Gerald Venzl
