@@ -87,18 +87,18 @@ class FunctionalTestCaseSuite(unittest.TestCase):
     def test_exit_code_SUCCESS(self):
         print("test_exit_code_SUCCESS")
         self.assertEqual(f.ExitCodes.SUCCESS.value,
-                         csv2db.run(["gen", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"]))
+                         csv2db.run(["gen", "-f", "../resources/test_files/201811-citibike-tripdata.csv.gz", "-t", "STAGING"]))
 
     def test_exit_code_GENERIC_ERROR(self):
         print("test_exit_code_GENERIC_ERROR")
         self.assertEqual(f.ExitCodes.GENERIC_ERROR.value,
-                         csv2db.run(["gen", "-f", "../resources/bad/201811-citibike-tripdata-invalid.csv.zip"]))
+                         csv2db.run(["gen", "-f", "../resources/test_files/bad/201811-citibike-tripdata-invalid.csv.zip"]))
 
     def test_exit_code_ARGUMENT_ERROR(self):
         print("test_exit_code_ARGUMENT_ERROR")
         # Test that command raises SystemExit exception
         with self.assertRaises(SystemExit) as cm:
-            csv2db.run(["load", "-f", "../resources/201811-citibike-tripdata.csv.gz", "-t", "STAGING"])
+            csv2db.run(["load", "-f", "../resources/test_files/201811-citibike-tripdata.csv.gz", "-t", "STAGING"])
         # Test that command threw SystemExit with status code 2
         self.assertEqual(cm.exception.code, 2)
 
