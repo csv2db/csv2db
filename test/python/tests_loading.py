@@ -79,7 +79,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                               ["load",
-                               "-f", "../resources/bad/201811-citibike-tripdata-not-enough-columns.csv",
+                               "-f", "../resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
                                "-u", test_parameters["user"],
                                "-p", test_parameters["password"],
                                "-d", test_parameters["database"],
@@ -121,7 +121,7 @@ class LoadingTestCaseSuite(unittest.TestCase):
         self.assertEqual(f.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
-                              "-f", "../resources/bad/201811-citibike-tripdata-empty.csv",
+                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-empty.csv",
                               "-u", test_parameters["user"],
                               "-p", test_parameters["password"],
                               "-d", test_parameters["database"],
@@ -354,7 +354,7 @@ def helper_load_data(self, db_type, file,
 
 def helper_truncate_table_before_load(self, db_type, username=test_parameters["user"]):
     params = ["load",
-              "-f", "../resources/201811-citibike-tripdata.csv*",
+              "-f", "../resources/test_files/201811-citibike-tripdata.csv*",
               "-o", db_type.value,
               "-u", username,
               "-p", test_parameters["password"],
