@@ -72,6 +72,10 @@ def run(cmd):
         return f.ExitCodes.SUCCESS.value
     f.debug(file_names)
 
+    # Set DB type
+    f.debug("DB type: {0}".format(args.dbtype))
+    cfg.db_type = args.dbtype
+
     # Generate CREATE TABLE SQL
     if args.command.startswith("gen"):
         f.verbose("Generating CREATE TABLE statement.")
@@ -86,9 +90,6 @@ def run(cmd):
 
     # Load data
     else:
-        # Set DB type
-        f.debug("DB type: {0}".format(args.dbtype))
-        cfg.db_type = args.dbtype
         cfg.direct_path = args.directpath
         # Set DB default port, if needed
         if args.port is None:
@@ -177,7 +178,7 @@ def print_table_and_columns(col_list, column_data_type):
     print("(")
     cols = ""
     for col in col_list:
-        cols += "  `" + col + "` " + column_data_type + ",\n"
+        cols += " " + f.quote_field(cfg.db_type, col) + " " + column_data_type + ",\n"
     cols = cols[:-2]
     print(cols)
     print(");")
@@ -223,7 +224,7 @@ def read_and_load_file(file):
 
     col_list = []
     for col in col_map:
-        col_list.append("`" + col + "`")
+        col_list.append(f.quote_field(cfg.db_type, col))
     col_map = col_list
 
     f.debug("Column map: {0}".format(col_map))
@@ -342,6 +343,8 @@ def parse_arguments(cmd):
                                  help="Debug output.")
     parser_generate.add_argument("-t", "--table",
                                  help="The table name to use.")
+    parser_generate.add_argument("-o", "--dbtype", default="oracle", choices=[e.value for e in f.DBType],
+                                 help="The database type.")
     parser_generate.add_argument("-c", "--column-type", default="VARCHAR(1000)",
                                  help="The column type to use for the table generation.")
     parser_generate.add_argument("-s", "--separator", default=",",

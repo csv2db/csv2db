@@ -327,3 +327,27 @@ def executemany(cur, stmt):
         else:
             import psycopg2.extras as p
             p.execute_batch(cur, stmt, cfg.input_data)
+
+
+def quote_field(db_type: str, value: str) -> str:
+    """
+    Quotes the {value} with the correct character
+    depending on the database type.
+
+    Mainly to avoid name collisions of columns with
+    reserved keywords.
+
+    :param db_type: Database type. See DBType class for possible values.
+    :param value: Value to quote
+    :return: Quoted value. If no database type matches, value is returned like passed
+    """
+    if db_type in [DBType.ORACLE.value, DBType.POSTGRES.value, DBType.DB2.value]:
+        return f"\"{value}\""
+
+    if db_type == DBType.MYSQL.value:
+        return f"`{value}`"
+
+    if db_type == DBType.SQLSERVER.value:
+        return f"[{value}]"
+
+    return value

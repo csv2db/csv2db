@@ -46,6 +46,7 @@ optional arguments:
 ```console
 $ ./csv2db generate -h
 usage: csv2db generate [-h] [-f FILE] [-v] [--debug] [-t TABLE]
+                       [-o {oracle,mysql,postgres,sqlserver,db2}]
                        [-c COLUMN_TYPE] [-s SEPARATOR] [-q QUOTE]
 
 optional arguments:
@@ -55,6 +56,8 @@ optional arguments:
   --debug               Debug output.
   -t TABLE, --table TABLE
                         The table name to use.
+  -o {oracle,mysql,postgres,sqlserver,db2}, --dbtype {oracle,mysql,postgres,sqlserver,db2}
+                        The database type.
   -c COLUMN_TYPE, --column-type COLUMN_TYPE
                         The column type to use for the table generation.
   -s SEPARATOR, --separator SEPARATOR
@@ -192,7 +195,7 @@ Closing database connection.
 `csv2db` can generate the SQL statement for a staging table for your data using the `generate` command:
 
 ```sql
-$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv
+$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -o mysql
 CREATE TABLE <TABLE NAME>
 (
   TRIPDURATION VARCHAR(1000),
@@ -216,7 +219,7 @@ CREATE TABLE <TABLE NAME>
 By default you will have to fill in the table name. You can also specify the table name via the `-t` option:
 
 ```sql
-$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING
+$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING -o mysql
 CREATE TABLE STAGING
 (
   TRIPDURATION VARCHAR(1000),
@@ -240,7 +243,7 @@ CREATE TABLE STAGING
 `csv2db` will use `VARCHAR(1000)` as default data type for all columns for the staging table. If you wish to use a different data type, you can specify it via the `-c` option:
 
 ```sql
-$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING -c CLOB
+$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING -c CLOB -o mysql
 CREATE TABLE STAGING
 (
   TRIPDURATION CLOB,
