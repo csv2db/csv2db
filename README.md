@@ -195,7 +195,7 @@ Closing database connection.
 `csv2db` can generate the SQL statement for a staging table for your data using the `generate` command:
 
 ```sql
-$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -o mysql
+$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv
 CREATE TABLE <TABLE NAME>
 (
   TRIPDURATION VARCHAR(1000),
@@ -219,7 +219,7 @@ CREATE TABLE <TABLE NAME>
 By default you will have to fill in the table name. You can also specify the table name via the `-t` option:
 
 ```sql
-$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING -o mysql
+$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING
 CREATE TABLE STAGING
 (
   TRIPDURATION VARCHAR(1000),
@@ -243,7 +243,7 @@ CREATE TABLE STAGING
 `csv2db` will use `VARCHAR(1000)` as default data type for all columns for the staging table. If you wish to use a different data type, you can specify it via the `-c` option:
 
 ```sql
-$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING -c CLOB -o mysql
+$ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING -c CLOB
 CREATE TABLE STAGING
 (
   TRIPDURATION CLOB,
