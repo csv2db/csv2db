@@ -53,6 +53,7 @@ def run(cmd):
 
     # Set table name
     cfg.table_name = args.table
+    # TODO Should we quote the table name in the debug output as well, once this is configured?
     f.debug("Table name: {0}".format(cfg.table_name))
 
     # Set column separator characters(s)
