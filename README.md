@@ -47,7 +47,8 @@ optional arguments:
 $ ./csv2db generate -h
 usage: csv2db generate [-h] [-f FILE] [-v] [--debug] [-t TABLE]
                        [-o {oracle,mysql,postgres,sqlserver,db2}]
-                       [-c COLUMN_TYPE] [-s SEPARATOR] [-q QUOTE]
+                       [--quote-identifiers] [-c COLUMN_TYPE] [-s SEPARATOR]
+                       [-q QUOTE]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -58,6 +59,8 @@ optional arguments:
                         The table name to use.
   -o {oracle,mysql,postgres,sqlserver,db2}, --dbtype {oracle,mysql,postgres,sqlserver,db2}
                         The database type.
+  --quote-identifiers   SQL identifiers (table names and columns) are getting
+                        quoted.
   -c COLUMN_TYPE, --column-type COLUMN_TYPE
                         The column type to use for the table generation.
   -s SEPARATOR, --separator SEPARATOR
@@ -69,9 +72,10 @@ optional arguments:
 ```console
 $ ./csv2db load -h
 usage: csv2db load [-h] [-f FILE] [-v] [--debug] -t TABLE
-                   [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER
-                   [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME] [-b BATCH]
-                   [-s SEPARATOR] [-q QUOTE] [-a]
+                   [-o {oracle,mysql,postgres,sqlserver,db2}]
+                   [--quote-identifiers] -u USER [-p PASSWORD] [-m HOST]
+                   [-n PORT] [-d DBNAME] [-b BATCH] [-s SEPARATOR] [-q QUOTE]
+                   [-a]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -82,6 +86,8 @@ optional arguments:
                         The table name to use.
   -o {oracle,mysql,postgres,sqlserver,db2}, --dbtype {oracle,mysql,postgres,sqlserver,db2}
                         The database type.
+  --quote-identifiers   SQL identifiers (table names and columns) are getting
+                        quoted.
   -u USER, --user USER  The database user to load data into.
   -p PASSWORD, --password PASSWORD
                         The database schema password. csv2db will prompt for
@@ -120,7 +126,6 @@ $ ./csv2db load -f test/resources/201811-citibike-tripdata.csv.gz -t citibikes -
 
 Loading file test/resources/201811-citibike-tripdata.csv.gz
 File loaded.
-
 ```
 
 `csv2db` `--verbose` option will provide verbose output.
@@ -282,7 +287,7 @@ $ unzip csv2db.zip
 $ cd csv2db*
 $ ./csv2db
 ```
-    
+
 In order for `csv2db` to work you will have to install the appropriate database driver(s).
 The following drivers are being used, all available on [pypi.org](https://pypi.org/):
 
@@ -311,7 +316,7 @@ please see the documentation of the individual driver or refer to the
 # Miscellaneous
 
 ## Exit codes
-`csv2db` returns following exit codes:  
+`csv2db` returns following exit codes:
 
 Exit code          | Value | Meaning
 ------------------ | ----- | -------
@@ -322,21 +327,40 @@ DATABASE_ERROR     |     3 | A database error occurred.
 DATA_LOADING_ERROR |     4 | An error occurred during loading of data. `csv2db` will continue to process other files, if any.
 
 ## `$NO_COLOR` support
-`csv2db` is capable of color coded output and will do so by default (except on Windows).  
-<span style="color:yellow">Debug output is yellow.</span>  
-<span style="color:red">Error output is red.</span>  
+`csv2db` is capable of color coded output and will do so by default (except on Windows).
+<span style="color:yellow">Debug output is yellow.</span>
+<span style="color:red">Error output is red.</span>
 This can be deactivated by setting the `$NO_COLOR` environment variable. For more details on `$NO_COLOR` see https://no-color.org/
+
+## Quoting identifiers with `--quote-identifiers`
+
+Some words are reserved keywords in the database world.
+E.g., [`RANGE` in MySQL](https://dev.mysql.com/doc/refman/8.0/en/keywords.html#keywords-8-0-detailed-R), [`OPTION` in Oracle](https://doc.ispirer.com/sqlways/Output/SQLWays-1-134.html), [`AUDIT` in DB2](https://www.ibm.com/docs/en/db2-for-zos/11?topic=words-reserved).
+
+If your CSV contains a column named after a reserved keyword, you have to quote those identifiers to import the data by using the `--quote-identifiers` flag.
+
+One side effect of using quoted identifiers is:
+Some database systems treat the identifier as case-sensitive.
+See the table below for details.
+
+Database system    | Handling of case-sensitivity
+------------------ | ------------------------------
+DB2                | Without quotes, column names are uppercase by default. With quotes, names are used as provided.
+Oracle             | Without quotes, column names are uppercase by default. With quotes, names are used as provided.
+PostgreSQL         | Without quotes, column names are lowercase by default. With quotes, names are used as provided.
+MySQL              | Does not care about the case sensitivity.
+SQL Server         | Does not care about the case sensitivity.
 
 # LICENSE
 
 	Copyright 2019 Gerald Venzl
-	
+
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
 	You may obtain a copy of the License at
-	
+
 	    http://www.apache.org/licenses/LICENSE-2.0
-	
+
 	Unless required by applicable law or agreed to in writing, software
 	distributed under the License is distributed on an "AS IS" BASIS,
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
