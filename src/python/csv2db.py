@@ -77,6 +77,10 @@ def run(cmd):
     f.debug("DB type: {0}".format(args.dbtype))
     cfg.db_type = args.dbtype
 
+    # Set quoting identifiers
+    f.debug("Quoting identifiers: {0}".format(args.quote_identifiers))
+    cfg.quote_identifiers = args.quote_identifiers
+
     # Generate CREATE TABLE SQL
     if args.command.startswith("gen"):
         f.verbose("Generating CREATE TABLE statement.")
@@ -173,13 +177,21 @@ def print_table_and_columns(col_list, column_data_type):
         The data type to use for all columns
     """
     if cfg.table_name is not None:
-        print("CREATE TABLE {0}".format(f.quote(cfg.db_type, cfg.table_name)))
+        table_name = cfg.table_name
+        if cfg.quote_identifiers:
+            table_name = f.quote(cfg.db_type, cfg.table_name)
+
+        print("CREATE TABLE {0}".format(table_name))
     else:
         print("CREATE TABLE <TABLE NAME>")
     print("(")
     cols = ""
     for col in col_list:
-        cols += " " + f.quote(cfg.db_type, col) + " " + column_data_type + ",\n"
+        col_name = col
+        if cfg.quote_identifiers:
+            col_name = f.quote(cfg.db_type, col)
+
+        cols += " " + col_name + " " + column_data_type + ",\n"
     cols = cols[:-2]
     print(cols)
     print(");")
@@ -226,7 +238,11 @@ def read_and_load_file(file):
     # Quoting field names
     col_list = []
     for col in col_map:
-        col_list.append(f.quote(cfg.db_type, col))
+        col_name = col
+        if cfg.quote_identifiers:
+            col_name = f.quote(cfg.db_type, col)
+
+        col_list.append(col_name)
     col_map = col_list
 
     f.debug("Column map: {0}".format(col_map))
@@ -306,8 +322,12 @@ def generate_statement(col_map):
     else:
         values = ("%s, " * len(col_map))[:-2]
 
+    table_name = cfg.table_name
+    if cfg.quote_identifiers:
+        table_name = f.quote(cfg.db_type, cfg.table_name)
+
     return "INSERT{0} INTO {1} ({2}) VALUES ({3})".format(append_hint,
-                                                          f.quote(cfg.db_type, cfg.table_name),
+                                                          table_name,
                                                           ", ".join(col_map),
                                                           values)
 
@@ -348,6 +368,8 @@ def parse_arguments(cmd):
                                  help="The table name to use.")
     parser_generate.add_argument("-o", "--dbtype", default="oracle", choices=[e.value for e in f.DBType],
                                  help="The database type.")
+    parser_generate.add_argument("--quote-identifiers", action="store_true", default=False,
+                                 help="SQL identifiers (table names and columns) are getting quoted.")
     parser_generate.add_argument("-c", "--column-type", default="VARCHAR(1000)",
                                  help="The column type to use for the table generation.")
     parser_generate.add_argument("-s", "--separator", default=",",
@@ -368,6 +390,8 @@ def parse_arguments(cmd):
                              help="The table name to use.")
     parser_load.add_argument("-o", "--dbtype", default="oracle", choices=[e.value for e in f.DBType],
                              help="The database type.")
+    parser_load.add_argument("--quote-identifiers", action="store_true", default=False,
+                             help="SQL identifiers (table names and columns) are getting quoted.")
     parser_load.add_argument("-u", "--user", required=True,
                              help="The database user to load data into.")
     parser_load.add_argument("-p", "--password",
