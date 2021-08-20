@@ -347,6 +347,16 @@ def quote_field(db_type: str, value: str) -> str:
     if db_type == DBType.MYSQL.value:
         return f"`{value}`"
 
+    # TODO Figure out what is the right way to quote SQL-Server words
+    # Context:
+    #   SQL-Server / MSSQL supports quoting via [] and ", depending on a config setting.
+    #   [] is considered legacy, " is the new default.
+    #   However, old instances can still have the old setting enabled.
+    #   Multiple options:
+    #       1. Use only the new one and say "no legacy supported"
+    #       2. Find a way to query the setting from the SQL-Server and decide then
+    #
+    #   See https://github.com/csv2db/csv2db/pull/51 for full context
     if db_type == DBType.SQLSERVER.value:
         return f"[{value}]"
 
