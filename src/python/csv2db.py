@@ -173,7 +173,7 @@ def print_table_and_columns(col_list, column_data_type):
         The data type to use for all columns
     """
     if cfg.table_name is not None:
-        print("CREATE TABLE {0}".format(cfg.table_name))
+        print("CREATE TABLE {0}".format(f.quote(cfg.db_type, cfg.table_name)))
     else:
         print("CREATE TABLE <TABLE NAME>")
     print("(")
@@ -223,6 +223,7 @@ def read_and_load_file(file):
     reader = f.get_csv_reader(file)
     col_map = f.read_header(reader)
 
+    # Quoting field names
     col_list = []
     for col in col_map:
         col_list.append(f.quote(cfg.db_type, col))
@@ -304,8 +305,9 @@ def generate_statement(col_map):
         values = ("?," * len(col_map))[:-1]
     else:
         values = ("%s, " * len(col_map))[:-2]
+
     return "INSERT{0} INTO {1} ({2}) VALUES ({3})".format(append_hint,
-                                                          cfg.table_name,
+                                                          f.quote(cfg.db_type, cfg.table_name),
                                                           ", ".join(col_map),
                                                           values)
 
