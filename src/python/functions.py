@@ -329,7 +329,7 @@ def executemany(cur, stmt):
             p.execute_batch(cur, stmt, cfg.input_data)
 
 
-def quote_field(db_type: str, value: str) -> str:
+def quote(db_type: str, value: str) -> str:
     """
     Quotes the {value} with the correct character
     depending on the database type.

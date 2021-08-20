@@ -178,7 +178,7 @@ def print_table_and_columns(col_list, column_data_type):
     print("(")
     cols = ""
     for col in col_list:
-        cols += " " + f.quote_field(cfg.db_type, col) + " " + column_data_type + ",\n"
+        cols += " " + f.quote(cfg.db_type, col) + " " + column_data_type + ",\n"
     cols = cols[:-2]
     print(cols)
     print(");")
@@ -224,7 +224,7 @@ def read_and_load_file(file):
 
     col_list = []
     for col in col_map:
-        col_list.append(f.quote_field(cfg.db_type, col))
+        col_list.append(f.quote(cfg.db_type, col))
     col_map = col_list
 
     f.debug("Column map: {0}".format(col_map))
