@@ -31,6 +31,8 @@ import sys
 import traceback
 from enum import Enum
 import csv
+from typing import List
+
 
 import config as cfg
 
@@ -100,8 +102,25 @@ def read_header(reader):
         A list with all the column names.
     """
     header = []
-    header.extend(col.replace(' ', '_',).upper() for col in next(reader))
+    header.extend(col.replace(' ', '_',) for col in next(reader))
     return header
+
+
+def uppercase_list(items: List[str]) -> List[str]:
+    """Makes all elements in list `items` uppercase.
+
+    Parameters
+    ----------
+    items : List[str]
+        Items to process
+
+    Returns
+    -------
+    List[str]
+        A list with all the items in uppercase.
+    """
+    uppercase_items = [item.upper() for item in items]
+    return uppercase_items
 
 
 def find_all_files(pattern):

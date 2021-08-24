@@ -34,3 +34,4 @@ db_type = None
 column_separator = ""
 quote_char = ""
 data_loading_error = False
+keep_column_names = False

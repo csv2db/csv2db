@@ -63,6 +63,9 @@ def run(cmd):
     cfg.quote_char = args.quote
     f.debug("Column escape character: {0}".format(cfg.quote_char))
 
+    # Set option to use column names like in the CSV
+    cfg.keep_column_names = args.keep_column_names
+
     # Find all files
     f.verbose("Finding file(s).")
     file_names = f.find_all_files(args.file)
@@ -76,7 +79,7 @@ def run(cmd):
     if args.command.startswith("gen"):
         f.verbose("Generating CREATE TABLE statement.")
         try:
-            generate_table_sql(file_names, args.column_type)
+            generate_table_sql(file_names, args.column_type, cfg.keep_column_names)
             return f.ExitCodes.SUCCESS.value
         except Exception as err:
             exception, tb_str = f.get_exception_details()
@@ -122,7 +125,7 @@ def run(cmd):
             return f.ExitCodes.DATABASE_ERROR.value
 
         try:
-            load_files(file_names)
+            load_files(file_names, cfg.keep_column_names)
             f.verbose("Closing database connection.")
             cfg.conn.close()
             return f.ExitCodes.SUCCESS.value if not cfg.data_loading_error else f.ExitCodes.DATA_LOADING_ERROR.value
@@ -138,7 +141,7 @@ def run(cmd):
             return f.ExitCodes.GENERIC_ERROR.value
 
 
-def generate_table_sql(file_names, column_data_type):
+def generate_table_sql(file_names, column_data_type, keep_column_names: bool):
     """Generates SQL for the table to load data.
 
     Parameters
@@ -154,6 +157,11 @@ def generate_table_sql(file_names, column_data_type):
         with f.open_file(file_name) as file:
             reader = f.get_csv_reader(file)
             columns_to_add = f.read_header(reader)
+
+            # Uppercase column names if we don't tell it otherwise.
+            if keep_column_names is False:
+                columns_to_add = f.uppercase_list(columns_to_add)
+
             f.debug("Columns to add {0}".format(columns_to_add))
             # Add columns to list implicitly removing duplicates for when going over multiple files
             col_list.extend(col for col in columns_to_add if col not in col_list)
@@ -184,7 +192,7 @@ def print_table_and_columns(col_list, column_data_type):
     print()
 
 
-def load_files(file_names):
+def load_files(file_names, keep_column_names: bool):
     """Loads all files into the database.
 
     file_names : str
@@ -196,7 +204,7 @@ def load_files(file_names):
         f.debug("Opening file handler for '{0}'".format(file_name))
         with f.open_file(file_name) as file:
             try:
-                read_and_load_file(file)
+                read_and_load_file(file, keep_column_names)
                 print("File loaded.")
             except StopIteration:
                 print("File is empty: {0}".format(file_name))
@@ -210,7 +218,7 @@ def load_files(file_names):
         print()
 
 
-def read_and_load_file(file):
+def read_and_load_file(file, keep_column_names: bool):
     """Reads and loads file.
 
     Parameters
@@ -220,6 +228,11 @@ def read_and_load_file(file):
     """
     reader = f.get_csv_reader(file)
     col_map = f.read_header(reader)
+
+    # Uppercase column names if we don't tell it otherwise.
+    if keep_column_names is False:
+        col_map = f.uppercase_list(col_map)
+
     f.debug("Column map: {0}".format(col_map))
     for line in reader:
         load_data(col_map, line)
@@ -342,6 +355,8 @@ def parse_arguments(cmd):
                                  help="The columns separator character(s).")
     parser_generate.add_argument("-q", "--quote", default='"',
                                  help="The quote character on which a string won't be split.")
+    parser_generate.add_argument("-k", "--keep-column-names", action="store_true", default=False,
+                                 help="Use column names as provided in the CSV file. Without this, column names will be uppercase.")
 
     # Sub Parser load
     parser_load = subparsers.add_parser("load", aliases=["lo"],
@@ -377,6 +392,8 @@ def parse_arguments(cmd):
                              help="The quote character on which a string won't be split.")
     parser_load.add_argument("-a", "--directpath", action="store_true", default=False,
                              help="Execute a direct path INSERT load operation (Oracle only).")
+    parser_load.add_argument("-k", "--keep-column-names", action="store_true", default=False,
+                             help="Use column names as provided in the CSV file. Without this, column names will be uppercase.")
 
     return parser.parse_args(cmd)
 
