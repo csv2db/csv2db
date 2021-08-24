@@ -72,11 +72,14 @@ def run(cmd):
         return f.ExitCodes.SUCCESS.value
     f.debug(file_names)
 
+    # Set smart mode
+    cfg.smart_mode = args.smart_mode
+
     # Generate CREATE TABLE SQL
     if args.command.startswith("gen"):
         f.verbose("Generating CREATE TABLE statement.")
         try:
-            generate_table_sql(file_names, args.column_type)
+            generate_table_sql(file_names, args.column_type, cfg.smart_mode)
             return f.ExitCodes.SUCCESS.value
         except Exception as err:
             exception, tb_str = f.get_exception_details()
@@ -138,7 +141,7 @@ def run(cmd):
             return f.ExitCodes.GENERIC_ERROR.value
 
 
-def generate_table_sql(file_names, column_data_type):
+def generate_table_sql(file_names, column_data_type, smart_mode: bool):
     """Generates SQL for the table to load data.
 
     Parameters
@@ -148,19 +151,35 @@ def generate_table_sql(file_names, column_data_type):
     column_data_type : str
         The column data type to use
     """
-    col_list = []
     for file_name in file_names:
         f.debug("Reading file {0}".format(file_name))
         with f.open_file(file_name) as file:
             reader = f.get_csv_reader(file)
             columns_to_add = f.read_header(reader)
             f.debug("Columns to add {0}".format(columns_to_add))
-            # Add columns to list implicitly removing duplicates for when going over multiple files
-            col_list.extend(col for col in columns_to_add if col not in col_list)
-    print_table_and_columns(col_list, column_data_type)
+
+            # By using a dictonary it removes duplicates implicitly
+            cols = {}
+            for col in columns_to_add:
+                cols[col] = column_data_type
+
+            # Smart mode
+            # Determine the correct column type
+            if smart_mode:
+                # TODO Pass database type through
+                database = f.get_database("mysql")
+                i = 0
+                first_line = next(reader)
+                for val in first_line:
+                    column_type = f.determine_column_type(val)
+                    column_name = columns_to_add[i]
+                    cols[column_name] = database.get_colum_type(column_type)
+                    i += 1
+
+    print_table_and_columns(cols)
 
 
-def print_table_and_columns(col_list, column_data_type):
+def print_table_and_columns(col_list: dict):
     """Prints the SQL CREATE TABLE statement to stdout.
 
     Parameters
@@ -177,7 +196,7 @@ def print_table_and_columns(col_list, column_data_type):
     print("(")
     cols = ""
     for col in col_list:
-        cols += "  " + col + " " + column_data_type + ",\n"
+        cols += "  " + col + " " + col_list[col] + ",\n"
     cols = cols[:-2]
     print(cols)
     print(");")
@@ -342,6 +361,8 @@ def parse_arguments(cmd):
                                  help="The columns separator character(s).")
     parser_generate.add_argument("-q", "--quote", default='"',
                                  help="The quote character on which a string won't be split.")
+    parser_generate.add_argument("-i", "--smart-mode", action="store_true", default=False,
+                                 help="Smart mode tries to determine the right column type.")
 
     # Sub Parser load
     parser_load = subparsers.add_parser("load", aliases=["lo"],
@@ -377,6 +398,7 @@ def parse_arguments(cmd):
                              help="The quote character on which a string won't be split.")
     parser_load.add_argument("-a", "--directpath", action="store_true", default=False,
                              help="Execute a direct path INSERT load operation (Oracle only).")
+    # TODO Implement --smart-mode for load command
 
     return parser.parse_args(cmd)
 
