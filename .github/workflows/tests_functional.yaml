@@ -1,7 +1,7 @@
 #
 # Since: May, 2021
 # Author: gvenzl
-# Name: functional_tests.yaml
+# Name: tests_functional.yaml
 # Description: GitHub Actions functional tests
 #
 # Copyright 2021 Gerald Venzl
