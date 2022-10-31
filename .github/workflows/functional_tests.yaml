@@ -34,7 +34,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Run Python test on version ${{ matrix.python-version }}
+      - name: Run UNIX functional tests on version ${{ matrix.python-version }}
         run: |
           export PYTHONPATH=$PWD/src/python
           cd test/python
@@ -52,7 +52,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Run Python test on version ${{ matrix.python-version }}
+      - name: Run Windows functional tests on version ${{ matrix.python-version }}
         run: |
           $env:PYTHONPATH="$Pwd\src\python"
           cd test/python
