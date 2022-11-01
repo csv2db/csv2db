@@ -1,7 +1,7 @@
 #
 # Since: May, 2021
 # Author: gvenzl
-# Name: tests_functional.yaml
+# Name: tests_functional.yml
 # Description: GitHub Actions functional tests
 #
 # Copyright 2021 Gerald Venzl
@@ -27,11 +27,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: [ '3.6', '3.7', '3.8', '3.9', '3.x' ]
+        python-version: [ '3.6', '3.7', '3.8', '3.9', '3.10', '3.x' ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3.1.0
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Run UNIX functional tests on version ${{ matrix.python-version }}
@@ -45,7 +45,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        python-version: [ '3.6', '3.7', '3.8', '3.9', '3.x' ]
+        python-version: [ '3.6', '3.7', '3.8', '3.9', '3.10', '3.x' ]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
