@@ -224,11 +224,11 @@ def get_db_connection(db_type, user, password, host, port, db_name):
 
     try:
         if db_type is DBType.ORACLE:
-            import cx_Oracle
-            conn = cx_Oracle.connect(user,
-                                     password,
-                                     host + ":" + port + "/" + db_name,
-                                     encoding="UTF-8", nencoding="UTF-8")
+            import oracledb
+            conn = oracledb.connect(user=user,
+                                    password=password,
+                                    dsn=host + ":" + port + "/" + db_name,
+                                    encoding="UTF-8", nencoding="UTF-8")
         elif db_type is DBType.MYSQL:
             import mysql.connector
             conn = mysql.connector.connect(

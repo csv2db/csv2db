@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Read all input files with `UTF-8` encoding
+- Use oracledb driver for Oracle Database
 
 ## [1.5.1] 2020-03-21
 
