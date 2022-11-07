@@ -33,6 +33,7 @@ from enum import Enum
 import csv
 
 import config as cfg
+import databases
 
 
 class DBType(Enum):
@@ -57,6 +58,12 @@ class TerminalColor(Enum):
     RED = "\x1b[31m"
     YELLOW = "\x1b[33m"
     RESET = "\x1b[0m"
+
+
+class ColumnTypes(Enum):
+    STRING = "String"
+    INTEGER = "Int"
+    FLOAT = "Float"
 
 
 def open_file(file):
@@ -327,3 +334,89 @@ def executemany(cur, stmt):
         else:
             import psycopg2.extras as p
             p.execute_batch(cur, stmt, cfg.input_data)
+
+
+def represents_int(s: str) -> bool:
+    """Returns true if the value s is an integer, false otherwise.
+
+    Parameters
+    ----------
+    s : str
+        The value to check
+
+    Returns
+    -------
+    bool
+        True if the value can be interpreted as integer.
+    """
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+
+def represents_float(s: str) -> bool:
+    """Returns true if the value s is an float, false otherwise.
+
+    Parameters
+    ----------
+    s : str
+        The value to check
+
+    Returns
+    -------
+    bool
+        True if the value can be interpreted as float.
+    """
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
+def determine_column_type(value: str) -> str:
+    """Tries to determine the best database column type for `value`.
+
+    Parameters
+    ----------
+    value : str
+        The value to check
+
+    Returns
+    -------
+    str
+        Database column type like String, Integer or Float
+    """
+    if represents_int(value):
+        return ColumnTypes.INTEGER.value
+
+    if represents_float(value):
+        return ColumnTypes.FLOAT.value
+
+    return ColumnTypes.STRING.value
+
+
+def get_database(db_type: str):
+    """Returns the correct column type depending on `db_type`.
+
+    Parameters
+    ----------
+    db_type : str
+        The database type. E.g., oracle, mysql, ...
+
+    Returns
+    -------
+    str
+        The column type like VARCHAR(1000), BIGINT, ...
+    """
+    available_databases = {
+        DBType.MYSQL.value: databases.MySQL(),
+        # TODO Initiate Oracle database type
+        # TODO Initiate Postgres database type
+        # TODO Initiate SQL Server database type
+        # TODO Initiate DB2 database type
+    }
+
+    return available_databases[db_type]
