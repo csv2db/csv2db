@@ -46,10 +46,9 @@ def negative_load_file_with_insufficient_columns(db_type, user, password, databa
        The return code from csv2db
     """
     return csv2db.run(
-              ["load",
+              ["load", "--debug",
                "-f", "../resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
-               "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table,
-               "--debug"
+               "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
                ]
              )
 
@@ -76,10 +75,9 @@ def load_file_with_insufficient_columns_and_ignore_flag(db_type, user, password,
        The return code from csv2db
     """
     return csv2db.run(
-              ["load",
+              ["load", "--ignore", "--debug",
                "-f", "../resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
-               "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table,
-               "--ignore"
+               "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
                ]
              )
 
@@ -106,13 +104,10 @@ def exit_code_DATABASE_ERROR(db_type, user, password, database, table):
        The return code from csv2db
     """
     return csv2db.run(
-              ["load",
-               "-o", db_type,
+              ["load", "--debug",
+               "-o", db_type, "-u", "INVALIDUSER", "-p", password,  "-d", database, "-t", table,
                "-f", "../resources/test_files/201811-citibike-tripdata.csv",
-               "-u", "INVALIDUSER",
-               "-p", password,
-               "-d", database,
-               "-t", table]
+               ]
               )
 
 
@@ -138,11 +133,9 @@ def exit_code_DATA_LOADING_ERROR(db_type, user, password, database, table):
        The return code from csv2db
     """
     return csv2db.run(
-              ["load",
+              ["load", "--debug",
                "-f", "../resources/test_files/201811-citibike-tripdata.csv",
-               "-o", db_type, "-u", user, "-p", password, "-d", database,
-               "-t", "DOES_NOT_EXIST",
-               "--debug"
+               "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", "DOES_NOT_EXIST"
                ]
              )
 
@@ -169,7 +162,7 @@ def empty_file(db_type, user, password, database, table):
        The return code from csv2db
     """
     return csv2db.run(
-             ["load",
+             ["load", "--debug",
               "-f", "../resources/test_files/bad/201811-citibike-tripdata-empty.csv",
               "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
               ]
@@ -201,12 +194,14 @@ def load_file(db_type, user, password, database, table, file, separator=","):
     int
        The number of rows loaded.
     """
-    csv2db.run(
-        ["load",
+    if csv2db.run(
+        ["load", "--debug",
          "-f", file, "-s", separator,
          "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
          ]
-    )
+    ) != f.ExitCodes.SUCCESS.value:
+        raise Exception
+
     conn = f.get_db_connection(f.DBType(db_type), user, password, "localhost", "1521", database)
     cur = conn.cursor()
     cur.execute("SELECT COUNT(1) FROM {0}".format(table))
@@ -244,10 +239,11 @@ def truncate_table_before_load(db_type, user, password, database, table, file, s
     """
     params = ["load", "-f", file,
               "-o", db_type, "-u", user, "-p", password, "-d", database,
-              "-t", table, "-s", separator, "--truncate"
+              "-t", table, "-s", separator, "--truncate", "--debug"
               ]
 
-    csv2db.run(params)
+    if csv2db.run(params) != f.ExitCodes.SUCCESS.value:
+        raise Exception
 
     conn = f.get_db_connection(f.DBType(db_type), user, password, "localhost", "1521", database)
     cur = conn.cursor()
@@ -259,7 +255,8 @@ def truncate_table_before_load(db_type, user, password, database, table, file, s
     # Reset global truncate parameter
     cfg.truncate_before_load = False
 
-    csv2db.run(params)
+    if csv2db.run(params) != f.ExitCodes.SUCCESS.value:
+        raise Exception
 
     conn = f.get_db_connection(f.DBType(db_type), user, password, "localhost", "1521", database)
     cur = conn.cursor()
@@ -337,7 +334,7 @@ def load_file_with_return_code(db_type, user, password, database, table, file, s
        The return code from csv2db.
     """
     return csv2db.run(
-             ["load",
+             ["load", "--debug",
               "-f", file, "-s", separator,
               "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
               ]
@@ -369,12 +366,13 @@ def load_file_with_return_code_ignore(db_type, user, password, database, table, 
     int
        The rows loaded into the table.
     """
-    csv2db.run(
-        ["load",
-         "-f", file, "-s", separator, "--ignore",
+    if csv2db.run(
+        ["load", "--ignore", "--debug",
+         "-f", file, "-s", separator,
          "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
          ]
-    )
+    ) != f.ExitCodes.SUCCESS.value:
+        raise Exception
 
     conn = f.get_db_connection(f.DBType(db_type), user, password, "localhost", "1521", database)
     cur = conn.cursor()
@@ -409,11 +407,12 @@ def log_bad_rows(db_type, user, password, database, table, file):
     int
        The bad rows found.
     """
-    csv2db.run(
-        ["load", "-f", file, "--ignore", "--log",
+    if csv2db.run(
+        ["load", "-f", file, "--ignore", "--log", "--debug",
          "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
          ]
-    )
+    ) != f.ExitCodes.SUCCESS.value:
+        raise Exception
 
     bad_rows_found = 0
     with f.open_file(file + ".bad") as bad_file:

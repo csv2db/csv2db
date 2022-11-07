@@ -124,7 +124,7 @@ class LoadingTestsOracleSuite(unittest.TestCase):
     def test_truncate_table_before_load_Oracle(self):
         print("test_truncate_table_before_load_Oracle")
         count1, count2 = t.truncate_table_before_load(
-            p["db_type"], p["user"], p["pwd"], p["db_name"], p["tab_loc"],
+            p["db_type"], p["user"], p["pwd"], p["db_name"], p["tab_stage"],
             "../resources/test_files/201811-citibike-tripdata.csv*"
         )
         self.assertEqual(count1, count2)
