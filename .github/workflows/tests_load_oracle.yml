@@ -51,8 +51,9 @@ jobs:
                      -e ORACLE_DATABASE=TEST \
                      -e ORACLE_RANDOM_PASSWORD=y \
                      gvenzl/oracle-xe:latest-faststart
-          sleep 15
-          docker logs oracle
+          while [[ $(docker logs oracle | grep -c "DATABASE IS READY TO USE") == 0 ]]; do
+            sleep 1;
+          done;
 
       - name: Run Oracle tests on version ${{ matrix.python-version }}
         run: |
