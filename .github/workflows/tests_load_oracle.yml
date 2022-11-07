@@ -52,6 +52,7 @@ jobs:
                      -e ORACLE_RANDOM_PASSWORD=y \
                      gvenzl/oracle-xe:latest-faststart
           sleep 15
+          docker logs oracle
 
       - name: Run Oracle tests on version ${{ matrix.python-version }}
         run: |
