@@ -45,7 +45,7 @@ jobs:
         run: |
           docker run -d --name oracle \
                      -p 1521:1521 \
-                     -v $PWD/test/resources/test_env/schema/oracle:/docker-entrypoint-initdb.d \
+                     -v $PWD/test/resources/test_env/oracle/schema:/docker-entrypoint-initdb.d \
                      -e APP_USER=TEST \
                      -e APP_USER_PASSWORD=LetsTest1 \
                      -e ORACLE_DATABASE=TEST \
