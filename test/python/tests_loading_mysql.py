@@ -33,7 +33,7 @@ test_parameters = {
 }
 
 
-class LoadingTestCaseSuite(unittest.TestCase):
+class LoadingTestsMySQLSuite(unittest.TestCase):
 
     def setUp(self):
         # Set the defaults for all tests

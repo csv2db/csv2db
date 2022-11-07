@@ -51,7 +51,7 @@ jobs:
                      -e MYSQL_DATABASE=test \
                      -e MYSQL_RANDOM_ROOT_PASSWORD=y \
                      mysql
-          sleep 10
+          sleep 15
 
       - name: Run MySQL tests on version ${{ matrix.python-version }}
         run: |
