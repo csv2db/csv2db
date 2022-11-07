@@ -46,12 +46,12 @@ jobs:
           docker run -d --name oracle \
                      -p 1521:1521 \
                      -v $PWD/test/resources/test_env/schema:/docker-entrypoint-initdb.d \
-                     -e APP_USER=test \
+                     -e APP_USER=TEST \
                      -e APP_USER_PASSWORD=LetsTest1 \
-                     -e ORACLE_DATABASE=test \
+                     -e ORACLE_DATABASE=TEST \
                      -e ORACLE_RANDOM_PASSWORD=y \
                      gvenzl/oracle-xe:latest-faststart
-          sleep 10
+          sleep 15
 
       - name: Run Oracle tests on version ${{ matrix.python-version }}
         run: |

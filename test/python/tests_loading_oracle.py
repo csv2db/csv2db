@@ -25,9 +25,9 @@ import tests_loading as t
 
 p = {
     "db_type": "oracle",
-    "user": "test",
+    "user": "TEST",
     "pwd": "LetsTest1",
-    "db_name": "test",
+    "db_name": "TEST",
     "tab_stage": "STAGING",
     "tab_loc": "LOCATIONS"
 }
