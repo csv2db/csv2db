@@ -18,7 +18,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-CREATE PLUGGABLE DATABASE test ADMIN USER test IDENTIFIED BY LetsDocker1 FILE_NAME_CONVERT=('/opt/oracle/oradata/XE/pdbseed','/opt/oracle/oradata/XE/test');
+CREATE PLUGGABLE DATABASE test ADMIN USER test IDENTIFIED BY LetsTest1 FILE_NAME_CONVERT=('pdbseed','test');
 ALTER PLUGGABLE DATABASE test OPEN;
 ALTER PLUGGABLE DATABASE test SAVE STATE;
 ALTER SESSION SET CONTAINER=test;
