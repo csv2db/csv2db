@@ -44,11 +44,11 @@ jobs:
       - name: Setup test database
         run: |
           docker run -d --name postgres \
-                     -p 5432:5432
+                     -p 5432:5432 \
                      -v $PWD/test/resources/test_env/schema:/docker-entrypoint-initdb.d \
-                     -e POSTGRES_USER=TEST
-                     -e POSTGRES_PASSWORD=LetsTest1
-                     -e POSTGRES_DB=TEST
+                     -e POSTGRES_USER=TEST \
+                     -e POSTGRES_PASSWORD=LetsTest1 \
+                     -e POSTGRES_DB=TEST \
                      postgres
           while [[ $(docker logs oracle | grep -c "database system is ready to accept connections") == 0 ]]; do
             sleep 1;
