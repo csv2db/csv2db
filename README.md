@@ -326,13 +326,13 @@ It is there to help users to get the contents of a file into a database table qu
 ## Exit codes
 `csv2db` returns following exit codes:  
 
-Exit code          | Value | Meaning
------------------- | ----- | -------
-SUCCESS            |     0 | Successful execution of the program.
-GENERIC_ERROR      |     1 | A generic error occurred.
-ARGUMENT_ERROR     |     2 | An argument is either missing or incorrect.
-DATABASE_ERROR     |     3 | A database error occurred.
-DATA_LOADING_ERROR |     4 | An error occurred during loading of data. `csv2db` will continue to process other files, if any.
+| Exit code          | Value | Meaning                                                                                          |
+|--------------------|:-----:|--------------------------------------------------------------------------------------------------|
+| SUCCESS            |   0   | Successful execution of the program.                                                             |
+| GENERIC_ERROR      |   1   | A generic error occurred.                                                                        |
+| ARGUMENT_ERROR     |   2   | An argument is either missing or incorrect.                                                      |
+| DATABASE_ERROR     |   3   | A database error occurred.                                                                       |
+| DATA_LOADING_ERROR |   4   | An error occurred during loading of data. `csv2db` will continue to process other files, if any. |
 
 ## `$NO_COLOR` support
 `csv2db` is capable of color coded output and will do so by default (except on Windows).  
