@@ -1,8 +1,8 @@
 #
-#  Since: October 2022
+#  Since: December 2022
 #  Author: gvenzl
-#  Name: tests_loading_mysql.py
-#  Description: loading tests for MySQL
+#  Name: tests_loading_sqlserver.py
+#  Description: loading tests for SQL Server
 #
 #  Copyright 2022 Gerald Venzl
 #
@@ -25,7 +25,7 @@ import tests_loading as base
 class LoadingTestsOracleSuite(base.LoadingTestsSuite):
     def __init__(self, *args, **kwargs):
         super(LoadingTestsOracleSuite, self).__init__(*args, **kwargs)
-        self.params["db_type"] = "mysql"
+        self.params["db_type"] = "sqlserver"
 
 
 if __name__ == '__main__':

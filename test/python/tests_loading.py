@@ -1,8 +1,8 @@
 #
-#  Since: November 2022
+#  Since: December 2022
 #  Author: gvenzl
 #  Name: tests_loading.py
-#  Description: loading tests function
+#  Description: Loading tests with base class.
 #
 #  Copyright 2022 Gerald Venzl
 #
@@ -18,412 +18,304 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import config as cfg
-import csv2db
+#
+#  Since: October 2022
+#  Author: gvenzl
+#  Name: tests_loading_mysql.py
+#  Description: loading tests for MySQL
+#
+#  Copyright 2022 Gerald Venzl
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 import functions as f
+import config as cfg
 import os
+import unittest
+import csv2db
 
 
-def negative_load_file_with_insufficient_columns(db_type, user, password, database, table):
-    """Negative test that tries to load a file with not enough columns.
+class LoadingTestsSuite(unittest.TestCase):
 
-    Parameters
-    ----------
-    db_type : str
-        The database type to load into
-    user : str
-        The database username
-    password : str
-        The database user password
-    database : str
-        The database name
-    table : str
-        The table name
+    params = {
+        "db_type": "mysql",
+        "user": "test",
+        "password": "LetsTest1",
+        "database": "test",
+        "hostname": "localhost",
+        "table_staging": "STAGING",
+        "table_locations": "LOCATIONS"
+    }
 
-    Returns
-    -------
-    int
-       The return code from csv2db
-    """
-    return csv2db.run(
-              ["load", "--debug",
-               "-f", "../resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
-               "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
-               ]
-             )
+    def get_db_con(self):
+        return f.get_db_connection(f.DBType(self.params["db_type"]),
+                                   self.params["user"],
+                                   self.params["password"],
+                                   self.params["hostname"],
+                                   f.get_default_db_port(f.DBType(self.params["db_type"])),
+                                   self.params["database"])
 
+    def table_count(self, table):
+        conn = self.get_db_con()
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(1) FROM {0}".format(table))
+        count = cur.fetchone()[0]
+        cur.close()
+        conn.close()
 
-def load_file_with_insufficient_columns_and_ignore_flag(db_type, user, password, database, table):
-    """Test that tries to load a file with not enough columns using the ignore errors flag.
+        return count
 
-    Parameters
-    ----------
-    db_type : str
-        The database type to load into
-    user : str
-        The database username
-    password : str
-        The database user password
-    database : str
-        The database name
-    table : str
-        The table name
+    def load_data(self, file, table, separator=","):
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-f", file,
+                              "-o", self.params["db_type"],
+                              "-u", self.params["user"],
+                              "-p", self.params["password"],
+                              "-d", self.params["database"],
+                              "-t", table,
+                              "-s", separator
+                              ]
+                            )
+                         )
+        return self.table_count(table)
 
-    Returns
-    -------
-    int
-       The return code from csv2db
-    """
-    return csv2db.run(
-              ["load", "--ignore", "--debug",
-               "-f", "../resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
-               "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
-               ]
-             )
+    def load_with_truncated_table(self):
+        params = ["load",
+                  "-f", "../resources/test_files/201811-citibike-tripdata.csv*",
+                  "-o", self.params["db_type"],
+                  "-u", self.params["user"],
+                  "-p", self.params["password"],
+                  "-d", self.params["database"],
+                  "-t", self.params["table_staging"],
+                  "--truncate"
+                  ]
 
+        self.assertEqual(f.ExitCodes.SUCCESS.value, csv2db.run(params))
+        # MySQL: a connection cannot hold the table still in cache
+        # otherwise the TRUNCATE TABLE will hang (as it is a DROP/CREATE TABLE)
+        count1 = self.table_count(self.params["table_staging"])
 
-def exit_code_DATABASE_ERROR(db_type, user, password, database, table):
-    """Test that raises a database error due to invalid username.
+        # Reset global truncate parameter
+        cfg.truncate_before_load = False
 
-    Parameters
-    ----------
-    db_type : str
-        The database type to load into
-    user : str
-        The database username
-    password : str
-        The database user password
-    database : str
-        The database name
-    table : str
-        The table name
+        self.assertEqual(f.ExitCodes.SUCCESS.value, csv2db.run(params))
+        count2 = self.table_count(self.params["table_staging"])
 
-    Returns
-    -------
-    int
-       The return code from csv2db
-    """
-    return csv2db.run(
-              ["load", "--debug",
-               "-o", db_type, "-u", "INVALIDUSER", "-p", password,  "-d", database, "-t", table,
-               "-f", "../resources/test_files/201811-citibike-tripdata.csv",
-               ]
-              )
+        self.assertEqual(count1, count2)
 
+    def load_with_truncated_table_negative(self):
+        conn = self.get_db_con()
+        f.truncate_table(f.DBType(self.params["db_type"]), conn, self.params["table_staging"])
+        conn.close()
+        count1 = self.load_data("../resources/test_files/201811-citibike-tripdata.csv",
+                                self.params["table_staging"])
+        count2 = self.load_data("../resources/test_files/201811-citibike-tripdata.csv",
+                                self.params["table_staging"])
+        # Assert that double the amount of rows has been loaded (2 * first count == second count)
+        self.assertEqual((count1*2), count2)
 
-def exit_code_DATA_LOADING_ERROR(db_type, user, password, database, table):
-    """Test that raises a data loading error due to an invalid table name.
+    def setUp(self):
+        # Set the defaults for all tests
+        cfg.column_separator = ","
+        cfg.quote_char = '"'
+        cfg.data_loading_error = False
+        cfg.ignore_errors = False
+        cfg.log_bad_records = False
+        cfg.debug = False
+        cfg.truncate_before_load = False
 
-    Parameters
-    ----------
-    db_type : str
-        The database type to load into
-    user : str
-        The database username
-    password : str
-        The database user password
-    database : str
-        The database name
-    table : str
-        The table name
+    def tearDown(self):
+        # Truncate tables
+        conn = self.get_db_con()
+        f.truncate_table(f.DBType.MYSQL, conn, self.params["table_staging"])
+        f.truncate_table(f.DBType.MYSQL, conn, self.params["table_locations"])
+        conn.close()
 
-    Returns
-    -------
-    int
-       The return code from csv2db
-    """
-    return csv2db.run(
-              ["load", "--debug",
-               "-f", "../resources/test_files/201811-citibike-tripdata.csv",
-               "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", "DOES_NOT_EXIST"
-               ]
-             )
+    def test_negative_load_file_with_insufficient_columns(self):
+        print("test_negative_load_file_with_insufficient_columns")
+        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+                         csv2db.run(
+                              ["load",
+                               "-o", self.params["db_type"],
+                               "-f", "../resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
+                               "-u", self.params["user"],
+                               "-p", self.params["password"],
+                               "-d", self.params["database"],
+                               "-t", self.params["table_staging"],
+                               "--debug"
+                               ]
+                             )
+                         )
 
+    def test_load_file_with_insufficient_columns_and_ignore(self):
+        print("test_load_file_with_insufficient_columns_and_ignore")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                              ["load",
+                               "-o", self.params["db_type"],
+                               "-f", "../resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
+                               "-u", self.params["user"],
+                               "-p", self.params["password"],
+                               "-d", self.params["database"],
+                               "-t", self.params["table_staging"],
+                               "--ignore"
+                               ]
+                             )
+                         )
 
-def empty_file(db_type, user, password, database, table):
-    """Test that tries to load an empty file.
+    def test_exit_code_DATABASE_ERROR(self):
+        print("test_exit_code_DATABASE_ERROR")
+        self.assertEqual(f.ExitCodes.DATABASE_ERROR.value,
+                         csv2db.run(
+                              ["load",
+                               "-o", self.params["db_type"],
+                               "-f", "../resources/test_files/201811-citibike-tripdata.csv",
+                               "-u", "INVALIDUSER",
+                               "-p", "test",
+                               "-t", "STAGING"]
+                              )
+                         )
 
-    Parameters
-    ----------
-    db_type : str
-        The database type to load into
-    user : str
-        The database username
-    password : str
-        The database user password
-    database : str
-        The database name
-    table : str
-        The table name
+    def test_exit_code_DATA_LOADING_ERROR(self):
+        print("test_exit_code_DATA_LOADING_ERROR")
+        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+                         csv2db.run(
+                              ["load",
+                               "-o", self.params["db_type"],
+                               "-f", "../resources/test_files/201811-citibike-tripdata.csv",
+                               "-u", self.params["user"],
+                               "-p", self.params["password"],
+                               "-d", self.params["database"],
+                               "-t", "DOES_NOT_EXIST",
+                               "--debug"
+                               ]
+                             )
+                         )
 
-    Returns
-    -------
-    int
-       The return code from csv2db
-    """
-    return csv2db.run(
-             ["load", "--debug",
-              "-f", "../resources/test_files/bad/201811-citibike-tripdata-empty.csv",
-              "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
-              ]
-            )
+    def test_empty_file(self):
+        print("test_empty_file")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-o", self.params["db_type"],
+                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-empty.csv",
+                              "-u", self.params["user"],
+                              "-p", self.params["password"],
+                              "-d", self.params["database"],
+                              "-t", self.params["table_staging"]
+                              ]
+                            )
+                         )
 
+    def test_loading(self):
+        print("test_loading_" + self.params["db_type"])
+        self.load_data("../resources/test_files/201811-citibike-tripdata.csv", self.params["table_staging"])
 
-def load_file(db_type, user, password, database, table, file, separator=","):
-    """Loads a file and returns the loaded records.
+    def test_unicode_file(self):
+        print("test_unicode_file_" + self.params["db_type"])
+        self.load_data("../resources/test_files/allCountries.1000.txt.gz",
+                       self.params["table_locations"], "\t")
 
-    Parameters
-    ----------
-    db_type : str
-        The database type to load into
-    user : str
-        The database username
-    password : str
-        The database user password
-    database : str
-        The database name
-    table : str
-        The table name
-    file : str
-        The file to load
-    separator : str
-        The separator to use
+    def test_truncate_table_before_load(self):
+        print("test_truncate_table_before_load_" + self.params["db_type"])
+        self.load_with_truncated_table()
 
-    Returns
-    -------
-    int
-       The number of rows loaded.
-    """
-    if csv2db.run(
-        ["load", "--debug",
-         "-f", file, "-s", separator,
-         "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
-         ]
-    ) != f.ExitCodes.SUCCESS.value:
-        raise Exception
+    def test_negative_truncate_table_before_load(self):
+        print("test_negative_truncate_table_before_load_" + self.params["db_type"])
+        self.load_with_truncated_table_negative()
 
-    conn = f.get_db_connection(f.DBType(db_type), user, password, "localhost", "1521", database)
-    cur = conn.cursor()
-    cur.execute("SELECT COUNT(1) FROM {0}".format(table))
-    count = cur.fetchone()[0]
-    cur.close()
-    conn.close()
+    def test_negative_load_invalid_file_type(self):
+        print("test_negative_load_invalid_file_type")
+        self.assertEqual(f.ExitCodes.GENERIC_ERROR.value,
+                         csv2db.run(
+                             ["load",
+                              "-o", self.params["db_type"],
+                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-invalid.csv.zip",
+                              "-u", self.params["user"],
+                              "-p", self.params["password"],
+                              "-d", self.params["database"],
+                              "-t", self.params["table_staging"],
+                              "--debug"
+                              ])
+                         )
 
-    return count
+    def test_negative_error_bad_data(self):
+        print("test_negative_error_bad_data")
+        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+                         csv2db.run(
+                             ["load",
+                              "-o", self.params["db_type"],
+                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-errors.csv",
+                              "-u", self.params["user"],
+                              "-p", self.params["password"],
+                              "-d", self.params["database"],
+                              "-t", self.params["table_staging"]
+                              ])
+                         )
 
+    def test_ignore_bad_data(self):
+        print("test_ignore_bad_data")
+        good_records = 7
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-o", self.params["db_type"],
+                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-errors.csv",
+                              "-u", self.params["user"],
+                              "-p", self.params["password"],
+                              "-d", self.params["database"],
+                              "-t", self.params["table_staging"],
+                              "--ignore",
+                              "--debug"
+                              ])
+                         )
+        self.assertEqual(good_records,
+                         self.table_count(self.params["table_staging"])
+                         )
 
-def truncate_table_before_load(db_type, user, password, database, table, file, separator=","):
-    """Truncates the table before loading a file and returning the loaded records.
+    def test_log_bad_rows(self):
+        print("test_ignore_bad_data")
+        bad_rows = 3
+        bad_rows_found = 0
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                             ["load",
+                              "-o", self.params["db_type"],
+                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-errors.csv",
+                              "-u", self.params["user"],
+                              "-p", self.params["password"],
+                              "-d", self.params["database"],
+                              "-t", self.params["table_staging"],
+                              "--log",
+                              "--debug"
+                              ])
+                         )
 
-    Parameters
-    ----------
-    db_type : str
-        The database type to load into
-    user : str
-        The database username
-    password : str
-        The database user password
-    database : str
-        The database name
-    table : str
-        The table name
-    file : str
-        The file to load
-    separator : str
-        The separator to use
-
-    Returns
-    -------
-    int, int
-       The number of rows loaded the first and second time.
-    """
-    params = ["load", "-f", file,
-              "-o", db_type, "-u", user, "-p", password, "-d", database,
-              "-t", table, "-s", separator, "--truncate", "--debug"
-              ]
-
-    if csv2db.run(params) != f.ExitCodes.SUCCESS.value:
-        raise Exception
-
-    conn = f.get_db_connection(f.DBType(db_type), user, password, "localhost", "1521", database)
-    cur = conn.cursor()
-    cur.execute("SELECT COUNT(1) FROM {0}".format(table))
-    count1 = cur.fetchone()[0]
-    cur.close()
-    conn.close()
-
-    # Reset global truncate parameter
-    cfg.truncate_before_load = False
-
-    if csv2db.run(params) != f.ExitCodes.SUCCESS.value:
-        raise Exception
-
-    conn = f.get_db_connection(f.DBType(db_type), user, password, "localhost", "1521", database)
-    cur = conn.cursor()
-    cur.execute("SELECT COUNT(1) FROM {0}".format(table))
-    count2 = cur.fetchone()[0]
-    cur.close()
-    conn.close()
-
-    return count1, count2
-
-
-def negative_truncate_table_before_load(db_type, user, password, database, table, file, separator=","):
-    """Negative test to load the same file twice without truncating the table beforehand.
-
-    Parameters
-    ----------
-    db_type : str
-        The database type to load into
-    user : str
-        The database username
-    password : str
-        The database user password
-    database : str
-        The database name
-    table : str
-        The table name
-    file : str
-        The file to load
-    separator : str
-        The separator to use
-
-    Returns
-    -------
-    int, int
-       The number of rows loaded the first and second time.
-    """
-    conn = f.get_db_connection(f.DBType(db_type), user, password, "localhost", "1521", database)
-    f.truncate_table(f.DBType(db_type), conn, table)
-    conn.close()
-
-    count1 = load_file(db_type, user, password, database, table,
-                       "../resources/test_files/201811-citibike-tripdata.csv"
-                       )
-
-    count2 = load_file(db_type, user, password, database, table,
-                       "../resources/test_files/201811-citibike-tripdata.csv"
-                       )
-
-    return count1, count2
-
-
-def load_file_with_return_code(db_type, user, password, database, table, file, separator=","):
-    """Loads file and returns csv2db return code.
-
-    Parameters
-    ----------
-    db_type : str
-        The database type to load into
-    user : str
-        The database username
-    password : str
-        The database user password
-    database : str
-        The database name
-    table : str
-        The table name
-    file : str
-        The file to load
-    separator : str
-        The separator to use
-
-    Returns
-    -------
-    int
-       The return code from csv2db.
-    """
-    return csv2db.run(
-             ["load", "--debug",
-              "-f", file, "-s", separator,
-              "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
-              ]
-            )
-
-
-def load_file_with_return_code_ignore(db_type, user, password, database, table, file, separator=","):
-    """Loads file and returns csv2db return code and passes on the ignore flag.
-
-    Parameters
-    ----------
-    db_type : str
-        The database type to load into
-    user : str
-        The database username
-    password : str
-        The database user password
-    database : str
-        The database name
-    table : str
-        The table name
-    file : str
-        The file to load
-    separator : str
-        The separator to use
-
-    Returns
-    -------
-    int
-       The rows loaded into the table.
-    """
-    if csv2db.run(
-        ["load", "--ignore", "--debug",
-         "-f", file, "-s", separator,
-         "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
-         ]
-    ) != f.ExitCodes.SUCCESS.value:
-        raise Exception
-
-    conn = f.get_db_connection(f.DBType(db_type), user, password, "localhost", "1521", database)
-    cur = conn.cursor()
-    cur.execute("SELECT COUNT(1) FROM {0}".format(table))
-    count = cur.fetchone()[0]
-    cur.close()
-    conn.close()
-
-    return count
-
-
-def log_bad_rows(db_type, user, password, database, table, file):
-    """Loads file, records bad rows and returns the bad row count.
-
-    Parameters
-    ----------
-    db_type : str
-        The database type to load into
-    user : str
-        The database username
-    password : str
-        The database user password
-    database : str
-        The database name
-    table : str
-        The table name
-    file : str
-        The file to load
-
-    Returns
-    -------
-    int
-       The bad rows found.
-    """
-    if csv2db.run(
-        ["load", "-f", file, "--ignore", "--log", "--debug",
-         "-o", db_type, "-u", user, "-p", password, "-d", database, "-t", table
-         ]
-    ) != f.ExitCodes.SUCCESS.value:
-        raise Exception
-
-    bad_rows_found = 0
-    with f.open_file(file + ".bad") as bad_file:
-        bad_reader = f.get_csv_reader(bad_file)
-        with f.open_file(file) as source_file:
+        with f.open_file("../resources/test_files/bad/201811-citibike-tripdata-errors.csv.bad") as bad_file:
+            bad_reader = f.get_csv_reader(bad_file)
             for bad_line in bad_reader:
-                reader = f.get_csv_reader(source_file)
-                for line in reader:
-                    if bad_line == line:
-                        bad_rows_found += 1
-                        break
+                with f.open_file("../resources/test_files/bad/201811-citibike-tripdata-errors.csv") as file:
+                    reader = f.get_csv_reader(file)
+                    for line in reader:
+                        if bad_line == line:
+                            bad_rows_found += 1
+                            break
 
-    os.remove(file + ".bad")
-    return bad_rows_found
+        self.assertEqual(bad_rows, bad_rows_found)
+        os.remove("../resources/test_files/bad/201811-citibike-tripdata-errors.csv.bad")
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
