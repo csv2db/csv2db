@@ -1,0 +1,61 @@
+#
+# Since: December 2022
+# Author: gvenzl
+# Name: tests_load_postgres.yml
+# Description: GitHub Actions Postgres load tests
+#
+# Copyright 2022 Gerald Venzl
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: load_tests_postgres
+on: [push, pull_request]
+jobs:
+  db_load_tests_postgres:
+    strategy:
+      matrix:
+        python-version: [ '3.10', '3.11', '3.x' ]
+
+    runs-on: ubuntu-latest
+
+    # Run tests
+    steps:
+      - uses: actions/checkout@v3.1.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install PostgreSQL Python Driver
+        run: python -m pip install psycopg2-binary
+
+      - name: Setup test database
+        run: |
+          docker run -d --name postgres \
+                     -p 5432:5432
+                     -v $PWD/test/resources/test_env/schema:/docker-entrypoint-initdb.d \
+                     -e POSTGRES_USER=TEST
+                     -e POSTGRES_PASSWORD=LetsTest1
+                     -e POSTGRES_DB=TEST
+                     postgres
+          while [[ $(docker logs oracle | grep -c "database system is ready to accept connections") == 0 ]]; do
+            sleep 1;
+          done;
+
+      - name: Run PostgreSQL tests on version ${{ matrix.python-version }}
+        run: |
+          export PYTHONPATH=$PWD/src/python
+          cd test/python
+          python tests_loading_postgres.py
