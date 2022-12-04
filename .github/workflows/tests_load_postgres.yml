@@ -50,7 +50,7 @@ jobs:
                      -e POSTGRES_PASSWORD=LetsTest1 \
                      -e POSTGRES_DB=TEST \
                      postgres
-          while [[ $(docker logs oracle | grep -c "database system is ready to accept connections") == 0 ]]; do
+          while [[ $(docker logs postgres | grep -c "database system is ready to accept connections") == 0 ]]; do
             sleep 1;
           done;
 
