@@ -120,7 +120,7 @@ def run(cmd):
 
         # Set logging errors flag
         cfg.log_bad_records = args.log
-        # Set ignore error flag (log_errors implies ignore errors
+        # Set ignore error flag (log_errors implies ignore errors)
         cfg.ignore_errors = (args.ignore or cfg.log_bad_records)
         f.debug("Ignore errors: {0}".format(cfg.ignore_errors))
         f.debug("Log errors: {0}".format(cfg.log_bad_records))
@@ -282,8 +282,10 @@ def load_data(col_map, data):
         try:
             f.executemany(cur, stmt)
             cur.close()
+        # Catch batch execution exception
         except Exception:
             # Rollback old batch (needed for at least Postgres to finish transaction)
+            # Previous successful batches would have already been committed.
             cfg.conn.rollback()
             cur.close()
             # If ignore errors or debug output is enabled, find failing record
@@ -293,23 +295,33 @@ def load_data(col_map, data):
                         # Get new cursor for every row to avoid previous row variables name/number caching.
                         cur = cfg.conn.cursor()
                         cur.execute(stmt, record)
+                        # Postgres doesn't support errors within transaction boundaries
+                        # Once there is an error in a transaction, that transaction needs to be ended
+                        # Hence, to get all the other successful rows into Postgres before an error
+                        # we commit here every successful row.
+                        if cfg.db_type is f.DBType.POSTGRES:
+                            cfg.conn.commit()
                         cur.close()
                     except Exception as err:
                         cur.close()
-                        if cfg.ignore_errors:
-                            f.verbose("Ignoring invalid record.")
-                        if cfg.log_bad_records:
-                            f.verbose("Logging invalid record.")
-                            cfg.bad_records_logger.write_bad_record(record)
                         f.debug("Error with record: {0}".format(record))
                         f.debug("Error: {0}".format(err))
-                        # If ignore errors is not set, raise error
-                        if not cfg.ignore_errors:
-                            # Rollback old batch (needed for at least Postgres to finish transaction)
-                            cfg.conn.rollback()
+                        if cfg.ignore_errors:
+                            f.verbose("Ignoring invalid record.")
+                            # Rollback broken transaction for Postgres
+                            if cfg.db_type is f.DBType.POSTGRES:
+                                cfg.conn.rollback()
+                            # Ignore errors is implied with log bad errors
+                            # (there is no point logging bad errors if the program is about
+                            #  to abort on a bad error because ignore errors isn't set)
+                            if cfg.log_bad_records:
+                                f.verbose("Logging invalid record.")
+                                cfg.bad_records_logger.write_bad_record(record)
+                        # If ignore errors is not set and we just want the debug output, raise error
+                        else:
                             cfg.input_data.clear()
                             raise
-            # Debug output is not enabled, clear current batch and raise error
+            # Ignore error is not set, debug output is not enabled, clear current batch and raise error
             else:
                 cfg.input_data.clear()
                 raise
