@@ -22,9 +22,9 @@ import unittest
 import tests_loading as base
 
 
-class LoadingTestsOracleSuite(base.LoadingTestsSuite):
+class LoadingTestsSQLServerSuite(base.LoadingTestsSuite):
     def __init__(self, *args, **kwargs):
-        super(LoadingTestsOracleSuite, self).__init__(*args, **kwargs)
+        super(LoadingTestsSQLServerSuite, self).__init__(*args, **kwargs)
         self.params["db_type"] = "sqlserver"
 
 
