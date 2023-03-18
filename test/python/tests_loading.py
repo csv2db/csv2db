@@ -139,8 +139,8 @@ class LoadingTestsSuite(unittest.TestCase):
     def tearDown(self):
         # Truncate tables
         conn = self.get_db_con()
-        f.truncate_table(f.DBType.MYSQL, conn, self.params["table_staging"])
-        f.truncate_table(f.DBType.MYSQL, conn, self.params["table_locations"])
+        f.truncate_table(f.DBType(self.params["db_type"]), conn, self.params["table_staging"])
+        f.truncate_table(f.DBType(self.params["db_type"]), conn, self.params["table_locations"])
         conn.close()
 
     def test_negative_load_file_with_insufficient_columns(self):
