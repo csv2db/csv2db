@@ -279,37 +279,60 @@ def load_data(col_map, data):
         stmt = generate_statement(col_map)
         f.debug(stmt)
         cur = cfg.conn.cursor()
+        errors = False
         try:
             f.executemany(cur, stmt)
             cur.close()
         # Catch batch execution exception
-        except Exception:
+        except Exception as err:
+            f.verbose("Error executing batch.")
+            errors = True
             # Rollback old batch (needed for at least Postgres to finish transaction)
             # Previous successful batches would have already been committed.
+            f.debug("Rollback current batch.")
             cfg.conn.rollback()
             cur.close()
+            # If neither ignore nor debug output is enabled, raise error
+            if not cfg.ignore_errors and not cfg.debug:
+                cfg.input_data.clear()
+                raise err
             # If ignore errors or debug output is enabled, find failing record
+            # Avoid "else" for future maintainability
             if cfg.ignore_errors or cfg.debug:
+                f.verbose("Executing batch row by row.")
+                records_loaded = 0
+                records_ignored = 0
                 for record in cfg.input_data:
                     try:
                         # Get new cursor for every row to avoid previous row variables name/number caching.
-                        cur = cfg.conn.cursor()
-                        cur.execute(stmt, record)
+                        cur_err = cfg.conn.cursor()
+                        cur_err.execute(stmt, record)
                         # Postgres doesn't support errors within transaction boundaries
                         # Once there is an error in a transaction, that transaction needs to be ended
                         # Hence, to get all the other successful rows into Postgres before an error
                         # we commit here every successful row.
-                        if cfg.db_type is f.DBType.POSTGRES:
+                        # Likewise, it seems that SQL Server aborts any erroneous transaction implicitly,
+                        # so we want to commit every row that was successful.
+                        if cfg.db_type is f.DBType.POSTGRES or cfg.db_type is f.DBType.SQLSERVER:
+                            f.debug("Commit")
                             cfg.conn.commit()
-                        cur.close()
+                        cur_err.close()
+                        records_loaded += 1
                     except Exception as err:
-                        cur.close()
+                        cur_err.close()
                         f.debug("Error with record: {0}".format(record))
                         f.debug("Error: {0}".format(err))
-                        if cfg.ignore_errors:
+                        # If only DEBUG output is set, we are done.
+                        # We found the bad record, told the user, time to clear the batch and raise the error
+                        if not cfg.ignore_errors:
+                            cfg.input_data.clear()
+                            raise err
+                        else:
                             f.verbose("Ignoring invalid record.")
-                            # Rollback broken transaction for Postgres
-                            if cfg.db_type is f.DBType.POSTGRES:
+                            records_ignored += 1
+                            # Rollback the broken transaction for Postgres
+                            if cfg.db_type is f.DBType.POSTGRES or cfg.db_type is f.DBType.SQLSERVER:
+                                f.debug("Rollback")
                                 cfg.conn.rollback()
                             # Ignore errors is implied with log bad errors
                             # (there is no point logging bad errors if the program is about
@@ -317,17 +340,19 @@ def load_data(col_map, data):
                             if cfg.log_bad_records:
                                 f.verbose("Logging invalid record.")
                                 cfg.bad_records_logger.write_bad_record(record)
-                        # If ignore errors is not set and we just want the debug output, raise error
-                        else:
-                            cfg.input_data.clear()
-                            raise
-            # Ignore error is not set, debug output is not enabled, clear current batch and raise error
-            else:
-                cfg.input_data.clear()
-                raise
-        f.debug("Commit")
-        cfg.conn.commit()
-        f.verbose("{0} rows loaded.".format(len(cfg.input_data)))
+                f.debug("Commit")
+                cfg.conn.commit()
+                f.verbose("{0} rows loaded.".format(records_loaded))
+                f.verbose("{0} rows ignored.".format(records_ignored))
+        # If errors occurred for Postgres or SQL Server, do not commit at end as all rows have already been
+        # committed one by one. SQL Server will throw an error when issuing a commit and no transaction is running
+        if not errors or (errors and cfg.db_type is not f.DBType.POSTGRES and cfg.db_type is not f.DBType.SQLSERVER):
+            f.debug("Commit")
+            cfg.conn.commit()
+        # In the error case, we already printed how many rows were loaded and ignored
+        if not errors:
+            f.verbose("{0} rows loaded.".format(len(cfg.input_data)))
+        # Always clear input array when errors or success
         cfg.input_data.clear()
 
 
