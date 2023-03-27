@@ -85,7 +85,8 @@ class LoadingTestsSuite(unittest.TestCase):
                               "-p", self.params["password"],
                               "-d", self.params["database"],
                               "-t", table,
-                              "-s", separator
+                              "-s", separator,
+                              "--debug"
                               ]
                             )
                          )
@@ -183,8 +184,10 @@ class LoadingTestsSuite(unittest.TestCase):
                                "-o", self.params["db_type"],
                                "-f", "../resources/test_files/201811-citibike-tripdata.csv",
                                "-u", "INVALIDUSER",
-                               "-p", "test",
-                               "-t", "STAGING"]
+                               "-p", self.params["password"],
+                               "-d", self.params["database"],
+                               "-t", self.params["table_staging"]
+                               ]
                               )
                          )
 
