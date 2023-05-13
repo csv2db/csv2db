@@ -42,18 +42,12 @@ jobs:
         run: python -m pip install oracledb
 
       - name: Setup test database
-        run: |
-          docker run -d --name oracle \
-                     -p 1521:1521 \
-                     -v $PWD/test/resources/test_env/oracle/schema:/docker-entrypoint-initdb.d \
-                     -e APP_USER=TEST \
-                     -e APP_USER_PASSWORD=LetsTest1 \
-                     -e ORACLE_DATABASE=TEST \
-                     -e ORACLE_RANDOM_PASSWORD=y \
-                     gvenzl/oracle-xe:latest-faststart
-          while [[ $(docker logs oracle | grep -c "DATABASE IS READY TO USE") == 0 ]]; do
-            sleep 1;
-          done;
+        uses: gvenzl/setup-oracle-free@v1
+        with:
+          app-user: test
+          app-user-password: LetsTest1
+          oracle-database: test
+          setup-scripts: $PWD/test/resources/test_env/oracle/schema
 
       - name: Run Oracle tests on version ${{ matrix.python-version }}
         run: |
