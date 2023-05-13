@@ -44,7 +44,7 @@ jobs:
       - name: Setup test database
         run: |
           docker run -d --name sqlserver \
-                     -p 1433:1433
+                     -p 1433:1433 \
                      -e 'ACCEPT_EULA=Y' \
                      -e 'SA_PASSWORD=LetsTest1' \
                      mcr.microsoft.com/mssql/server:2022-latest
