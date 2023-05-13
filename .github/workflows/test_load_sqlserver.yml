@@ -45,12 +45,15 @@ jobs:
         run: |
           docker run -d --name sqlserver \
                      -p 1433:1433 \
+                     -v $PWD/test/resources/test_env:/tmp \
                      -e 'ACCEPT_EULA=Y' \
                      -e 'SA_PASSWORD=LetsTest1' \
                      mcr.microsoft.com/mssql/server:2022-latest
           while [[ $(docker logs sqlserver | grep -c "Recovery is complete") == 0 ]]; do
             sleep 1;
           done;
+          echo ":r /tmp/sqlserver/create_db_sqlserver.sql" | docker exec -it sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P LetsTest1 
+          
 
       - name: Run SQL Server tests on version ${{ matrix.python-version }}
         run: |
