@@ -44,6 +44,7 @@ jobs:
       - name: Setup test database
         uses: gvenzl/setup-oracle-free@v1
         with:
+          tag: slim
           app-user: test
           app-user-password: LetsTest1
           oracle-database: test
