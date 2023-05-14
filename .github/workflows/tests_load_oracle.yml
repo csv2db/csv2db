@@ -49,6 +49,7 @@ jobs:
           app-user-password: LetsTest1
           oracle-database: test
           setup-scripts: $PWD/test/resources/test_env/oracle/schema
+          health-interval: 5
 
       - name: Run Oracle tests on version ${{ matrix.python-version }}
         run: |
