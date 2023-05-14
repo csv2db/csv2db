@@ -52,8 +52,11 @@ jobs:
           while [[ $(docker logs sqlserver | grep -c "Recovery is complete") == 0 ]]; do
             sleep 1;
           done;
-          echo ":r /tmp/sqlserver/create_db_sqlserver.sql" | docker exec -it sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P LetsTest1 
-          
+
+      - name : Setup test schema
+        run: |
+          docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P LetsTest1 -i /tmp/sqlserver/create_db_sqlserver.sql
+          docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P LetsTest1 -i /tmp/schema/01_create_test_tables.sh
 
       - name: Run SQL Server tests on version ${{ matrix.python-version }}
         run: |
