@@ -56,7 +56,7 @@ jobs:
       - name : Setup test schema
         run: |
           docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P LetsTest1 -i /tmp/sqlserver/create_db_sqlserver.sql
-          docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P LetsTest1 -i /tmp/schema/01_create_test_tables.sh
+          docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P LetsTest1 -i /tmp/schema/01_create_test_tables.sql
 
       - name: Run SQL Server tests on version ${{ matrix.python-version }}
         run: |
