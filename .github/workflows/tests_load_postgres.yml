@@ -55,7 +55,7 @@ jobs:
 
       - name: Create test schema
         run: |
-          podman exec -i postgres psql -U test -pLetsTest1 -d test < $PWD/test/resources/test_env/schema/setup_schema.sql
+          podman exec -i postgres psql -U test -wLetsTest1 -d test < $PWD/test/resources/test_env/schema/setup_schema.sql
 
       - name: Run PostgreSQL tests on version ${{ matrix.python-version }}
         run: |
