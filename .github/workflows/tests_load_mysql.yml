@@ -56,7 +56,8 @@ jobs:
 
       - name: Create test schema
         run: |
-          podman exec -i mysql mysql -h localhost -u test -pLetsTest1 -D test < $PWD/test/resources/test_env/schema/setup_schema.sql
+          podman logs mysql
+          podman exec -i mysql mysql -u test -pLetsTest1 -D test < $PWD/test/resources/test_env/schema/setup_schema.sql
 
       - name: Run MySQL tests on version ${{ matrix.python-version }}
         run: |
