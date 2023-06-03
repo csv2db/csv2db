@@ -43,15 +43,20 @@ jobs:
 
       - name: Setup test database
         run: |
-          docker run -d --name mysql \
+          podman run -d --name mysql \
                      -p 3306:3306 \
-                     -v $PWD/test/resources/test_env/schema:/docker-entrypoint-initdb.d \
                      -e MYSQL_USER=test \
                      -e MYSQL_PASSWORD=LetsTest1 \
                      -e MYSQL_DATABASE=test \
                      -e MYSQL_RANDOM_ROOT_PASSWORD=y \
                      mysql
-          sleep 15
+          while [[ $(podman logs mysql 2>&1 | grep -c "ready for connections.") == 0 ]]; do
+            sleep 1;
+          done;
+
+      - name: Create test schema
+        run: |
+          podman exec -i mysql mysql -u test -pLetsTest1 -D test < $PWD/test/resources/test_env/schema/setup_schema.sql
 
       - name: Run MySQL tests on version ${{ matrix.python-version }}
         run: |

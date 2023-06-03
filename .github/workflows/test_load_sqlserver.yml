@@ -43,20 +43,20 @@ jobs:
 
       - name: Setup test database
         run: |
-          docker run -d --name sqlserver \
+          podman run -d --name sqlserver \
                      -p 1433:1433 \
-                     -v $PWD/test/resources/test_env:/tmp \
+                     -v $PWD/test/resources/test_env:/test_setup \
                      -e 'ACCEPT_EULA=Y' \
                      -e 'SA_PASSWORD=LetsTest1' \
                      mcr.microsoft.com/mssql/server:2022-latest
-          while [[ $(docker logs sqlserver | grep -c "Recovery is complete") == 0 ]]; do
+          while [[ $(podman logs sqlserver 2>&1 | grep -c "Recovery is complete") == 0 ]]; do
             sleep 1;
           done;
 
-      - name : Setup test schema
+      - name : Create test schema
         run: |
-          docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P LetsTest1 -i /tmp/sqlserver/create_db_sqlserver.sql
-          docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U test -P LetsTest1 -d test -i /tmp/schema/01_create_test_tables.sql
+          podman exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P LetsTest1 -i /test_setup/setup_sqlserver.sql
+          podman exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U test -P LetsTest1 -d test -i /test_setup/schema/setup_schema.sql
 
       - name: Run SQL Server tests on version ${{ matrix.python-version }}
         run: |

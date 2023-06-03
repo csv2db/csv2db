@@ -1,7 +1,7 @@
 --
 -- Since: November 2022
 -- Author: gvenzl
--- Name: create_db_oracle.sql
+-- Name: setup_oracle.sql
 -- Description: SQL scripts for test infrastructure creation for Oracle
 --
 -- Copyright 2022 Gerald Venzl

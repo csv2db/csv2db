@@ -1,10 +1,10 @@
 --
--- Since: August 2021
+-- Since: November 2022
 -- Author: gvenzl
--- Name: create_db_sqlserver.sql
--- Description: SQL scripts for test infrastructure creation for SQL Server
+-- Name: setup_postgres.sql
+-- Description: SQL scripts for test infrastructure creation for PostgreSQL
 --
--- Copyright 2021 Gerald Venzl
+-- Copyright 2022 Gerald Venzl
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -18,13 +18,8 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-sp_configure 'contained database authentication', 1;
-RECONFIGURE;
-go
-CREATE DATABASE test CONTAINMENT=PARTIAL;
-go
-USE test;
-CREATE USER test WITH PASSWORD = 'LetsTest1';
-go
-ALTER ROLE db_owner ADD MEMBER test;
-go
+CREATE DATABASE test;
+CREATE USER test WITH ENCRYPTED PASSWORD 'LetsTest1';
+GRANT ALL PRIVILEGES ON DATABASE test TO test;
+\c test test
+CREATE SCHEMA test AUTHORIZATION test;

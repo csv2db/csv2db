@@ -43,16 +43,19 @@ jobs:
 
       - name: Setup test database
         run: |
-          docker run -d --name postgres \
+          podman run -d --name postgres \
                      -p 5432:5432 \
-                     -v $PWD/test/resources/test_env/schema:/docker-entrypoint-initdb.d \
                      -e POSTGRES_USER=test \
                      -e POSTGRES_PASSWORD=LetsTest1 \
                      -e POSTGRES_DB=test \
                      postgres
-          while [[ $(docker logs postgres | grep -c "database system is ready to accept connections") == 0 ]]; do
+          while [[ $(podman logs postgres 2>&1 | grep -c "database system is ready to accept connections") == 0 ]]; do
             sleep 1;
           done;
+
+      - name: Create test schema
+        run: |
+          podman exec -i postgres psql -U test -pLetsTest1 -d test < $PWD/test/resources/test_env/schema/setup_schema.sql
 
       - name: Run PostgreSQL tests on version ${{ matrix.python-version }}
         run: |

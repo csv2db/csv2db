@@ -1,8 +1,8 @@
 --
--- Since: November 2022
+-- Since: October 2022
 -- Author: gvenzl
--- Name: create_db_postgres.sql
--- Description: SQL scripts for test infrastructure creation for PostgreSQL
+-- Name: setup_mysql.sql
+-- Description: SQL scripts for test infrastructure creation for MySQL
 --
 -- Copyright 2022 Gerald Venzl
 --
@@ -19,7 +19,7 @@
 -- limitations under the License.
 
 CREATE DATABASE test;
-CREATE USER test WITH ENCRYPTED PASSWORD 'LetsTest1';
-GRANT ALL PRIVILEGES ON DATABASE test TO test;
-\c test test
-CREATE SCHEMA test AUTHORIZATION test;
+CREATE USER 'test' IDENTIFIED BY 'LetsTest1';
+GRANT ALL PRIVILEGES ON test.* TO 'test';
+FLUSH PRIVILEGES;
+exit;

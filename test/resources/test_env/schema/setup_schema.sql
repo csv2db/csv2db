@@ -1,7 +1,7 @@
 --
--- Since: November 2022
+-- Since: October 2022
 -- Author: gvenzl
--- Name: 01_create_test_tables.sql
+-- Name: setup_schema.sql
 -- Description: Table creation SQL scripts for load tests.
 --
 -- Copyright 2022 Gerald Venzl
@@ -17,8 +17,6 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-
-CONNECT test/LetsTest1@//localhost/TEST
 
 CREATE TABLE STAGING
 (

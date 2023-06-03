@@ -42,14 +42,21 @@ jobs:
         run: python -m pip install oracledb
 
       - name: Setup test database
-        uses: gvenzl/setup-oracle-free@v1
-        with:
-          tag: slim
-          app-user: test
-          app-user-password: LetsTest1
-          oracle-database: test
-          setup-scripts: $PWD/test/resources/test_env/oracle/schema
-          health-interval: 10
+        run: |
+          podman run -d --name oracle \
+                     -p 1521:1521 \
+                     -e ORACLE_RANDOM_PASSWORD=y \
+                     -e APP_USER=test \
+                     -e APP_USER_PASSWORD=LetsTest1 \
+                     -e ORACLE_DATABASE=test \
+                     gvenzl/oracle-free:slim
+          while [[ $(podman logs oracle 2>&1 | grep -c "DATABASE IS READY TO USE") == 0 ]]; do
+            sleep 1;
+          done;
+
+      - name: Create test schema
+        run: |
+          podman exec -i oracle sqlplus test/LetsTest1@localhost/test < $PWD/test/resources/test_env/schema/setup_schema.sql
 
       - name: Run Oracle tests on version ${{ matrix.python-version }}
         run: |

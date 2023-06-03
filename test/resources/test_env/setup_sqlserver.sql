@@ -1,10 +1,10 @@
 --
--- Since: October 2022
+-- Since: August 2021
 -- Author: gvenzl
--- Name: create_db_mysql.sql
--- Description: SQL scripts for test infrastructure creation for MySQL
+-- Name: setup_sqlserver.sql
+-- Description: SQL scripts for test infrastructure creation for SQL Server
 --
--- Copyright 2022 Gerald Venzl
+-- Copyright 2021 Gerald Venzl
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -18,8 +18,13 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-CREATE DATABASE test;
-CREATE USER 'test' IDENTIFIED BY 'LetsTest1';
-GRANT ALL PRIVILEGES ON test.* TO 'test';
-FLUSH PRIVILEGES;
-exit;
+sp_configure 'contained database authentication', 1;
+RECONFIGURE;
+go
+CREATE DATABASE test CONTAINMENT=PARTIAL;
+go
+USE test;
+CREATE USER test WITH PASSWORD = 'LetsTest1';
+go
+ALTER ROLE db_owner ADD MEMBER test;
+go
