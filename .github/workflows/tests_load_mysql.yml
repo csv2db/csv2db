@@ -50,11 +50,15 @@ jobs:
                      -e MYSQL_DATABASE=test \
                      -e MYSQL_RANDOM_ROOT_PASSWORD=y \
                      mysql
-          sleep 30
+          while [[ $(podman logs mysql 2>&1 | grep -c "ready for connections.") < 4
+                   && $(podman logs mysql 2>&1 | grep -c "MySQL init process done.") == 0 ]]; do
+            sleep 3;
+          done;
+
       - name: Create test schema
         run: |
           podman logs mysql
-          podman exec -i mysql mysql -u test -pLetsTest1 -D test < $PWD/test/resources/test_env/schema/setup_schema.sql
+          podman exec -i mysql mysql -h localhost -u test -pLetsTest1 -D test < $PWD/test/resources/test_env/schema/setup_schema.sql
 
       - name: Run MySQL tests on version ${{ matrix.python-version }}
         run: |
