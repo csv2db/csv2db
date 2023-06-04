@@ -1,0 +1,68 @@
+#
+# Since: May 2023
+# Author: gvenzl
+# Name: tests_load_db2.yml
+# Description: GitHub Actions Db2 load tests.
+#
+# Copyright 2023 Gerald Venzl
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: load-tests-db2
+on: [push, pull_request]
+jobs:
+  db-load-tests-db2:
+    strategy:
+      matrix:
+        python-version: [ '3.10', '3.11', '3.x' ]
+
+    runs-on: ubuntu-latest
+
+    # Run tests
+    steps:
+      - uses: actions/checkout@v3.1.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Db2 Python Driver
+        run: python -m pip install ibm-db --user
+
+      - name: Setup test database
+        run: |
+          docker run -d --name db2 --privileged=true \
+                     -p 50000:50000 \
+                     -v $PWD/test/resources/test_env/schema:/var/custom/ \
+                     -e LICENSE=accept  \
+                     -e DB2INST1_PASSWORD=LetsTest1 \
+                     -e DBNAME=test \
+                     icr.io/db2_community/db2
+          while [[ $(docker logs db2 2>&1 | grep -c "Setup has completed") == 0 ]]; do
+            sleep 1;
+          done;
+
+      - name : Setup test schema
+        run: |
+          # Pipe file with "connect to test" first so that a DB connection exists.
+          echo "connect to test;" | cat - setup_schema.sql | docker exec -i db2 su - db2inst1 -c "db2 -t"
+
+      - name: Run SQL Server tests on version ${{ matrix.python-version }}
+        run: |
+          export PYTHONPATH=$PWD/src/python
+          cd test/python
+          python tests_loading_sqlserver.py
+
+
