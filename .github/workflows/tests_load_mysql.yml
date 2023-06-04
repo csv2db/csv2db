@@ -50,10 +50,7 @@ jobs:
                      -e MYSQL_DATABASE=test \
                      -e MYSQL_RANDOM_ROOT_PASSWORD=y \
                      mysql
-          while [[ $(podman logs mysql 2>&1 | grep -c "ready for connections.") == 0 ]]; do
-            sleep 3;
-          done;
-
+          sleep 30
       - name: Create test schema
         run: |
           podman logs mysql
