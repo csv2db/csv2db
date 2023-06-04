@@ -63,6 +63,4 @@ jobs:
         run: |
           export PYTHONPATH=$PWD/src/python
           cd test/python
-          python tests_loading_sqlserver.py
-
-
+          python tests_loading_db2.py
