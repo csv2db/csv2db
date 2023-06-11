@@ -1,7 +1,7 @@
 #
 #  Since: June 2023
 #  Author: gvenzl
-#  Name: test_loading_db2.py
+#  Name: tests_loading_db2.py
 #  Description:loading tests for DB2
 #
 #  Copyright 2023 Gerald Venzl
