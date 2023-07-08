@@ -13,8 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Read all input files with `UTF-8` encoding
-- Use oracledb driver for Oracle Database
+- Upgraded to `oracledb` driver for Oracle Database
+- Upgraded to `psycopg (3)` driver for Postgres
+- Remove usage of `psycopg2.extras.execute_batch()` as psycopg 3 now supports `executemany()` natively
 - Change testing strategy to separate DB loading tests
+- Implemented GitHub Action testing
 
 ## [1.5.1] 2020-03-21
 

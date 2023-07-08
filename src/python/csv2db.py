@@ -281,7 +281,7 @@ def load_data(col_map, data):
         cur = cfg.conn.cursor()
         errors = False
         try:
-            f.executemany(cur, stmt)
+            cur.executemany(stmt, cfg.input_data)
             cur.close()
         # Catch batch execution exception
         except Exception as err:

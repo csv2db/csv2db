@@ -238,13 +238,13 @@ def get_db_connection(db_type, user, password, host, port, db_name):
                                        port=int(port),
                                        database=db_name)
         elif db_type is DBType.POSTGRES:
-            import psycopg2
-            conn = psycopg2.connect("""user='{0}' 
-                                       password='{1}' 
-                                       host='{2}' 
-                                       port='{3}' 
-                                       dbname='{4}'""".format(user, password, host, port, db_name)
-                                    )
+            import psycopg
+            conn = psycopg.connect("""user='{0}' 
+                                      password='{1}' 
+                                      host='{2}' 
+                                      port='{3}' 
+                                      dbname='{4}'""".format(user, password, host, port, db_name)
+                                   )
         elif db_type is DBType.DB2:
             import ibm_db
             import ibm_db_dbi
@@ -306,27 +306,6 @@ def get_csv_reader(file):
         A file object
     """
     return csv.reader(file, delimiter=cfg.column_separator, quotechar=cfg.quote_char)
-
-
-def executemany(cur, stmt):
-    """Runs executemany on the value set with the provided cursor.
-
-    This function is a wrapper around the Python Database API 'executemany'
-    to accommodate for psycopg2 slow 'executemany' implementation.
-
-    Parameters
-    ----------
-    cur : cursor
-        The cursor to run the statement with
-    stmt : str
-        The SQL statement to execute on
-    """
-    if cur is not None:
-        if cfg.db_type is not DBType.POSTGRES:
-            cur.executemany(stmt, cfg.input_data)
-        else:
-            import psycopg2.extras as p
-            p.execute_batch(cur, stmt, cfg.input_data)
 
 
 def truncate_table(db_type, conn, table_name):
