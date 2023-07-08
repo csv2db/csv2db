@@ -39,7 +39,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install PostgreSQL Python Driver
-        run: python -m pip install "psycopg[binary"
+        run: python -m pip install "psycopg[binary]"
 
       - name: Setup test database
         run: |
