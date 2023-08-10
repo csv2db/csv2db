@@ -77,7 +77,7 @@ def open_file(file):
     if file.endswith(".zip"):
         zip_file = zipfile.ZipFile(file, mode="r")
         file = zip_file.open(zip_file.infolist()[0], mode="r")
-        return io.TextIOWrapper(file)
+        return io.TextIOWrapper(file, encoding='utf-8')
     elif file.endswith(".gz"):
         return gzip.open(file, mode="rt", encoding='utf-8')
     else:
