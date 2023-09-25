@@ -19,7 +19,7 @@
 -- limitations under the License.
 
 CREATE DATABASE test;
-CREATE USER 'test' IDENTIFIED BY 'LetsTest1';
+CREATE USER 'test' IDENTIFIED BY 'LetsTestThis1++';
 GRANT ALL PRIVILEGES ON test.* TO 'test';
 FLUSH PRIVILEGES;
 exit;

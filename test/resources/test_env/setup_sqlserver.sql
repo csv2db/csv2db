@@ -24,7 +24,7 @@ go
 CREATE DATABASE test CONTAINMENT=PARTIAL;
 go
 USE test;
-CREATE USER test WITH PASSWORD = 'LetsTest1';
+CREATE USER test WITH PASSWORD = 'LetsTestThis1++';
 go
 ALTER ROLE db_owner ADD MEMBER test;
 go

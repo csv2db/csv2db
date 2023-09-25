@@ -47,7 +47,7 @@ jobs:
                      -p 1521:1521 \
                      -e ORACLE_RANDOM_PASSWORD=y \
                      -e APP_USER=test \
-                     -e APP_USER_PASSWORD=LetsTest1 \
+                     -e APP_USER_PASSWORD=LetsTestThis1++ \
                      -e ORACLE_DATABASE=test \
                      gvenzl/oracle-free:slim
           while [[ $(podman logs oracle 2>&1 | grep -c "DATABASE IS READY TO USE") == 0 ]]; do
@@ -56,7 +56,7 @@ jobs:
 
       - name: Create test schema
         run: |
-          podman exec -i oracle sqlplus test/LetsTest1@localhost/test < $PWD/test/resources/test_env/schema/setup_schema.sql
+          podman exec -i oracle sqlplus test/LetsTestThis1++@localhost/test < $PWD/test/resources/test_env/schema/setup_schema.sql
 
       - name: Run Oracle tests on version ${{ matrix.python-version }}
         run: |

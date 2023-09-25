@@ -47,7 +47,7 @@ jobs:
                      -p 3306:3306 \
                      -v $PWD/test/resources/test_env/schema:/docker-entrypoint-initdb.d \
                      -e MYSQL_USER=test \
-                     -e MYSQL_PASSWORD=LetsTest1 \
+                     -e MYSQL_PASSWORD=LetsTestThis1++ \
                      -e MYSQL_DATABASE=test \
                      -e MYSQL_RANDOM_ROOT_PASSWORD=y \
                      mysql

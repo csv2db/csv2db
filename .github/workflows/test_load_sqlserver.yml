@@ -47,7 +47,8 @@ jobs:
                      -p 1433:1433 \
                      -v $PWD/test/resources/test_env:/test_setup \
                      -e 'ACCEPT_EULA=Y' \
-                     -e 'SA_PASSWORD=LetsTest1' \
+                     -e 'SA_PASSWORD=LetsTestThis1++' \
+                     -e 'MSSQL_PID=Developer' \
                      mcr.microsoft.com/mssql/server:2022-latest
           while [[ $(podman logs sqlserver 2>&1 | grep -c "Recovery is complete") == 0 ]]; do
             sleep 1;
@@ -55,8 +56,8 @@ jobs:
 
       - name : Create test schema
         run: |
-          podman exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P LetsTest1 -i /test_setup/setup_sqlserver.sql
-          podman exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U test -P LetsTest1 -d test -i /test_setup/schema/setup_schema.sql
+          podman exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P LetsTestThis1++ -i /test_setup/setup_sqlserver.sql
+          podman exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U test -P LetsTestThis1++ -d test -i /test_setup/schema/setup_schema.sql
 
       - name: Run SQL Server tests on version ${{ matrix.python-version }}
         run: |
