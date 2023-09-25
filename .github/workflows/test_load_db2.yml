@@ -46,7 +46,7 @@ jobs:
           docker run -d --name db2 --privileged=true \
                      -p 50000:50000 \
                      -e LICENSE=accept  \
-                     -e DB2INST1_PASSWORD=LetsTestThis1++ \
+                     -e DB2INST1_PASSWORD=L3tsT3stTh1s++ \
                      -e DBNAME=test \
                      icr.io/db2_community/db2
           while [[ $(docker logs db2 2>&1 | grep -c "Setup has completed") == 0 ]]; do

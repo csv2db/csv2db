@@ -50,7 +50,7 @@ class LoadingTestsSuite(unittest.TestCase):
     params = {
         "db_type": "mysql",
         "user": "test",
-        "password": "LetsTestThis1++",
+        "password": "L3tsT3stTh1s++",
         "database": "test",
         "hostname": "localhost",
         "table_staging": "STAGING",

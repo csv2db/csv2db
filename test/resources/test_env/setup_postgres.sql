@@ -19,7 +19,7 @@
 -- limitations under the License.
 
 CREATE DATABASE test;
-CREATE USER test WITH ENCRYPTED PASSWORD 'LetsTestThis1++';
+CREATE USER test WITH ENCRYPTED PASSWORD 'L3tsT3stTh1s++';
 GRANT ALL PRIVILEGES ON DATABASE test TO test;
 \c test test
 CREATE SCHEMA test AUTHORIZATION test;

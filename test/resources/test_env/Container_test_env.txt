@@ -20,17 +20,17 @@
 #
 
 # Oracle DB
-podman run -d --name oracle -e APP_USER=test -e APP_USER_PASSWORD=LetsTestThis1++ -e ORACLE_DATABASE=test -e ORACLE_PASSWORD=LetsTestThis1++ -p 1521:1521 -v oracle-free:/opt/oracle/oradata gvenzl/oracle-free:slim
+podman run -d --name oracle -e APP_USER=test -e APP_USER_PASSWORD=L3tsT3stTh1s++ -e ORACLE_DATABASE=test -e ORACLE_PASSWORD=L3tsT3stTh1s++ -p 1521:1521 -v oracle-free:/opt/oracle/oradata gvenzl/oracle-free:slim
 
 # MySQL
-podman run -d --name mysql -e MYSQL_USER=test -e MYSQL_PASSWORD=LetsTestThis1++ -e MYSQL_DATABASE=test -e MYSQL_ROOT_PASSWORD=LetsTestThis1++ -p 3306:3306 -v mysql:/var/lib/mysql mysql
+podman run -d --name mysql -e MYSQL_USER=test -e MYSQL_PASSWORD=L3tsT3stTh1s++ -e MYSQL_DATABASE=test -e MYSQL_ROOT_PASSWORD=L3tsT3stTh1s++ -p 3306:3306 -v mysql:/var/lib/mysql mysql
 
 # Postgres
-podman run -d --name postgres -e POSTGRES_USER=test -e POSTGRES_PASSWORD=LetsTestThis1++ -e POSTGRES_DB=test -p 5432:5432 -v postgres:/var/lib/postgresql/data postgres
+podman run -d --name postgres -e POSTGRES_USER=test -e POSTGRES_PASSWORD=L3tsT3stTh1s++ -e POSTGRES_DB=test -p 5432:5432 -v postgres:/var/lib/postgresql/data postgres
 
 # SQL Server
 # Volumes aren't supported for SQL Server on Mac
-podman run -d --name sqlserver -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=LetsTestThis1++' -p 1433:1433 -v sqlserver:/var/opt/mssql mcr.microsoft.com/mssql/server:2022-latest
+podman run -d --name sqlserver -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=L3tsT3stTh1s++' -p 1433:1433 -v sqlserver:/var/opt/mssql mcr.microsoft.com/mssql/server:2022-latest
 
 # Db2
-docker run -d --name db2 -e LICENSE=accept --privileged=true -e DBNAME=test -e DB2INST1_PASSWORD=LetsTestThis1++ -p 50000:50000 -v db2:/database icr.io/db2_community/db2
+docker run -d --name db2 -e LICENSE=accept --privileged=true -e DBNAME=test -e DB2INST1_PASSWORD=L3tsT3stTh1s++ -p 50000:50000 -v db2:/database icr.io/db2_community/db2
