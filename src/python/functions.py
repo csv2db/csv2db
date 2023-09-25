@@ -73,15 +73,30 @@ def open_file(file):
     -------
     file-object
         A file object
+
+    Raises
+    ------
+    UnicodeDecodeError
+        If the file cannot be read in UTF-8 or the encoding provided
     """
+    return_file = None
+
     if file.endswith(".zip"):
         zip_file = zipfile.ZipFile(file, mode="r")
-        file = zip_file.open(zip_file.infolist()[0], mode="r")
-        return io.TextIOWrapper(file, encoding='utf-8')
+        zfile = zip_file.open(zip_file.infolist()[0], mode="r")
+        return_file = io.TextIOWrapper(zfile, encoding=cfg.file_encoding)
     elif file.endswith(".gz"):
-        return gzip.open(file, mode="rt", encoding='utf-8')
+        return_file = gzip.open(file, mode="rt", encoding=cfg.file_encoding)
     else:
-        return open(file, mode='r', encoding="utf-8")
+        return_file = open(file, mode='r', encoding=cfg.file_encoding)
+
+    # Test whether file can be read
+    # If not, this will throw UnicodeDecodeError
+    return_file.read(1)
+    # Reset file position to the beginning of the file
+    return_file.seek(0, 0)
+
+    return return_file
 
 
 def read_header(reader):
@@ -220,6 +235,13 @@ def get_db_connection(db_type, user, password, host, port, db_name):
     -------
     conn
         A database connection
+
+    Raises
+    ------
+    ValueError
+        If the database type is not supported
+    ConnectionError
+        If the database driver is not found/installed
     """
 
     try:

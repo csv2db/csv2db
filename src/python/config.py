@@ -38,3 +38,4 @@ truncate_before_load = False
 ignore_errors = False
 log_bad_records = False
 bad_records_logger = None
+file_encoding = "utf-8"

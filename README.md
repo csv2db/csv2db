@@ -39,18 +39,23 @@ positional arguments:
                         file(s).
     load (lo)           Loads the data from the CSV file(s) into the database.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
 ```
 
 ```console
 $ ./csv2db generate -h
-usage: csv2db generate [-h] [-f FILE] [-v] [--debug] [-t TABLE]
+usage: csv2db generate [-h] [-f FILE] [-e ENCODING] [-v] [--debug] [-t TABLE]
                        [-c COLUMN_TYPE] [-s SEPARATOR] [-q QUOTE]
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  -f FILE, --file FILE  The file to load, by default all *.csv.zip files
+  -f FILE, --file FILE  The file to read the header from, by default all
+                        *.csv.zip files
+  -e ENCODING, --encoding ENCODING
+                        The file encoding to be used to read the file, see htt
+                        ps://docs.python.org/3/library/codecs.html#standard-
+                        encodings for a list of all allowed encodings.
   -v, --verbose         Verbose output.
   --debug               Debug output.
   -t TABLE, --table TABLE
@@ -65,14 +70,18 @@ optional arguments:
 
 ```console
 $ ./csv2db load -h
-usage: csv2db load [-h] [-f FILE] [-v] [--debug] -t TABLE
+usage: csv2db load [-h] [-f FILE] [-e ENCODING] [-v] [--debug] -t TABLE
                    [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER
                    [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME] [-b BATCH]
                    [-s SEPARATOR] [-q QUOTE] [-a] [--truncate] [-i] [-l]
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -f FILE, --file FILE  The file to load, by default all *.csv.zip files
+  -e ENCODING, --encoding ENCODING
+                        The file encoding to be used to read the file, see htt
+                        ps://docs.python.org/3/library/codecs.html#standard-
+                        encodings for a list of all allowed encodings.
   -v, --verbose         Verbose output.
   --debug               Debug output.
   -t TABLE, --table TABLE
@@ -102,8 +111,9 @@ optional arguments:
   --truncate            Truncate/empty table before loading.
   -i, --ignore          Ignore erroneous/invalid lines in files and continue
                         the load.
-  -l, --log             Log erroneous/invalid lines in separate file (this
-                        implies the --ignore option).
+  -l, --log             Log erroneous/invalid lines in *.bad file of the same
+                        name as the input file (this implies the --ignore
+                        option).
 ```
 
 # How to use csv2db
@@ -342,7 +352,7 @@ This can be deactivated by setting the `$NO_COLOR` environment variable. For mor
 
 # LICENSE
 
-	Copyright 2019 Gerald Venzl
+	Copyright 2023 Gerald Venzl
 	
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.

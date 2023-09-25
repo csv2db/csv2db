@@ -319,6 +319,37 @@ class LoadingTestsSuite(unittest.TestCase):
         self.assertEqual(bad_rows, bad_rows_found)
         os.remove("../resources/test_files/bad/201811-citibike-tripdata-errors.csv.bad")
 
+    def test_load_utf_16_file(self):
+        print("test_load_utf_16_file")
+        self.assertEqual(f.ExitCodes.SUCCESS.value,
+                         csv2db.run(
+                              ["load",
+                               "-o", self.params["db_type"],
+                               "-f", "../resources/test_files/201811-citibike-tripdata-utf-16.csv",
+                               "-u", self.params["user"],
+                               "-p", self.params["password"],
+                               "-d", self.params["database"],
+                               "-t", self.params["table_staging"],
+                               "--encoding", "utf-16"
+                               ]
+                             )
+                         )
+
+    def test_negative_load_utf_16_file(self):
+        print("test_load_utf_16_file")
+        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+                         csv2db.run(
+                              ["load",
+                               "-o", self.params["db_type"],
+                               "-f", "../resources/test_files/201811-citibike-tripdata-utf-16.csv",
+                               "-u", self.params["user"],
+                               "-p", self.params["password"],
+                               "-d", self.params["database"],
+                               "-t", self.params["table_staging"]
+                               ]
+                             )
+                         )
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

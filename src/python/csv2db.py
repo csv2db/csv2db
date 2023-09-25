@@ -63,6 +63,9 @@ def run(cmd):
     cfg.quote_char = args.quote
     f.debug("Column escape character: {0}".format(cfg.quote_char))
 
+    cfg.file_encoding = args.encoding
+    f.debug("File encoding: {0}".format(cfg.file_encoding))
+
     # Find all files
     f.verbose("Finding file(s).")
     file_names = f.find_all_files(args.file)
@@ -215,19 +218,27 @@ def load_files(file_names):
         print()
         print("Loading file {0}".format(file_name))
         f.debug("Opening file handler for '{0}'".format(file_name))
-        with f.open_file(file_name) as file:
-            try:
-                read_and_load_file(file)
-                print("File loaded.")
-            except StopIteration:
-                print("File is empty: {0}".format(file_name))
-            except Exception:
-                f.error("Error while loading file into table: {0}".format(file.name))
-                exception, traceback = f.get_exception_details()
-                f.error(exception)
-                f.debug(traceback)
-                cfg.data_loading_error = True
-                print("Skipping file.")
+        try:
+            # Open file (will check whether file can be read)
+            with f.open_file(file_name) as file:
+                try:
+                    read_and_load_file(file)
+                    print("File loaded.")
+                except StopIteration:
+                    print("File is empty: {0}".format(file_name))
+                # Catch any unanticipated exceptions and report stack trace
+                except Exception:
+                    f.error("Error while loading file into table: {0}".format(file.name))
+                    exception, traceback = f.get_exception_details()
+                    f.error(exception)
+                    f.debug(traceback)
+                    cfg.data_loading_error = True
+                    print("Skipping file.")
+        except UnicodeDecodeError:
+            f.error("File is not UTF-8 encoded or in a UTF-8 compatible encoding: {0}".format(file_name))
+            f.error("Please specify the encoding that should be used via the '--encoding' parameter.")
+            cfg.data_loading_error = True
+            print("Skipping file.")
         print()
 
 
@@ -407,6 +418,10 @@ def parse_arguments(cmd):
                                                  "and columns based on the header row of the CSV file(s).")
     parser_generate.add_argument("-f", "--file", default="*.csv.zip",
                                  help="The file to read the header from, by default all *.csv.zip files")
+    parser_generate.add_argument("-e", "--encoding", default="utf-8",
+                                 help="The file encoding to be used to read the file, " +
+                                      "see https://docs.python.org/3/library/codecs.html#standard-encodings " +
+                                      "for a list of all allowed encodings.")
     parser_generate.add_argument("-v", "--verbose", action="store_true", default=False,
                                  help="Verbose output.")
     parser_generate.add_argument("--debug", action="store_true", default=False,
@@ -425,6 +440,10 @@ def parse_arguments(cmd):
                                         help="Loads the data from the CSV file(s) into the database.")
     parser_load.add_argument("-f", "--file", default="*.csv.zip",
                              help="The file to load, by default all *.csv.zip files")
+    parser_load.add_argument("-e", "--encoding", default="utf-8",
+                             help="The file encoding to be used to read the file, " +
+                                  "see https://docs.python.org/3/library/codecs.html#standard-encodings " +
+                                  "for a list of all allowed encodings.")
     parser_load.add_argument("-v", "--verbose", action="store_true", default=False,
                              help="Verbose output.")
     parser_load.add_argument("--debug", action="store_true", default=False,
