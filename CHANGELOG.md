@@ -10,9 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New option `--log` to log erroneous lines in a `*.bad` file of the same name (ER #46) 
 - New option `--ignore` to ignore errors in file and continue loading (ER #46)
 - New option `--truncate` to empty (truncate) the target table before the load (ER #45)
+- New option `--encoding` to specify the file encoding, if not compatible with `UTF-8` (bug #50 )
 
 ### Changed
-- Read all input files with `UTF-8` encoding
+- Read all input files with `UTF-8` encoding by default
 - Upgraded to `oracledb` driver for Oracle Database
 - Upgraded to `psycopg (3)` driver for Postgres
 - Remove usage of `psycopg2.extras.execute_batch()` as psycopg 3 now supports `executemany()` natively
