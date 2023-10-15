@@ -115,7 +115,11 @@ def read_header(reader):
         A list with all the column names.
     """
     header = []
-    header.extend(col.replace(' ', '_',).upper() for col in next(reader))
+    for idx, col in enumerate(next(reader), start=1):
+        # Bug #56: if a file contains an emtpy column name (i.e id,,name,date,...), raise an error
+        if col == "":
+            raise NameError("The header column name is empty for column at position {}.".format(idx))
+        header.append(col.replace(' ', '_',).upper())
     return header
 
 

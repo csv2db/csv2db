@@ -64,6 +64,12 @@ class FunctionalTestCaseSuite(unittest.TestCase):
             actual.sort()
             self.assertListEqual(expected, actual)
 
+    def test_negative_read_header(self):
+        print("test_negative_read_header")
+        with f.open_file("../resources/test_files/bad/201811-citibike-tripdata-empty-cols.csv") as file:
+            reader = f.get_csv_reader(file)
+            self.assertRaises(NameError, f.read_header, reader)
+
     def test_tab_separated_file(self):
         print("test_tab_separated_file")
         cfg.column_separator = "\t"
