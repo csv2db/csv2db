@@ -13,8 +13,9 @@ The CSV to database command line loader.
 `csv2db` reads CSV files and loads them into a database.
 Rather than having to go through the CSV data first and find out what columns and data types are present in the CSV files,
 `csv2db` will read the header in each CSV file and automatically load data into the columns of the same name into the target table.
-Spaces in the header column names are automatically replaced with `_` characters,
-for example the column `station id` in the CSV file will be interpreted as `station_id` column in the table.
+The case of the header column names will be preserved as present in the CSV file.
+Spaces in the header column names are automatically replaced with `_` characters, for example, the column `station id`
+in the CSV file will be interpreted as `station_id` column in the table.
 
 This approach allows you to get data into the database first and worry about the data cleansing part later,
 which is usually much easier once the data is in the database rather than in the CSV files.
@@ -47,6 +48,7 @@ options:
 $ ./csv2db generate -h
 usage: csv2db generate [-h] [-f FILE] [-e ENCODING] [-v] [--debug] [-t TABLE]
                        [-c COLUMN_TYPE] [-s SEPARATOR] [-q QUOTE]
+                       [--case-insensitive-identifiers]
 
 options:
   -h, --help            show this help message and exit
@@ -66,6 +68,9 @@ options:
                         The columns separator character(s).
   -q QUOTE, --quote QUOTE
                         The quote character on which a string won't be split.
+  --case-insensitive-identifiers
+                        If set, all identifiers (table and column names) will
+                        be upper-cased.
 ```
 
 ```console
@@ -74,6 +79,7 @@ usage: csv2db load [-h] [-f FILE] [-e ENCODING] [-v] [--debug] -t TABLE
                    [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER
                    [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME] [-b BATCH]
                    [-s SEPARATOR] [-q QUOTE] [-a] [--truncate] [-i] [-l]
+                   [--case-insensitive-identifiers]
 
 options:
   -h, --help            show this help message and exit
@@ -114,6 +120,9 @@ options:
   -l, --log             Log erroneous/invalid lines in *.bad file of the same
                         name as the input file (this implies the --ignore
                         option).
+  --case-insensitive-identifiers
+                        If set, all identifiers (table and column names) will
+                        be upper-cased.
 ```
 
 # How to use csv2db
@@ -228,7 +237,7 @@ CREATE TABLE <TABLE NAME>
 );
 ```
 
-By default you will have to fill in the table name. You can also specify the table name via the `-t` option:
+By default, you will have to fill in the table name. You can also specify the table name via the `-t` option:
 
 ```sql
 $ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING

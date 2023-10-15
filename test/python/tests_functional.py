@@ -35,6 +35,7 @@ class FunctionalTestCaseSuite(unittest.TestCase):
         cfg.quote_char = '"'
         cfg.data_loading_error = False
         cfg.debug = False
+        cfg.case_insensitive_identifiers = False
 
     def test_open_csv_file(self):
         print("test_open_csv_file")
@@ -51,8 +52,22 @@ class FunctionalTestCaseSuite(unittest.TestCase):
         with f.open_file("../resources/test_files/201811-citibike-tripdata.csv.gz") as file:
             self.assertIsNotNone(file.read())
 
-    def test_read_header(self):
+    def test_read_header_case_sensitive(self):
         print("test_read_header")
+        with f.open_file("../resources/test_files/201811-citibike-tripdata.csv.gz") as file:
+            reader = f.get_csv_reader(file)
+            expected = ["bikeid", "birth_year", "end_station_id", "end_station_latitude",
+                        "end_station_longitude", "end_station_name", "gender", "starttime",
+                        "start_station_id", "start_station_latitude", "start_station_longitude",
+                        "start_station_name", "stoptime", "tripduration", "usertype"]
+            expected.sort()
+            actual = f.read_header(reader)
+            actual.sort()
+            self.assertListEqual(expected, actual)
+
+    def test_read_header_case_insensitive(self):
+        print("test_read_header")
+        cfg.case_insensitive_identifiers = True
         with f.open_file("../resources/test_files/201811-citibike-tripdata.csv.gz") as file:
             reader = f.get_csv_reader(file)
             expected = ["BIKEID", "BIRTH_YEAR", "END_STATION_ID", "END_STATION_LATITUDE",

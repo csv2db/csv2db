@@ -118,8 +118,8 @@ def read_header(reader):
     for idx, col in enumerate(next(reader), start=1):
         # Bug #56: if a file contains an emtpy column name (i.e id,,name,date,...), raise an error
         if col == "":
-            raise NameError("The header column name is empty for column at position {}.".format(idx))
-        header.append(col.replace(' ', '_',).upper())
+            raise NameError("The header column name is empty for column at position {0}.".format(idx))
+        header.append(get_identifier(col.replace(' ', '_')))
     return header
 
 
@@ -330,6 +330,11 @@ def get_csv_reader(file):
     ----------
     file : file-object
         A file object
+
+    Returns
+    -------
+    object
+        The csv reader object
     """
     return csv.reader(file, delimiter=cfg.column_separator, quotechar=cfg.quote_char)
 
@@ -404,3 +409,21 @@ class BadRecordLogger:
         """Close file."""
         if self.file is not None:
             self.close()
+
+
+def get_identifier(identifier):
+    """Returns an identifier name considering global identifier settings.
+
+    Parameters
+    ----------
+    identifier : str
+        An identifier string
+
+    Returns
+    -------
+    str
+        A transformed identifier string based on the global identifier settings.
+    """
+    if cfg.case_insensitive_identifiers:
+        identifier = identifier.upper()
+    return identifier

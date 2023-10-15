@@ -51,8 +51,12 @@ def run(cmd):
         cfg.verbose = True
         cfg.debug = True
 
+    # Set case insensitive identifiers
+    cfg.case_insensitive_identifiers = args.case_insensitive_identifiers
+    f.debug("Case insensitive identifiers: {0}".format(cfg.case_insensitive_identifiers))
+
     # Set table name
-    cfg.table_name = args.table
+    cfg.table_name = f.get_identifier(args.table)
     f.debug("Table name: {0}".format(cfg.table_name))
 
     # Set column separator characters(s)
@@ -79,7 +83,7 @@ def run(cmd):
     if args.command.startswith("gen"):
         f.verbose("Generating CREATE TABLE statement.")
         try:
-            generate_table_sql(file_names, args.column_type)
+            generate_table_sql(file_names, f.get_identifier(args.column_type))
             return f.ExitCodes.SUCCESS.value
         except Exception:
             exception, tb_str = f.get_exception_details()
@@ -428,12 +432,14 @@ def parse_arguments(cmd):
                                  help="Debug output.")
     parser_generate.add_argument("-t", "--table",
                                  help="The table name to use.")
-    parser_generate.add_argument("-c", "--column-type", default="VARCHAR(1000)",
+    parser_generate.add_argument("-c", "--column-type", default="varchar(1000)",
                                  help="The column type to use for the table generation.")
     parser_generate.add_argument("-s", "--separator", default=",",
                                  help="The columns separator character(s).")
     parser_generate.add_argument("-q", "--quote", default='"',
                                  help="The quote character on which a string won't be split.")
+    parser_generate.add_argument("--case-insensitive-identifiers", action="store_true", default=False,
+                                 help="If set, all identifiers (table and column names) will be upper-cased.")
 
     # Sub Parser load
     parser_load = subparsers.add_parser("load", aliases=["lo"],
@@ -480,6 +486,8 @@ def parse_arguments(cmd):
     parser_load.add_argument("-l", "--log", action="store_true", default=False,
                              help="Log erroneous/invalid lines in *.bad file of the same name as the input file " +
                                   "(this implies the --ignore option).")
+    parser_load.add_argument("--case-insensitive-identifiers", action="store_true", default=False,
+                             help="If set, all identifiers (table and column names) will be upper-cased.")
 
     return parser.parse_args(cmd)
 
