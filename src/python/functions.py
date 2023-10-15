@@ -29,34 +29,10 @@ import io
 import zipfile
 import sys
 import traceback
-from enum import Enum
 import csv
 
 import config as cfg
-
-
-class DBType(Enum):
-    """Database type enumeration."""
-    ORACLE = "oracle"
-    MYSQL = "mysql"
-    POSTGRES = "postgres"
-    SQLSERVER = "sqlserver"
-    DB2 = "db2"
-
-
-class ExitCodes(Enum):
-    """Program return code enumeration."""
-    SUCCESS = 0
-    GENERIC_ERROR = 1
-    DATABASE_ERROR = 3  # value 2 is reserved for wrong arguments passed via argparse
-    DATA_LOADING_ERROR = 4
-
-
-class TerminalColor(Enum):
-    GREEN = "\x1b[32m"
-    RED = "\x1b[31m"
-    YELLOW = "\x1b[33m"
-    RESET = "\x1b[0m"
+from constants import DBType, TerminalColor
 
 
 def open_file(file):
@@ -150,7 +126,7 @@ def print_color(color, output):
     
     Parameters
     ----------
-    color : TerminalColor
+    color : constants.TerminalColor
         The color to be used.
     output : Any
         The output to be printed
@@ -222,7 +198,7 @@ def get_db_connection(db_type, user, password, host, port, db_name):
 
     Parameters
     ----------
-    db_type : DBType
+    db_type : constants.DBType
         The database type
     user : str
         The database user

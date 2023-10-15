@@ -18,26 +18,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-#
-#  Since: October 2022
-#  Author: gvenzl
-#  Name: tests_loading_mysql.py
-#  Description: loading tests for MySQL
-#
-#  Copyright 2022 Gerald Venzl
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#       http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
-
+import constants as cons
 import functions as f
 import config as cfg
 import os
@@ -58,11 +39,11 @@ class LoadingTestsSuite(unittest.TestCase):
     }
 
     def get_db_con(self):
-        return f.get_db_connection(f.DBType(self.params["db_type"]),
+        return f.get_db_connection(cons.DBType(self.params["db_type"]),
                                    self.params["user"],
                                    self.params["password"],
                                    self.params["hostname"],
-                                   f.get_default_db_port(f.DBType(self.params["db_type"])),
+                                   f.get_default_db_port(cons.DBType(self.params["db_type"])),
                                    self.params["database"])
 
     def table_count(self, table):
@@ -76,7 +57,7 @@ class LoadingTestsSuite(unittest.TestCase):
         return count
 
     def load_data(self, file, table, separator=","):
-        self.assertEqual(f.ExitCodes.SUCCESS.value,
+        self.assertEqual(cons.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
                               "-f", file,
@@ -103,7 +84,7 @@ class LoadingTestsSuite(unittest.TestCase):
                   "--truncate"
                   ]
 
-        self.assertEqual(f.ExitCodes.SUCCESS.value, csv2db.run(params))
+        self.assertEqual(cons.ExitCodes.SUCCESS.value, csv2db.run(params))
         # MySQL: a connection cannot hold the table still in cache
         # otherwise the TRUNCATE TABLE will hang (as it is a DROP/CREATE TABLE)
         count1 = self.table_count(self.params["table_staging"])
@@ -111,14 +92,14 @@ class LoadingTestsSuite(unittest.TestCase):
         # Reset global truncate parameter
         cfg.truncate_before_load = False
 
-        self.assertEqual(f.ExitCodes.SUCCESS.value, csv2db.run(params))
+        self.assertEqual(cons.ExitCodes.SUCCESS.value, csv2db.run(params))
         count2 = self.table_count(self.params["table_staging"])
 
         self.assertEqual(count1, count2)
 
     def load_with_truncated_table_negative(self):
         conn = self.get_db_con()
-        f.truncate_table(f.DBType(self.params["db_type"]), conn, self.params["table_staging"])
+        f.truncate_table(cons.DBType(self.params["db_type"]), conn, self.params["table_staging"])
         conn.close()
         count1 = self.load_data("../resources/test_files/201811-citibike-tripdata.csv",
                                 self.params["table_staging"])
@@ -140,13 +121,13 @@ class LoadingTestsSuite(unittest.TestCase):
     def tearDown(self):
         # Truncate tables
         conn = self.get_db_con()
-        f.truncate_table(f.DBType(self.params["db_type"]), conn, self.params["table_staging"])
-        f.truncate_table(f.DBType(self.params["db_type"]), conn, self.params["table_locations"])
+        f.truncate_table(cons.DBType(self.params["db_type"]), conn, self.params["table_staging"])
+        f.truncate_table(cons.DBType(self.params["db_type"]), conn, self.params["table_locations"])
         conn.close()
 
     def test_negative_load_file_with_insufficient_columns(self):
         print("test_negative_load_file_with_insufficient_columns")
-        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+        self.assertEqual(cons.ExitCodes.DATA_LOADING_ERROR.value,
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],
@@ -162,7 +143,7 @@ class LoadingTestsSuite(unittest.TestCase):
 
     def test_load_file_with_insufficient_columns_and_ignore(self):
         print("test_load_file_with_insufficient_columns_and_ignore")
-        self.assertEqual(f.ExitCodes.SUCCESS.value,
+        self.assertEqual(cons.ExitCodes.SUCCESS.value,
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],
@@ -178,7 +159,7 @@ class LoadingTestsSuite(unittest.TestCase):
 
     def test_exit_code_DATABASE_ERROR(self):
         print("test_exit_code_DATABASE_ERROR")
-        self.assertEqual(f.ExitCodes.DATABASE_ERROR.value,
+        self.assertEqual(cons.ExitCodes.DATABASE_ERROR.value,
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],
@@ -193,7 +174,7 @@ class LoadingTestsSuite(unittest.TestCase):
 
     def test_exit_code_DATA_LOADING_ERROR(self):
         print("test_exit_code_DATA_LOADING_ERROR")
-        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+        self.assertEqual(cons.ExitCodes.DATA_LOADING_ERROR.value,
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],
@@ -209,7 +190,7 @@ class LoadingTestsSuite(unittest.TestCase):
 
     def test_empty_file(self):
         print("test_empty_file")
-        self.assertEqual(f.ExitCodes.SUCCESS.value,
+        self.assertEqual(cons.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
                               "-o", self.params["db_type"],
@@ -241,7 +222,7 @@ class LoadingTestsSuite(unittest.TestCase):
 
     def test_negative_load_invalid_file_type(self):
         print("test_negative_load_invalid_file_type")
-        self.assertEqual(f.ExitCodes.GENERIC_ERROR.value,
+        self.assertEqual(cons.ExitCodes.GENERIC_ERROR.value,
                          csv2db.run(
                              ["load",
                               "-o", self.params["db_type"],
@@ -256,7 +237,7 @@ class LoadingTestsSuite(unittest.TestCase):
 
     def test_negative_error_bad_data(self):
         print("test_negative_error_bad_data")
-        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+        self.assertEqual(cons.ExitCodes.DATA_LOADING_ERROR.value,
                          csv2db.run(
                              ["load",
                               "-o", self.params["db_type"],
@@ -271,7 +252,7 @@ class LoadingTestsSuite(unittest.TestCase):
     def test_ignore_bad_data(self):
         print("test_ignore_bad_data")
         good_records = 7
-        self.assertEqual(f.ExitCodes.SUCCESS.value,
+        self.assertEqual(cons.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
                               "-o", self.params["db_type"],
@@ -292,7 +273,7 @@ class LoadingTestsSuite(unittest.TestCase):
         print("test_ignore_bad_data")
         bad_rows = 3
         bad_rows_found = 0
-        self.assertEqual(f.ExitCodes.SUCCESS.value,
+        self.assertEqual(cons.ExitCodes.SUCCESS.value,
                          csv2db.run(
                              ["load",
                               "-o", self.params["db_type"],
@@ -321,7 +302,7 @@ class LoadingTestsSuite(unittest.TestCase):
 
     def test_load_utf_16_file(self):
         print("test_load_utf_16_file")
-        self.assertEqual(f.ExitCodes.SUCCESS.value,
+        self.assertEqual(cons.ExitCodes.SUCCESS.value,
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],
@@ -337,7 +318,7 @@ class LoadingTestsSuite(unittest.TestCase):
 
     def test_negative_load_utf_16_file(self):
         print("test_load_utf_16_file")
-        self.assertEqual(f.ExitCodes.DATA_LOADING_ERROR.value,
+        self.assertEqual(cons.ExitCodes.DATA_LOADING_ERROR.value,
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],

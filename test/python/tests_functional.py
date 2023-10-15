@@ -19,7 +19,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+import constants as cons
 import functions as f
 import config as cfg
 import unittest
@@ -107,12 +107,12 @@ class FunctionalTestCaseSuite(unittest.TestCase):
 
     def test_exit_code_SUCCESS(self):
         print("test_exit_code_SUCCESS")
-        self.assertEqual(f.ExitCodes.SUCCESS.value,
+        self.assertEqual(cons.ExitCodes.SUCCESS.value,
                          csv2db.run(["gen", "-f", "../resources/test_files/201811-citibike-tripdata.csv.gz", "-t", "STAGING"]))
 
     def test_exit_code_GENERIC_ERROR(self):
         print("test_exit_code_GENERIC_ERROR")
-        self.assertEqual(f.ExitCodes.GENERIC_ERROR.value,
+        self.assertEqual(cons.ExitCodes.GENERIC_ERROR.value,
                          csv2db.run(["gen", "-f", "../resources/test_files/bad/201811-citibike-tripdata-invalid.csv.zip"]))
 
     def test_exit_code_ARGUMENT_ERROR(self):

@@ -25,6 +25,7 @@ import getpass
 import sys
 
 import config as cfg
+import constants as cons
 import functions as f
 
 
@@ -76,7 +77,7 @@ def run(cmd):
     f.verbose("Found {0} file(s).".format(len(file_names)))
     # Exit program if no files found.
     if len(file_names) == 0:
-        return f.ExitCodes.SUCCESS.value
+        return cons.ExitCodes.SUCCESS.value
     f.debug(file_names)
 
     # Generate CREATE TABLE SQL
@@ -84,17 +85,17 @@ def run(cmd):
         f.verbose("Generating CREATE TABLE statement.")
         try:
             generate_table_sql(file_names, f.get_identifier(args.column_type))
-            return f.ExitCodes.SUCCESS.value
+            return cons.ExitCodes.SUCCESS.value
         except Exception:
             exception, tb_str = f.get_exception_details()
             f.error("Error generating statement: {0}".format(exception))
             f.debug(tb_str)
-            return f.ExitCodes.GENERIC_ERROR.value
+            return cons.ExitCodes.GENERIC_ERROR.value
 
     # Load data
     else:
         # Set DB type
-        cfg.db_type = f.DBType(args.dbtype)
+        cfg.db_type = cons.DBType(args.dbtype)
         f.debug("DB type: {0}".format(cfg.db_type))
 
         if args.directpath:
@@ -142,7 +143,7 @@ def run(cmd):
             exception, tb_str = f.get_exception_details()
             f.error("Error connecting to the database: {0}".format(exception))
             f.debug(tb_str)
-            return f.ExitCodes.DATABASE_ERROR.value
+            return cons.ExitCodes.DATABASE_ERROR.value
 
         try:
             if cfg.truncate_before_load:
@@ -153,17 +154,17 @@ def run(cmd):
 
             f.verbose("Closing database connection.")
             cfg.conn.close()
-            return f.ExitCodes.SUCCESS.value if not cfg.data_loading_error else f.ExitCodes.DATA_LOADING_ERROR.value
+            return cons.ExitCodes.SUCCESS.value if not cfg.data_loading_error else cons.ExitCodes.DATA_LOADING_ERROR.value
         except KeyboardInterrupt:
             print("Exiting program")
             cfg.conn.close()
-            return f.ExitCodes.GENERIC_ERROR.value
+            return cons.ExitCodes.GENERIC_ERROR.value
         except Exception:
             exception, tb_str = f.get_exception_details()
             f.error("Error loading file(s): {0}".format(exception))
             f.debug(tb_str)
             cfg.conn.close()
-            return f.ExitCodes.GENERIC_ERROR.value
+            return cons.ExitCodes.GENERIC_ERROR.value
 
 
 def generate_table_sql(file_names, column_data_type):
@@ -328,7 +329,7 @@ def load_data(col_map, data):
                         # we commit here every successful row.
                         # Likewise, it seems that SQL Server aborts any erroneous transaction implicitly,
                         # so we want to commit every row that was successful.
-                        if cfg.db_type is f.DBType.POSTGRES or cfg.db_type is f.DBType.SQLSERVER:
+                        if cfg.db_type is cons.DBType.POSTGRES or cfg.db_type is cons.DBType.SQLSERVER:
                             f.debug("Commit")
                             cfg.conn.commit()
                         cur_err.close()
@@ -346,7 +347,7 @@ def load_data(col_map, data):
                             f.verbose("Ignoring invalid record.")
                             records_ignored += 1
                             # Rollback the broken transaction for Postgres
-                            if cfg.db_type is f.DBType.POSTGRES or cfg.db_type is f.DBType.SQLSERVER:
+                            if cfg.db_type is cons.DBType.POSTGRES or cfg.db_type is cons.DBType.SQLSERVER:
                                 f.debug("Rollback")
                                 cfg.conn.rollback()
                             # Ignore errors is implied with log bad errors
@@ -361,7 +362,7 @@ def load_data(col_map, data):
                 f.verbose("{0} rows ignored.".format(records_ignored))
         # If errors occurred for Postgres or SQL Server, do not commit at end as all rows have already been
         # committed one by one. SQL Server will throw an error when issuing a commit and no transaction is running
-        if not errors or (errors and cfg.db_type is not f.DBType.POSTGRES and cfg.db_type is not f.DBType.SQLSERVER):
+        if not errors or (errors and cfg.db_type is not cons.DBType.POSTGRES and cfg.db_type is not cons.DBType.SQLSERVER):
             f.debug("Commit")
             cfg.conn.commit()
         # In the error case, we already printed how many rows were loaded and ignored
@@ -380,11 +381,11 @@ def generate_statement(col_map):
         The columns to load the data into
     """
     append_hint = ""
-    if cfg.db_type is f.DBType.ORACLE:
+    if cfg.db_type is cons.DBType.ORACLE:
         values = ":" + ", :".join(col_map)
         if cfg.direct_path:
             append_hint = " /*+ APPEND_VALUES */"
-    elif cfg.db_type is f.DBType.DB2:
+    elif cfg.db_type is cons.DBType.DB2:
         values = ("?," * len(col_map))[:-1]
     else:
         values = ("%s, " * len(col_map))[:-2]
@@ -456,7 +457,7 @@ def parse_arguments(cmd):
                              help="Debug output.")
     parser_load.add_argument("-t", "--table", required=True,
                              help="The table name to use.")
-    parser_load.add_argument("-o", "--dbtype", default="oracle", choices=[e.value for e in f.DBType],
+    parser_load.add_argument("-o", "--dbtype", default="oracle", choices=[e.value for e in cons.DBType],
                              help="The database type.")
     parser_load.add_argument("-u", "--user", required=True,
                              help="The database user to load data into.")
