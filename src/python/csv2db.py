@@ -29,6 +29,50 @@ import constants as cons
 import functions as f
 
 
+def set_global_config(args):
+    """Sets csv2db global configuration.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        The populated argparse namespace.
+    """
+    # Set verbose and debug output flags
+    cfg.verbose = args.verbose
+    # Verbose is implicit for debug output
+    if args.debug:
+        cfg.verbose = True
+        cfg.debug = True
+
+    # Set case insensitive identifiers
+    cfg.case_insensitive_identifiers = args.case_insensitive_identifiers
+    f.debug("Case insensitive identifiers: {0}".format(cfg.case_insensitive_identifiers))
+
+    # Set quoted identifiers
+    cfg.quote_identifiers = args.quote_identifiers
+    f.debug("Quoted identifiers: {0}".format(cfg.quote_identifiers))
+
+    # Set DB type
+    cfg.db_type = cons.DBType(args.dbtype)
+    f.debug("DB type: {0}".format(cfg.db_type))
+
+    # Set table name
+    cfg.table_name = f.get_identifier(args.table)
+    f.debug("Table name: {0}".format(cfg.table_name))
+
+    # Set column separator characters(s)
+    cfg.column_separator = args.separator
+    f.debug("Column separator: {0}".format(cfg.column_separator))
+
+    # Set quote character(s)
+    cfg.quote_char = args.quote
+    f.debug("Column escape character: {0}".format(cfg.quote_char))
+
+    # Set file encoding
+    cfg.file_encoding = args.encoding
+    f.debug("File encoding: {0}".format(cfg.file_encoding))
+
+
 def run(cmd):
     """Runs csv2db.
 
@@ -46,30 +90,7 @@ def run(cmd):
     """
     args = parse_arguments(cmd)
 
-    # Set verbose and debug output flags
-    cfg.verbose = args.verbose
-    if args.debug:
-        cfg.verbose = True
-        cfg.debug = True
-
-    # Set case insensitive identifiers
-    cfg.case_insensitive_identifiers = args.case_insensitive_identifiers
-    f.debug("Case insensitive identifiers: {0}".format(cfg.case_insensitive_identifiers))
-
-    # Set table name
-    cfg.table_name = f.get_identifier(args.table)
-    f.debug("Table name: {0}".format(cfg.table_name))
-
-    # Set column separator characters(s)
-    cfg.column_separator = args.separator
-    f.debug("Column separator: {0}".format(cfg.column_separator))
-
-    # Set quote character(s)
-    cfg.quote_char = args.quote
-    f.debug("Column escape character: {0}".format(cfg.quote_char))
-
-    cfg.file_encoding = args.encoding
-    f.debug("File encoding: {0}".format(cfg.file_encoding))
+    set_global_config(args)
 
     # Find all files
     f.verbose("Finding file(s).")
@@ -84,7 +105,7 @@ def run(cmd):
     if args.command.startswith("gen"):
         f.verbose("Generating CREATE TABLE statement.")
         try:
-            generate_table_sql(file_names, f.get_identifier(args.column_type))
+            generate_table_sql(file_names, f.get_identifier(args.column_type, True))
             return cons.ExitCodes.SUCCESS.value
         except Exception:
             exception, tb_str = f.get_exception_details()
@@ -94,10 +115,6 @@ def run(cmd):
 
     # Load data
     else:
-        # Set DB type
-        cfg.db_type = cons.DBType(args.dbtype)
-        f.debug("DB type: {0}".format(cfg.db_type))
-
         if args.directpath:
             cfg.direct_path = args.directpath
             f.debug("'DIRECT PATH' loading option set by user")
@@ -431,6 +448,8 @@ def parse_arguments(cmd):
                                  help="Verbose output.")
     parser_generate.add_argument("--debug", action="store_true", default=False,
                                  help="Debug output.")
+    parser_generate.add_argument("-o", "--dbtype", default="oracle", choices=[e.value for e in cons.DBType],
+                                 help="The database type.")
     parser_generate.add_argument("-t", "--table",
                                  help="The table name to use.")
     parser_generate.add_argument("-c", "--column-type", default="varchar(1000)",
@@ -440,7 +459,9 @@ def parse_arguments(cmd):
     parser_generate.add_argument("-q", "--quote", default='"',
                                  help="The quote character on which a string won't be split.")
     parser_generate.add_argument("--case-insensitive-identifiers", action="store_true", default=False,
-                                 help="If set, all identifiers (table and column names) will be upper-cased.")
+                                 help="If set, all identifiers will be upper-cased.")
+    parser_generate.add_argument("--quote-identifiers", action="store_true", default=False,
+                                 help="If set, all table and column identifiers will be quoted.")
 
     # Sub Parser load
     parser_load = subparsers.add_parser("load", aliases=["lo"],
@@ -488,7 +509,9 @@ def parse_arguments(cmd):
                              help="Log erroneous/invalid lines in *.bad file of the same name as the input file " +
                                   "(this implies the --ignore option).")
     parser_load.add_argument("--case-insensitive-identifiers", action="store_true", default=False,
-                             help="If set, all identifiers (table and column names) will be upper-cased.")
+                             help="If set, all identifiers will be upper-cased.")
+    parser_load.add_argument("--quote-identifiers", action="store_true", default=False,
+                             help="If set, all table and column identifiers will be quoted.")
 
     return parser.parse_args(cmd)
 

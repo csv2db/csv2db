@@ -40,3 +40,4 @@ log_bad_records = False
 bad_records_logger = None
 file_encoding = "utf-8"
 case_insensitive_identifiers = False
+quote_identifiers = False

@@ -31,11 +31,13 @@ class FunctionalTestCaseSuite(unittest.TestCase):
 
     def setUp(self):
         # Set the default column separator for all tests
+        cfg.db_type = None
         cfg.column_separator = ","
         cfg.quote_char = '"'
         cfg.data_loading_error = False
         cfg.debug = False
         cfg.case_insensitive_identifiers = False
+        cfg.quote_identifiers = False
 
     def test_open_csv_file(self):
         print("test_open_csv_file")
@@ -65,6 +67,21 @@ class FunctionalTestCaseSuite(unittest.TestCase):
             actual.sort()
             self.assertListEqual(expected, actual)
 
+    def test_read_header_with_quotes_case_insensitive_oracle(self):
+        print("test_read_header")
+        cfg.quote_identifiers = True
+        cfg.db_type = cons.DBType.ORACLE
+        with f.open_file("../resources/test_files/201811-citibike-tripdata.csv.gz") as file:
+            reader = f.get_csv_reader(file)
+            expected = ['"bikeid"', '"birth_year"', '"end_station_id"', '"end_station_latitude"',
+                        '"end_station_longitude"', '"end_station_name"', '"gender"', '"starttime"',
+                        '"start_station_id"', '"start_station_latitude"', '"start_station_longitude"',
+                        '"start_station_name"', '"stoptime"', '"tripduration"', '"usertype"']
+            expected.sort()
+            actual = f.read_header(reader)
+            actual.sort()
+            self.assertListEqual(expected, actual)
+
     def test_read_header_case_insensitive(self):
         print("test_read_header")
         cfg.case_insensitive_identifiers = True
@@ -74,6 +91,22 @@ class FunctionalTestCaseSuite(unittest.TestCase):
                         "END_STATION_LONGITUDE", "END_STATION_NAME", "GENDER", "STARTTIME",
                         "START_STATION_ID", "START_STATION_LATITUDE", "START_STATION_LONGITUDE",
                         "START_STATION_NAME", "STOPTIME", "TRIPDURATION", "USERTYPE"]
+            expected.sort()
+            actual = f.read_header(reader)
+            actual.sort()
+            self.assertListEqual(expected, actual)
+
+    def test_read_header_with_quotes_case_insensitive_mysql(self):
+        print("test_read_header")
+        cfg.case_insensitive_identifiers = True
+        cfg.quote_identifiers = True
+        cfg.db_type = cons.DBType.MYSQL
+        with f.open_file("../resources/test_files/201811-citibike-tripdata.csv.gz") as file:
+            reader = f.get_csv_reader(file)
+            expected = ["`BIKEID`", "`BIRTH_YEAR`", "`END_STATION_ID`", "`END_STATION_LATITUDE`",
+                        "`END_STATION_LONGITUDE`", "`END_STATION_NAME`", "`GENDER`", "`STARTTIME`",
+                        "`START_STATION_ID`", "`START_STATION_LATITUDE`", "`START_STATION_LONGITUDE`",
+                        "`START_STATION_NAME`", "`STOPTIME`", "`TRIPDURATION`", "`USERTYPE`"]
             expected.sort()
             actual = f.read_header(reader)
             actual.sort()

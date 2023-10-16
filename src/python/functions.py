@@ -32,6 +32,7 @@ import traceback
 import csv
 
 import config as cfg
+import constants as cons
 from constants import DBType, TerminalColor
 
 
@@ -387,13 +388,40 @@ class BadRecordLogger:
             self.close()
 
 
-def get_identifier(identifier):
+def get_identifier_quote(db_type):
+    """Returns the identifier quote character.
+
+    If no db_type has been passed on, the db_type from the global configuration will be used.
+    If the global configuration has not been set, the default for Oracle Database will be used.
+
+    Parameters
+    ----------
+    db_type : str
+        The database type that the quote character should be retrieved for.
+
+    Returns
+    -------
+    str
+        The identifier quote character the database is using.
+    """
+    # If not db_type has been passed use global configuration db_type
+    if db_type is None:
+        db_type = cfg.db_type
+        # If global configuration db_type is None, use default of Oracle (all but MySQL use the same)
+        if db_type is None:
+            db_type = cons.DBType.ORACLE
+    return cons.DBConfig[cons.DBConfigKeys.IDENTIFIER_QUOTE][db_type]
+
+
+def get_identifier(identifier, ignore_quote=False):
     """Returns an identifier name considering global identifier settings.
 
     Parameters
     ----------
     identifier : str
         An identifier string
+    ignore_quote : bool
+        If set, the identifier quote character is not added.
 
     Returns
     -------
@@ -402,4 +430,9 @@ def get_identifier(identifier):
     """
     if cfg.case_insensitive_identifiers:
         identifier = identifier.upper()
+
+    if cfg.quote_identifiers and not ignore_quote:
+        quote = get_identifier_quote(cfg.db_type)
+        identifier = quote + identifier + quote
+
     return identifier

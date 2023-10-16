@@ -42,3 +42,18 @@ class TerminalColor(Enum):
     RED = "\x1b[31m"
     YELLOW = "\x1b[33m"
     RESET = "\x1b[0m"
+
+
+class DBConfigKeys(str, Enum):
+    IDENTIFIER_QUOTE = "identifier_quote"
+
+
+DBConfig = {
+    DBConfigKeys.IDENTIFIER_QUOTE: {
+        DBType.MYSQL:     "`",
+        DBType.ORACLE:    '"',
+        DBType.POSTGRES:  '"',
+        DBType.SQLSERVER: '"',
+        DBType.DB2:       '"'
+    }
+}

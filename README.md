@@ -46,9 +46,10 @@ options:
 
 ```console
 $ ./csv2db generate -h
-usage: csv2db generate [-h] [-f FILE] [-e ENCODING] [-v] [--debug] [-t TABLE]
+usage: csv2db generate [-h] [-f FILE] [-e ENCODING] [-v] [--debug]
+                       [-o {oracle,mysql,postgres,sqlserver,db2}] [-t TABLE]
                        [-c COLUMN_TYPE] [-s SEPARATOR] [-q QUOTE]
-                       [--case-insensitive-identifiers]
+                       [--case-insensitive-identifiers] [--quote-identifiers]
 
 options:
   -h, --help            show this help message and exit
@@ -60,6 +61,8 @@ options:
                         encodings for a list of all allowed encodings.
   -v, --verbose         Verbose output.
   --debug               Debug output.
+  -o {oracle,mysql,postgres,sqlserver,db2}, --dbtype {oracle,mysql,postgres,sqlserver,db2}
+                        The database type.
   -t TABLE, --table TABLE
                         The table name to use.
   -c COLUMN_TYPE, --column-type COLUMN_TYPE
@@ -69,8 +72,9 @@ options:
   -q QUOTE, --quote QUOTE
                         The quote character on which a string won't be split.
   --case-insensitive-identifiers
-                        If set, all identifiers (table and column names) will
-                        be upper-cased.
+                        If set, all identifiers will be upper-cased.
+  --quote-identifiers   If set, all table and column identifiers will be
+                        quoted.
 ```
 
 ```console
@@ -79,7 +83,7 @@ usage: csv2db load [-h] [-f FILE] [-e ENCODING] [-v] [--debug] -t TABLE
                    [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER
                    [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME] [-b BATCH]
                    [-s SEPARATOR] [-q QUOTE] [-a] [--truncate] [-i] [-l]
-                   [--case-insensitive-identifiers]
+                   [--case-insensitive-identifiers] [--quote-identifiers]
 
 options:
   -h, --help            show this help message and exit
@@ -121,8 +125,9 @@ options:
                         name as the input file (this implies the --ignore
                         option).
   --case-insensitive-identifiers
-                        If set, all identifiers (table and column names) will
-                        be upper-cased.
+                        If set, all identifiers will be upper-cased.
+  --quote-identifiers   If set, all table and column identifiers will be
+                        quoted.
 ```
 
 # How to use csv2db
