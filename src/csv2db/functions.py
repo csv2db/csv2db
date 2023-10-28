@@ -31,9 +31,9 @@ import sys
 import traceback
 import csv
 
-import config as cfg
-import constants as cons
-from constants import DBType, TerminalColor
+import csv2db.config as cfg
+import csv2db.constants as cons
+from csv2db.constants import DBType, TerminalColor
 
 
 def open_file(file):

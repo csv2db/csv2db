@@ -1,0 +1,64 @@
+#
+# Since: October, 2023
+# Author: gvenzl
+# Name: pyproject.toml
+# Description: The project file
+#
+# Copyright 2019 Gerald Venzl
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "csv2db"
+version = "0.0.0-dev2"
+description = "The CSV to database command line loader."
+authors = [{ name="Gerald Venzl" }]
+maintainers = [{ name="Gerald Venzl" }]
+readme = "README.md"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Database",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.8"
+dependencies = [
+        "oracledb >= 1.1.1",
+        "mysql-connector-python >= 8.0.13",
+        "psycopg-binary >= 3.1.9",
+        "pymssql >= 2.1.4",
+        "ibm-db>= 2.0.9",
+]
+
+[project.scripts]
+csv2db = "csv2db.csv2db:run"
+
+[project.urls]
+"Documentation" = "https://github.com/csv2db/csv2db/wiki"
+"Homepage" = "https://csv2db.github.io/"
+"Issues" = "https://github.com/csv2db/csv2db/issues"
+"Source" = "https://github.com/csv2db/csv2db"

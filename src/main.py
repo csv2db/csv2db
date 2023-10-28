@@ -1,11 +1,50 @@
 #!/usr/bin/env python3
+
+#
+#  Since: October 2023
+#  Author: gvenzl
+#  Name: main.py
+#  Description:
+#
+#  Copyright 2023 Gerald Venzl
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+#
+#  Since: October 2023
+#  Author: gvenzl
+#  Name: main.py
+#  Description:
+#
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 #
 # Since: January, 2019
 # Author: gvenzl
 # Name: csv2db.py
 # Description: CSV 2 (to) DB main file
 #
-# Copyright 2019 Gerald Venzl
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,9 +63,9 @@ import argparse
 import getpass
 import sys
 
-import config as cfg
-import constants as cons
-import functions as f
+import csv2db.config as cfg
+import csv2db.constants as cons
+import csv2db.functions as f
 
 
 def set_global_config(args):
@@ -516,5 +555,9 @@ def parse_arguments(cmd):
     return parser.parse_args(cmd)
 
 
+def entrypoint():
+    run(sys.argv[1:])
+
+
 if __name__ == "__main__":
-    raise SystemExit(run(sys.argv[1:]))
+    raise SystemExit(entrypoint())

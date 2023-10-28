@@ -36,8 +36,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run UNIX functional tests on version ${{ matrix.python-version }}
         run: |
-          export PYTHONPATH=$PWD/src/python
-          cd test/python
+          export PYTHONPATH=$PWD/src
+          cd test
           python tests_functional.py
 
   Windows_functional_tests:
@@ -54,7 +54,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run Windows functional tests on version ${{ matrix.python-version }}
         run: |
-          $env:PYTHONPATH="$Pwd\src\python"
-          cd test/python
+          $env:PYTHONPATH="$Pwd\src"
+          cd test
           python tests_functional.py
 

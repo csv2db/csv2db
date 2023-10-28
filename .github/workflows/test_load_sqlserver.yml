@@ -61,8 +61,8 @@ jobs:
 
       - name: Run SQL Server tests on version ${{ matrix.python-version }}
         run: |
-          export PYTHONPATH=$PWD/src/python
-          cd test/python
+          export PYTHONPATH=$PWD/src
+          cd test
           python tests_loading_sqlserver.py
 
 

@@ -1,10 +1,10 @@
 #
-#  Since: December 2022
+#  Since: October 2023
 #  Author: gvenzl
 #  Name: tests_loading.py
-#  Description: Loading tests with base class.
+#  Description:
 #
-#  Copyright 2022 Gerald Venzl
+#  Copyright 2023 Gerald Venzl
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -18,12 +18,31 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import constants as cons
-import functions as f
-import config as cfg
+#
+#  Since: December 2022
+#  Author: gvenzl
+#  Name: tests_loading.py
+#  Description: Loading tests with base class.
+#
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+import csv2db.constants as cons
+import csv2db.functions as f
+import csv2db.config as cfg
 import os
 import unittest
-import csv2db
+import main as csv2db
 
 
 class LoadingTestsSuite(unittest.TestCase):
@@ -75,7 +94,7 @@ class LoadingTestsSuite(unittest.TestCase):
 
     def load_with_truncated_table(self):
         params = ["load",
-                  "-f", "../resources/test_files/201811-citibike-tripdata.csv*",
+                  "-f", "resources/test_files/201811-citibike-tripdata.csv*",
                   "-o", self.params["db_type"],
                   "-u", self.params["user"],
                   "-p", self.params["password"],
@@ -101,9 +120,9 @@ class LoadingTestsSuite(unittest.TestCase):
         conn = self.get_db_con()
         f.truncate_table(cons.DBType(self.params["db_type"]), conn, self.params["table_staging"])
         conn.close()
-        count1 = self.load_data("../resources/test_files/201811-citibike-tripdata.csv",
+        count1 = self.load_data("resources/test_files/201811-citibike-tripdata.csv",
                                 self.params["table_staging"])
-        count2 = self.load_data("../resources/test_files/201811-citibike-tripdata.csv",
+        count2 = self.load_data("resources/test_files/201811-citibike-tripdata.csv",
                                 self.params["table_staging"])
         # Assert that double the amount of rows has been loaded (2 * first count == second count)
         self.assertEqual((count1*2), count2)
@@ -131,7 +150,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],
-                               "-f", "../resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
+                               "-f", "resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
                                "-u", self.params["user"],
                                "-p", self.params["password"],
                                "-d", self.params["database"],
@@ -147,7 +166,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],
-                               "-f", "../resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
+                               "-f", "resources/test_files/bad/201811-citibike-tripdata-not-enough-columns.csv",
                                "-u", self.params["user"],
                                "-p", self.params["password"],
                                "-d", self.params["database"],
@@ -163,7 +182,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],
-                               "-f", "../resources/test_files/201811-citibike-tripdata.csv",
+                               "-f", "resources/test_files/201811-citibike-tripdata.csv",
                                "-u", "INVALIDUSER",
                                "-p", self.params["password"],
                                "-d", self.params["database"],
@@ -178,7 +197,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],
-                               "-f", "../resources/test_files/201811-citibike-tripdata.csv",
+                               "-f", "resources/test_files/201811-citibike-tripdata.csv",
                                "-u", self.params["user"],
                                "-p", self.params["password"],
                                "-d", self.params["database"],
@@ -194,7 +213,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          csv2db.run(
                              ["load",
                               "-o", self.params["db_type"],
-                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-empty.csv",
+                              "-f", "resources/test_files/bad/201811-citibike-tripdata-empty.csv",
                               "-u", self.params["user"],
                               "-p", self.params["password"],
                               "-d", self.params["database"],
@@ -205,11 +224,11 @@ class LoadingTestsSuite(unittest.TestCase):
 
     def test_loading(self):
         print("test_loading_" + self.params["db_type"])
-        self.load_data("../resources/test_files/201811-citibike-tripdata.csv", self.params["table_staging"])
+        self.load_data("resources/test_files/201811-citibike-tripdata.csv", self.params["table_staging"])
 
     def test_unicode_file(self):
         print("test_unicode_file_" + self.params["db_type"])
-        self.load_data("../resources/test_files/allCountries.1000.txt.gz",
+        self.load_data("resources/test_files/allCountries.1000.txt.gz",
                        self.params["table_locations"], "\t")
 
     def test_truncate_table_before_load(self):
@@ -226,7 +245,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          csv2db.run(
                              ["load",
                               "-o", self.params["db_type"],
-                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-invalid.csv.zip",
+                              "-f", "resources/test_files/bad/201811-citibike-tripdata-invalid.csv.zip",
                               "-u", self.params["user"],
                               "-p", self.params["password"],
                               "-d", self.params["database"],
@@ -241,7 +260,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          csv2db.run(
                              ["load",
                               "-o", self.params["db_type"],
-                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-errors.csv",
+                              "-f", "resources/test_files/bad/201811-citibike-tripdata-errors.csv",
                               "-u", self.params["user"],
                               "-p", self.params["password"],
                               "-d", self.params["database"],
@@ -256,7 +275,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          csv2db.run(
                              ["load",
                               "-o", self.params["db_type"],
-                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-errors.csv",
+                              "-f", "resources/test_files/bad/201811-citibike-tripdata-errors.csv",
                               "-u", self.params["user"],
                               "-p", self.params["password"],
                               "-d", self.params["database"],
@@ -277,7 +296,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          csv2db.run(
                              ["load",
                               "-o", self.params["db_type"],
-                              "-f", "../resources/test_files/bad/201811-citibike-tripdata-errors.csv",
+                              "-f", "resources/test_files/bad/201811-citibike-tripdata-errors.csv",
                               "-u", self.params["user"],
                               "-p", self.params["password"],
                               "-d", self.params["database"],
@@ -287,10 +306,10 @@ class LoadingTestsSuite(unittest.TestCase):
                               ])
                          )
 
-        with f.open_file("../resources/test_files/bad/201811-citibike-tripdata-errors.csv.bad") as bad_file:
+        with f.open_file("resources/test_files/bad/201811-citibike-tripdata-errors.csv.bad") as bad_file:
             bad_reader = f.get_csv_reader(bad_file)
             for bad_line in bad_reader:
-                with f.open_file("../resources/test_files/bad/201811-citibike-tripdata-errors.csv") as file:
+                with f.open_file("resources/test_files/bad/201811-citibike-tripdata-errors.csv") as file:
                     reader = f.get_csv_reader(file)
                     for line in reader:
                         if bad_line == line:
@@ -298,7 +317,7 @@ class LoadingTestsSuite(unittest.TestCase):
                             break
 
         self.assertEqual(bad_rows, bad_rows_found)
-        os.remove("../resources/test_files/bad/201811-citibike-tripdata-errors.csv.bad")
+        os.remove("resources/test_files/bad/201811-citibike-tripdata-errors.csv.bad")
 
     def test_load_utf_16_file(self):
         print("test_load_utf_16_file")
@@ -306,7 +325,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],
-                               "-f", "../resources/test_files/201811-citibike-tripdata-utf-16.csv",
+                               "-f", "resources/test_files/201811-citibike-tripdata-utf-16.csv",
                                "-u", self.params["user"],
                                "-p", self.params["password"],
                                "-d", self.params["database"],
@@ -322,7 +341,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          csv2db.run(
                               ["load",
                                "-o", self.params["db_type"],
-                               "-f", "../resources/test_files/201811-citibike-tripdata-utf-16.csv",
+                               "-f", "resources/test_files/201811-citibike-tripdata-utf-16.csv",
                                "-u", self.params["user"],
                                "-p", self.params["password"],
                                "-d", self.params["database"],
