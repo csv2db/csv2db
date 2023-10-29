@@ -32,7 +32,7 @@ jobs:
           path: dist/
   
   publish-to-testpypi:
-    name: Publish cs2db distribution to TestPyPI
+    name: Publish csv2db distribution to TestPyPI
     needs:
       - build
     runs-on: ubuntu-latest
@@ -52,4 +52,4 @@ jobs:
       - name: Publish distributions to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          repository-url: https://test.pypi.org/legacy
+          repository-url: https://test.pypi.org/
