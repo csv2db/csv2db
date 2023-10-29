@@ -58,7 +58,7 @@ jobs:
           # Pipe file with "connect to test" first so that a DB connection exists.
           echo "connect to test;" | cat - $PWD/test/resources/test_env/schema/setup_schema.sql | docker exec -i db2 su - db2inst1 -c "db2 -t"
 
-      - name: Run SQL Server tests on version ${{ matrix.python-version }}
+      - name: Run Db2 tests on version ${{ matrix.python-version }}
         run: |
           export PYTHONPATH=$PWD/src
           cd test
