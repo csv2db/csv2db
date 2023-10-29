@@ -1,8 +1,10 @@
-name: Publish csv2db distribution to TestPyPI and PyPI
+name: Publish csv2db distribution to TestPyPI
 
+# Trigger only when a new tag is created (vN.N.N)
 on:
-  release:
-    types: [created, published]
+  push:
+    tags:
+      - v*.*.*
 
 jobs:
 
@@ -31,7 +33,6 @@ jobs:
   
   publish-to-testpypi:
     name: Publish cs2db distribution to TestPyPI
-    if: ${{ github.event.release.action == "created" }}
     needs:
       - build
     runs-on: ubuntu-latest
