@@ -25,7 +25,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "csv2db"
-version = "0.0.0-dev5"
+version = "1.6.0"
 description = "The CSV to database command line loader."
 authors = [{ name="Gerald Venzl" }]
 maintainers = [{ name="Gerald Venzl" }]

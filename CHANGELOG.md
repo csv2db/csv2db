@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New option `--truncate` to empty (truncate) the target table before the load (ER #45)
 - New option `--encoding` to specify the file encoding, if not compatible with `UTF-8` (bug #50)
 - New option `--case-insensitive-identifiers` to uppercase all identifiers (ER #60)
+- Release `csv2db` as a Python package (ER #53)
 
 ### Changed
 - Read all input files with `UTF-8` encoding by default
