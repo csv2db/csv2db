@@ -1,0 +1,52 @@
+name: Publish csv2db distribution to PyPI
+
+# Trigger only when a new Release is published
+on:
+  release:
+    types: [published]
+
+jobs:
+
+  build:
+    name: Build csv2db distribution package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+          
+      - name: Install pypa/build
+        run: >-
+          python3 -m pip install build --user
+
+      - name: Build a binary wheel and source tarball
+        run: python3 -m build
+
+      - name: Store distribution packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-package-distros
+          path: dist/
+  
+  publish-to-pypi:
+    name: Publish csv2db distribution to PyPI
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/csv2db
+    permissions:
+      id-token: write
+    
+    steps:
+      - name: Download package distros
+        uses: actions/download-artifact@v3
+        with:
+          name: python-package-distros
+          path: dist/
+      
+      - name: Publish distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
