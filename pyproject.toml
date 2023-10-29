@@ -51,7 +51,6 @@ dependencies = [
         "mysql-connector-python >= 8.0.13",
         "psycopg-binary >= 3.1.9",
         "pymssql >= 2.1.4",
-        "ibm-db>= 2.0.9",
 ]
 
 [project.scripts]
