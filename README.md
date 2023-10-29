@@ -294,7 +294,15 @@ The idea is to have a staging table that data can be loaded into first and then 
 
 # Installation
 
-You can install `csv2db` either by cloning this Git repository
+You can install `csv2db` either by installing it as a Python package,
+which will automatically install all dependencies except the Db2 driver (as this one is still in Beta status)
+
+```console
+$ python3 -m pip install csv2db
+$ csv2db
+```
+
+or cloning this Git repository
 
 ```console
 $ git clone https://github.com/csv2db/csv2db
@@ -309,8 +317,9 @@ $ cd csv2db*
 $ ./csv2db
 ```
     
-In order for `csv2db` to work you will have to install the appropriate database driver(s).
-The following drivers are being used, all available on [pypi.org](https://pypi.org/):
+In order for `csv2db` to work the appropriate database driver or drivers need to be installed.
+This installation is done automatically when installing `csv2db` as a Python package (`pip install csv2db`).
+The following drivers are being used, and are all available on [pypi.org](https://pypi.org/):
 
 * Oracle: [oracledb](https://pypi.org/project/oracledb/) version 1.1.1+
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
@@ -323,7 +332,7 @@ You can install any of these drivers via `pip`:
 ```console
 $ python3 -m pip install oracledb
 $ python3 -m pip install mysql-connector-python
-$ python3 -m pip install "psycopg[binary]"
+$ python3 -m pip install psycopg-binary
 $ python3 -m pip install pymssql
 $ python3 -m pip install ibm-db
 ```
@@ -350,13 +359,13 @@ It is there to help users to get the contents of a file into a database table qu
 ## Exit codes
 `csv2db` returns following exit codes:  
 
-| Exit code          | Value | Meaning                                                                                          |
-|--------------------|:-----:|--------------------------------------------------------------------------------------------------|
-| SUCCESS            |   0   | Successful execution of the program.                                                             |
-| GENERIC_ERROR      |   1   | A generic error occurred.                                                                        |
-| ARGUMENT_ERROR     |   2   | An argument is either missing or incorrect.                                                      |
-| DATABASE_ERROR     |   3   | A database error occurred.                                                                       |
-| DATA_LOADING_ERROR |   4   | An error occurred during loading of data. `csv2db` will continue to process other files, if any. |
+| Exit code             | Value | Meaning                                                                                          |
+|-----------------------|:-----:|--------------------------------------------------------------------------------------------------|
+| `SUCCESS`             |   0   | Successful execution of the program.                                                             |
+| `GENERIC_ERROR`       |   1   | A generic error occurred.                                                                        |
+| `ARGUMENT_ERROR`      |   2   | An argument is either missing or incorrect.                                                      |
+| `DATABASE_ERROR`      |   3   | A database error occurred.                                                                       |
+| `DATA_LOADING_ERROR`  |   4   | An error occurred during loading of data. `csv2db` will continue to process other files, if any. |
 
 ## `$NO_COLOR` support
 `csv2db` is capable of color coded output and will do so by default (except on Windows).  
