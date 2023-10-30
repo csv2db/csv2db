@@ -54,7 +54,7 @@ jobs:
           while [[ $(podman logs mysql 2>&1 | grep -c "ready for connections.") < 4
                    && $(podman logs mysql 2>&1 | grep -c "MySQL init process done.") == 0 ]]; do
             # MySQL has no clear indicator when the DB is ready to use, wait a bit longer.
-            sleep 10;
+            sleep 15;
           done;
 
       - name: Run MySQL tests on version ${{ matrix.python-version }}
