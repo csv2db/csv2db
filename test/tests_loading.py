@@ -336,7 +336,7 @@ class LoadingTestsSuite(unittest.TestCase):
                          )
 
     def test_negative_load_utf_16_file(self):
-        print("test_load_utf_16_file")
+        print("test_negative_load_utf_16_file")
         self.assertEqual(cons.ExitCodes.DATA_LOADING_ERROR.value,
                          csv2db.run(
                               ["load",
