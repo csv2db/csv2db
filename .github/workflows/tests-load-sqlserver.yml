@@ -1,7 +1,7 @@
 #
 # Since: May 2023
 # Author: gvenzl
-# Name: tests_load_sqlserver.yml
+# Name: tests-load-sqlserver.yml
 # Description: GitHub Actions SQL Server load tests
 #
 # Copyright 2023 Gerald Venzl
@@ -19,10 +19,10 @@
 # limitations under the License.
 #
 
-name: load_tests_sqlserver
+name: SQL Server load tests
 on: [push, pull_request]
 jobs:
-  db_load_tests_sqlserver:
+  load-tests-sqlserver:
     strategy:
       matrix:
         python-version: [ '3.8', '3.9', '3.10', '3.11', '3.12', '3.x' ]

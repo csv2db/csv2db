@@ -1,7 +1,7 @@
 #
 # Since: December 2022
 # Author: gvenzl
-# Name: tests_load_postgres.yml
+# Name: tests-load-postgres.yml
 # Description: GitHub Actions Postgres load tests
 #
 # Copyright 2022 Gerald Venzl
@@ -19,10 +19,10 @@
 # limitations under the License.
 #
 
-name: load_tests_postgres
+name: PostgreSQL load tests
 on: [push, pull_request]
 jobs:
-  db_load_tests_postgres:
+  load-tests-postgres:
     strategy:
       matrix:
         python-version: [ '3.8', '3.9', '3.10', '3.11', '3.12', '3.x' ]

@@ -1,7 +1,7 @@
 #
 # Since: May 2023
 # Author: gvenzl
-# Name: tests_load_db2.yml
+# Name: tests-load-db2.yml
 # Description: GitHub Actions Db2 load tests.
 #
 # Copyright 2023 Gerald Venzl
@@ -19,10 +19,10 @@
 # limitations under the License.
 #
 
-name: load-tests-db2
+name: Db2 load tests
 on: [push, pull_request]
 jobs:
-  db-load-tests-db2:
+  load-tests-db2:
     strategy:
       matrix:
         python-version: [ '3.8', '3.9', '3.10', '3.11']

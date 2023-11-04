@@ -1,7 +1,7 @@
 #
 # Since: October 2022
 # Author: gvenzl
-# Name: tests_load_mysql.yml
+# Name: tests-load-mysql.yml
 # Description: GitHub Actions MySQL load tests
 #
 # Copyright 2022 Gerald Venzl
@@ -19,10 +19,10 @@
 # limitations under the License.
 #
 
-name: load_tests_mysql
+name: MySQL load tests
 on: [push, pull_request]
 jobs:
-  db_load_tests_mysql:
+  load-tests-mysql:
     strategy:
       matrix:
         python-version: [ '3.8', '3.9', '3.10', '3.11', '3.12', '3.x' ]
