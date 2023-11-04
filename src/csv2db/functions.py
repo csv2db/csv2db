@@ -29,34 +29,11 @@ import io
 import zipfile
 import sys
 import traceback
-from enum import Enum
 import csv
 
-import config as cfg
-
-
-class DBType(Enum):
-    """Database type enumeration."""
-    ORACLE = "oracle"
-    MYSQL = "mysql"
-    POSTGRES = "postgres"
-    SQLSERVER = "sqlserver"
-    DB2 = "db2"
-
-
-class ExitCodes(Enum):
-    """Program return code enumeration."""
-    SUCCESS = 0
-    GENERIC_ERROR = 1
-    DATABASE_ERROR = 3  # value 2 is reserved for wrong arguments passed via argparse
-    DATA_LOADING_ERROR = 4
-
-
-class TerminalColor(Enum):
-    GREEN = "\x1b[32m"
-    RED = "\x1b[31m"
-    YELLOW = "\x1b[33m"
-    RESET = "\x1b[0m"
+import csv2db.config as cfg
+import csv2db.constants as cons
+from csv2db.constants import DBType, TerminalColor
 
 
 def open_file(file):
@@ -73,15 +50,30 @@ def open_file(file):
     -------
     file-object
         A file object
+
+    Raises
+    ------
+    UnicodeDecodeError
+        If the file cannot be read in UTF-8 or the encoding provided
     """
+    return_file = None
+
     if file.endswith(".zip"):
         zip_file = zipfile.ZipFile(file, mode="r")
-        file = zip_file.open(zip_file.infolist()[0], mode="r")
-        return io.TextIOWrapper(file)
+        zfile = zip_file.open(zip_file.infolist()[0], mode="r")
+        return_file = io.TextIOWrapper(zfile, encoding=cfg.file_encoding)
     elif file.endswith(".gz"):
-        return gzip.open(file, mode="rt")
+        return_file = gzip.open(file, mode="rt", encoding=cfg.file_encoding)
     else:
-        return open(file, mode='r')
+        return_file = open(file, mode='r', encoding=cfg.file_encoding)
+
+    # Test whether file can be read
+    # If not, this will throw UnicodeDecodeError
+    return_file.read(1)
+    # Reset file position to the beginning of the file
+    return_file.seek(0, 0)
+
+    return return_file
 
 
 def read_header(reader):
@@ -100,7 +92,11 @@ def read_header(reader):
         A list with all the column names.
     """
     header = []
-    header.extend(col.replace(' ', '_',).upper() for col in next(reader))
+    for idx, col in enumerate(next(reader), start=1):
+        # Bug #56: if a file contains an emtpy column name (i.e id,,name,date,...), raise an error
+        if col == "":
+            raise NameError("The header column name is empty for column at position {0}.".format(idx))
+        header.append(get_identifier(col.replace(' ', '_')))
     return header
 
 
@@ -131,7 +127,7 @@ def print_color(color, output):
     
     Parameters
     ----------
-    color : TerminalColor
+    color : constants.TerminalColor
         The color to be used.
     output : Any
         The output to be printed
@@ -203,7 +199,7 @@ def get_db_connection(db_type, user, password, host, port, db_name):
 
     Parameters
     ----------
-    db_type : str
+    db_type : constants.DBType
         The database type
     user : str
         The database user
@@ -220,16 +216,23 @@ def get_db_connection(db_type, user, password, host, port, db_name):
     -------
     conn
         A database connection
+
+    Raises
+    ------
+    ValueError
+        If the database type is not supported
+    ConnectionError
+        If the database driver is not found/installed
     """
 
     try:
-        if db_type == DBType.ORACLE.value:
-            import cx_Oracle
-            conn = cx_Oracle.connect(user,
-                                     password,
-                                     host + ":" + port + "/" + db_name,
-                                     encoding="UTF-8", nencoding="UTF-8")
-        elif db_type == DBType.MYSQL.value:
+        if db_type is DBType.ORACLE:
+            import oracledb
+            conn = oracledb.connect(user=user,
+                                    password=password,
+                                    dsn=host + ":" + port + "/" + db_name,
+                                    encoding="UTF-8", nencoding="UTF-8")
+        elif db_type is DBType.MYSQL:
             import mysql.connector
             conn = mysql.connector.connect(
                                        user=user,
@@ -237,15 +240,15 @@ def get_db_connection(db_type, user, password, host, port, db_name):
                                        host=host,
                                        port=int(port),
                                        database=db_name)
-        elif db_type == DBType.POSTGRES.value:
-            import psycopg2
-            conn = psycopg2.connect("""user='{0}' 
-                                       password='{1}' 
-                                       host='{2}' 
-                                       port='{3}' 
-                                       dbname='{4}'""".format(user, password, host, port, db_name)
-                                    )
-        elif db_type == DBType.DB2.value:
+        elif db_type is DBType.POSTGRES:
+            import psycopg
+            conn = psycopg.connect("""user='{0}' 
+                                      password='{1}' 
+                                      host='{2}' 
+                                      port='{3}' 
+                                      dbname='{4}'""".format(user, password, host, port, db_name)
+                                   )
+        elif db_type is DBType.DB2:
             import ibm_db
             import ibm_db_dbi
             conn = ibm_db.connect("PROTOCOL=TCPIP;AUTHENTICATION=SERVER;"
@@ -254,7 +257,7 @@ def get_db_connection(db_type, user, password, host, port, db_name):
             # Set autocommit explicitly off
             ibm_db.autocommit(conn, ibm_db.SQL_AUTOCOMMIT_OFF)
             return ibm_db_dbi.Connection(conn)
-        elif db_type == DBType.SQLSERVER.value:
+        elif db_type is DBType.SQLSERVER:
             import pymssql
             conn = pymssql.connect(server=host, user=user, password=password, database=db_name)
             # 'pymssql.Connection' object attribute 'autocommit' is read-only
@@ -277,7 +280,7 @@ def get_default_db_port(db_type):
 
     Parameters
     ----------
-    db_type : str
+    db_type : DBType
         The database type
 
     Returns
@@ -285,15 +288,15 @@ def get_default_db_port(db_type):
     str
         The default port
     """
-    if db_type == DBType.ORACLE.value:
+    if db_type is DBType.ORACLE:
         return "1521"
-    elif db_type == DBType.MYSQL.value:
+    elif db_type is DBType.MYSQL:
         return "3306"
-    elif db_type == DBType.POSTGRES.value:
+    elif db_type is DBType.POSTGRES:
         return "5432"
-    elif db_type == DBType.DB2.value:
+    elif db_type is DBType.DB2:
         return "50000"
-    elif db_type == DBType.SQLSERVER.value:
+    elif db_type is DBType.SQLSERVER:
         return "1433"
 
 
@@ -304,26 +307,132 @@ def get_csv_reader(file):
     ----------
     file : file-object
         A file object
+
+    Returns
+    -------
+    object
+        The csv reader object
     """
     return csv.reader(file, delimiter=cfg.column_separator, quotechar=cfg.quote_char)
 
 
-def executemany(cur, stmt):
-    """Runs executemany on the value set with the provided cursor.
+def truncate_table(db_type, conn, table_name):
+    """Truncates a database table.
 
-    This function is a wrapper around the Python Database API 'executemany'
-    to accommodate for psycopg2 slow 'executemany' implementation.
+    This function executes a TRUNCATE TABLE on a database table.
+    The database user needs to have the right permissions to execute that statement.
 
     Parameters
     ----------
-    cur : cursor
-        The cursor to run the statement with
-    stmt : str
-        The SQL statement to execute on
+    db_type : DBType
+        The database type connected to
+    conn
+        The database connection to use
+    table_name : str
+        The table name to be truncated
     """
-    if cur is not None:
-        if cfg.db_type != DBType.POSTGRES.value:
-            cur.executemany(stmt, cfg.input_data)
-        else:
-            import psycopg2.extras as p
-            p.execute_batch(cur, stmt, cfg.input_data)
+    cur = conn.cursor()
+    cur.execute("TRUNCATE TABLE {0}"
+                .format(table_name + " IMMEDIATE"
+                        if db_type is DBType.DB2
+                        else table_name))
+    cur.close()
+
+    # Postgres and SQLServer handle TRUNCATE TABLE transactional
+    # Db2 doesn't allow two TRUNCATE TABLE IMMEDIATE in one transaction, although it cannot be rolled back
+    if db_type in (DBType.POSTGRES, DBType.SQLSERVER, DBType.DB2):
+        conn.commit()
+
+
+class BadRecordLogger:
+    """This class logs bad records into a file."""
+
+    def __init__(self, file_name):
+        """Initializes a BadRecordLogger object.
+
+        Parameters
+        ----------
+        file_name : str
+            The file name to log bad records to.
+        """
+        self.file_name = file_name
+        self.file = None
+
+    def write_bad_record(self, record):
+        """Writes a bad record.
+
+        Parameters
+        ----------
+        record : tuple
+            The record to write. A new line will be appended by this method.
+        """
+        if self.file is None:
+            self.file = open(self.file_name, mode="w", encoding="utf-8")
+        self.file.write(cfg.column_separator.join(record) + '\n')
+
+    def close(self):
+        """Close file."""
+        self.file.close()
+
+    def __enter__(self):
+        """Create context manager."""
+        return self
+
+    def __exit__(self, exc_type, exc_value, trace_back):
+        """Destroy context manager."""
+        self.__del__()
+
+    def __del__(self):
+        """Close file."""
+        if self.file is not None:
+            self.close()
+
+
+def get_identifier_quote(db_type):
+    """Returns the identifier quote character.
+
+    If no db_type has been passed on, the db_type from the global configuration will be used.
+    If the global configuration has not been set, the default for Oracle Database will be used.
+
+    Parameters
+    ----------
+    db_type : str
+        The database type that the quote character should be retrieved for.
+
+    Returns
+    -------
+    str
+        The identifier quote character the database is using.
+    """
+    # If not db_type has been passed use global configuration db_type
+    if db_type is None:
+        db_type = cfg.db_type
+        # If global configuration db_type is None, use default of Oracle (all but MySQL use the same)
+        if db_type is None:
+            db_type = cons.DBType.ORACLE
+    return cons.DBConfig[cons.DBConfigKeys.IDENTIFIER_QUOTE][db_type]
+
+
+def get_identifier(identifier, ignore_quote=False):
+    """Returns an identifier name considering global identifier settings.
+
+    Parameters
+    ----------
+    identifier : str
+        An identifier string
+    ignore_quote : bool
+        If set, the identifier quote character is not added.
+
+    Returns
+    -------
+    str
+        A transformed identifier string based on the global identifier settings.
+    """
+    if cfg.case_insensitive_identifiers:
+        identifier = identifier.upper()
+
+    if cfg.quote_identifiers and not ignore_quote:
+        quote = get_identifier_quote(cfg.db_type)
+        identifier = quote + identifier + quote
+
+    return identifier

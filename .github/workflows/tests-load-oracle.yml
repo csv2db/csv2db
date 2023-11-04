@@ -1,0 +1,65 @@
+#
+# Since: November 2022
+# Author: gvenzl
+# Name: tests-load-oracle.yml
+# Description: GitHub Actions Oracle load tests
+#
+# Copyright 2022 Gerald Venzl
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: Oracle DB load tests
+on: [push, pull_request]
+jobs:
+  load-tests-oracle:
+    strategy:
+      matrix:
+        python-version: [ '3.8', '3.9', '3.10', '3.11', '3.12', '3.x' ]
+
+    runs-on: ubuntu-latest
+
+    # Run tests
+    steps:
+      - uses: actions/checkout@v3.1.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Oracle Python Driver
+        run: python -m pip install oracledb
+
+      - name: Setup test database
+        run: |
+          podman run -d --name oracle \
+                     -p 1521:1521 \
+                     -e ORACLE_RANDOM_PASSWORD=y \
+                     -e APP_USER=test \
+                     -e APP_USER_PASSWORD=L3tsT3stTh1s++ \
+                     -e ORACLE_DATABASE=test \
+                     gvenzl/oracle-free:slim
+          while [[ $(podman logs oracle 2>&1 | grep -c "DATABASE IS READY TO USE") == 0 ]]; do
+            sleep 1;
+          done;
+
+      - name: Create test schema
+        run: |
+          podman exec -i oracle sqlplus test/L3tsT3stTh1s++@localhost/test < $PWD/test/resources/test_env/schema/setup_schema.sql
+
+      - name: Run Oracle tests on version ${{ matrix.python-version }}
+        run: |
+          export PYTHONPATH=$PWD/src
+          cd test
+          python tests_loading_oracle.py

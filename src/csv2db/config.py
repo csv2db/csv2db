@@ -20,7 +20,7 @@
 # limitations under the License.
 #
 
-version = "1.5.1"
+version = "1.6.0"
 
 verbose = False
 debug = False
@@ -28,9 +28,16 @@ direct_path = False
 batch_size = 10000
 conn = None
 table_name = ""
-column_type = "VARCHAR(1000)"
+column_type = "varchar(1000)"
 input_data = []
 db_type = None
 column_separator = ""
 quote_char = ""
 data_loading_error = False
+truncate_before_load = False
+ignore_errors = False
+log_bad_records = False
+bad_records_logger = None
+file_encoding = "utf-8"
+case_insensitive_identifiers = False
+quote_identifiers = False

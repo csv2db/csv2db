@@ -13,8 +13,9 @@ The CSV to database command line loader.
 `csv2db` reads CSV files and loads them into a database.
 Rather than having to go through the CSV data first and find out what columns and data types are present in the CSV files,
 `csv2db` will read the header in each CSV file and automatically load data into the columns of the same name into the target table.
-Spaces in the header column names are automatically replaced with `_` characters,
-for example the column `station id` in the CSV file will be interpreted as `station_id` column in the table.
+The case of the header column names will be preserved as present in the CSV file.
+Spaces in the header column names are automatically replaced with `_` characters, for example, the column `station id`
+in the CSV file will be interpreted as `station_id` column in the table.
 
 This approach allows you to get data into the database first and worry about the data cleansing part later,
 which is usually much easier once the data is in the database rather than in the CSV files.
@@ -29,7 +30,7 @@ $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
 The CSV to database command line loader.
-Version: 1.5.1
+Version: 1.6.0
 (c) Gerald Venzl
 
 positional arguments:
@@ -39,20 +40,29 @@ positional arguments:
                         file(s).
     load (lo)           Loads the data from the CSV file(s) into the database.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
 ```
 
 ```console
 $ ./csv2db generate -h
-usage: csv2db generate [-h] [-f FILE] [-v] [--debug] [-t TABLE]
+usage: csv2db generate [-h] [-f FILE] [-e ENCODING] [-v] [--debug]
+                       [-o {oracle,mysql,postgres,sqlserver,db2}] [-t TABLE]
                        [-c COLUMN_TYPE] [-s SEPARATOR] [-q QUOTE]
+                       [--case-insensitive-identifiers] [--quote-identifiers]
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  -f FILE, --file FILE  The file to load, by default all *.csv.zip files
+  -f FILE, --file FILE  The file to read the header from, by default all
+                        *.csv.zip files
+  -e ENCODING, --encoding ENCODING
+                        The file encoding to be used to read the file, see htt
+                        ps://docs.python.org/3/library/codecs.html#standard-
+                        encodings for a list of all allowed encodings.
   -v, --verbose         Verbose output.
   --debug               Debug output.
+  -o {oracle,mysql,postgres,sqlserver,db2}, --dbtype {oracle,mysql,postgres,sqlserver,db2}
+                        The database type.
   -t TABLE, --table TABLE
                         The table name to use.
   -c COLUMN_TYPE, --column-type COLUMN_TYPE
@@ -61,18 +71,27 @@ optional arguments:
                         The columns separator character(s).
   -q QUOTE, --quote QUOTE
                         The quote character on which a string won't be split.
+  --case-insensitive-identifiers
+                        If set, all identifiers will be upper-cased.
+  --quote-identifiers   If set, all table and column identifiers will be
+                        quoted.
 ```
 
 ```console
 $ ./csv2db load -h
-usage: csv2db load [-h] [-f FILE] [-v] [--debug] -t TABLE
+usage: csv2db load [-h] [-f FILE] [-e ENCODING] [-v] [--debug] -t TABLE
                    [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER
                    [-p PASSWORD] [-m HOST] [-n PORT] [-d DBNAME] [-b BATCH]
-                   [-s SEPARATOR] [-q QUOTE] [-a]
+                   [-s SEPARATOR] [-q QUOTE] [-a] [--truncate] [-i] [-l]
+                   [--case-insensitive-identifiers] [--quote-identifiers]
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -f FILE, --file FILE  The file to load, by default all *.csv.zip files
+  -e ENCODING, --encoding ENCODING
+                        The file encoding to be used to read the file, see htt
+                        ps://docs.python.org/3/library/codecs.html#standard-
+                        encodings for a list of all allowed encodings.
   -v, --verbose         Verbose output.
   --debug               Debug output.
   -t TABLE, --table TABLE
@@ -99,6 +118,16 @@ optional arguments:
                         The quote character on which a string won't be split.
   -a, --directpath      Execute a direct path INSERT load operation (Oracle
                         only).
+  --truncate            Truncate/empty table before loading.
+  -i, --ignore          Ignore erroneous/invalid lines in files and continue
+                        the load.
+  -l, --log             Log erroneous/invalid lines in *.bad file of the same
+                        name as the input file (this implies the --ignore
+                        option).
+  --case-insensitive-identifiers
+                        If set, all identifiers will be upper-cased.
+  --quote-identifiers   If set, all table and column identifiers will be
+                        quoted.
 ```
 
 # How to use csv2db
@@ -213,7 +242,7 @@ CREATE TABLE <TABLE NAME>
 );
 ```
 
-By default you will have to fill in the table name. You can also specify the table name via the `-t` option:
+By default, you will have to fill in the table name. You can also specify the table name via the `-t` option:
 
 ```sql
 $ ./csv2db generate -f test/resources/201811-citibike-tripdata.csv -t STAGING
@@ -265,7 +294,15 @@ The idea is to have a staging table that data can be loaded into first and then 
 
 # Installation
 
-You can install `csv2db` either by cloning this Git repository
+You can install `csv2db` either by installing it as a Python package,
+which will automatically install all dependencies except the Db2 driver (as this one is still in Beta status)
+
+```console
+$ python3 -m pip install csv2db
+$ csv2db
+```
+
+or cloning this Git repository
 
 ```console
 $ git clone https://github.com/csv2db/csv2db
@@ -280,21 +317,22 @@ $ cd csv2db*
 $ ./csv2db
 ```
     
-In order for `csv2db` to work you will have to install the appropriate database driver(s).
-The following drivers are being used, all available on [pypi.org](https://pypi.org/):
+In order for `csv2db` to work the appropriate database driver or drivers need to be installed.
+This installation is done automatically when installing `csv2db` as a Python package (`pip install csv2db`).
+The following drivers are being used, and are all available on [pypi.org](https://pypi.org/):
 
-* Oracle: [cx-Oracle](https://pypi.org/project/cx-Oracle/) version 7.0.0+
+* Oracle: [oracledb](https://pypi.org/project/oracledb/) version 1.1.1+
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
-* PostgreSQL: [psycopg2-binary](https://pypi.org/project/psycopg2-binary/) version 2.7.6.1+
+* PostgreSQL: [psycopg-binary](https://pypi.org/project/psycopg-binary/) version 3.1.9+
 * SQL Server: [pymssql](https://pypi.org/project/pymssql/) version 2.1.4+
 * DB2: [ibm-db](https://pypi.org/project/ibm-db/) version 2.0.9+
 
 You can install any of these drivers via `pip`:
 
 ```console
-$ python3 -m pip install cx-Oracle
+$ python3 -m pip install oracledb
 $ python3 -m pip install mysql-connector-python
-$ python3 -m pip install psycopg2-binary
+$ python3 -m pip install psycopg-binary
 $ python3 -m pip install pymssql
 $ python3 -m pip install ibm-db
 ```
@@ -307,16 +345,27 @@ please see the documentation of the individual driver or refer to the
 
 # Miscellaneous
 
+## What `csv2db` is and, more importantly, what it is not!
+Since the very inception of `csv2db`, it has been a core principle for it not to become an ETL tool with all the bells and whistles.
+There are already many very good ETL tools out there and the world doesn't need yet another one.
+Instead, `csv2db` should aid users as a simple command-line tool to get rows from a delimited file into a database table, and not more!
+Following that core design goal, `csv2db` will most likely never provide many database-specific options or parameters for the end-user to set,
+it will not deal with explicit data type or character set conversion or globalization support that some databases offer.
+If a user requires any of these features or more, he or she should look for one of the already existing ETL tools out there.
+
+Simply put, `csv2db` does not do much more than taking rows from a delimited file and execute `INSERT INTO` statements with the values of these rows.
+It is there to help users to get the contents of a file into a database table quickly where the data can then be further processed.
+
 ## Exit codes
 `csv2db` returns following exit codes:  
 
-Exit code          | Value | Meaning
------------------- | ----- | -------
-SUCCESS            |     0 | Successful execution of the program.
-GENERIC_ERROR      |     1 | A generic error occurred.
-ARGUMENT_ERROR     |     2 | An argument is either missing or incorrect.
-DATABASE_ERROR     |     3 | A database error occurred.
-DATA_LOADING_ERROR |     4 | An error occurred during loading of data. `csv2db` will continue to process other files, if any.
+| Exit code             | Value | Meaning                                                                                          |
+|-----------------------|:-----:|--------------------------------------------------------------------------------------------------|
+| `SUCCESS`             |   0   | Successful execution of the program.                                                             |
+| `GENERIC_ERROR`       |   1   | A generic error occurred.                                                                        |
+| `ARGUMENT_ERROR`      |   2   | An argument is either missing or incorrect.                                                      |
+| `DATABASE_ERROR`      |   3   | A database error occurred.                                                                       |
+| `DATA_LOADING_ERROR`  |   4   | An error occurred during loading of data. `csv2db` will continue to process other files, if any. |
 
 ## `$NO_COLOR` support
 `csv2db` is capable of color coded output and will do so by default (except on Windows).  
@@ -326,7 +375,7 @@ This can be deactivated by setting the `$NO_COLOR` environment variable. For mor
 
 # LICENSE
 
-	Copyright 2019 Gerald Venzl
+	Copyright 2023 Gerald Venzl
 	
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.

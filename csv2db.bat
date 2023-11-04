@@ -23,7 +23,7 @@ REM
 REM Check whether python 3 is available
 WHERE python.exe >nul 2>nul
 IF %ERRORLEVEL% == 0 (
-   python.exe %~dp0.\src\python\csv2db.py %*
+   python.exe %~dp0.\src\main.py %*
 ) ELSE (
   ECHO Python is not installed, please install Python 3 first.
   ECHO For more information see https://www.python.org/downloads/
