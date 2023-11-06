@@ -356,6 +356,28 @@ If a user requires any of these features or more, he or she should look for one 
 Simply put, `csv2db` does not do much more than taking rows from a delimited file and execute `INSERT INTO` statements with the values of these rows.
 It is there to help users to get the contents of a file into a database table quickly where the data can then be further processed.
 
+## Using the `csv2db` Docker image
+`csv2db` is also offered as a Docker image, making the usage of `csv2db` quick and easy without requiring any install.
+
+To run `csv2db`, simply invoke the `docker|podman run` command, for example:
+
+```console
+# quick test the image
+podman run --rm csv2db --help
+```
+
+To load data, bind the folder containing the input files as a Docker volume:
+```console
+podman run --rm -v <input files folder>:/input/ csv2db load -f /input/<input file(s)> ...
+```
+
+For example:
+```console
+podman run --rm -v $HOME/input_files:/input csv2db \
+  load -f /input/201811-citibike-tripdata.csv -t citibikes \
+  -u db_user -p db_pass -d my_db
+```
+
 ## Exit codes
 `csv2db` returns following exit codes:  
 
