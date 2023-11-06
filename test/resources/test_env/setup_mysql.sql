@@ -19,7 +19,7 @@
 -- limitations under the License.
 
 CREATE DATABASE test;
-CREATE USER 'test' IDENTIFIED BY 'L3tsT3stTh1s++';
+CREATE USER 'test'@'%' IDENTIFIED BY 'L3tsT3stTh1s++';
 GRANT ALL PRIVILEGES ON test.* TO 'test';
 FLUSH PRIVILEGES;
 exit;
