@@ -25,7 +25,7 @@ This is particularly useful if the format of the CSV files has changed over time
 
 # Usage
 
-```console
+```bash
 $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
@@ -44,7 +44,7 @@ options:
   -h, --help            show this help message and exit
 ```
 
-```console
+```bash
 $ ./csv2db generate -h
 usage: csv2db generate [-h] [-f FILE] [-e ENCODING] [-v] [--debug]
                        [-o {oracle,mysql,postgres,sqlserver,db2}] [-t TABLE]
@@ -77,7 +77,7 @@ options:
                         quoted.
 ```
 
-```console
+```bash
 $ ./csv2db load -h
 usage: csv2db load [-h] [-f FILE] [-e ENCODING] [-v] [--debug] -t TABLE
                    [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER
@@ -136,7 +136,7 @@ options:
 
 `csv2db` can load plain text csv files as well as compressed csv files in `.zip` or `.gz` format without having to uncompress them first.
 
-```console
+```bash
 $ ./csv2db load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1
 
 Loading file test/resources/201811-citibike-tripdata.csv
@@ -151,7 +151,7 @@ File loaded.
 
 `csv2db` `--verbose` option will provide verbose output.
 
-```console
+```bash
 $ ./csv2db load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
 Found 1 file(s).
@@ -168,7 +168,7 @@ Closing database connection.
 
 ***Note:** String including wildcard characters have to be enclosed in `""`*
 
-```console
+```bash
 $ ./csv2db load -f "test/resources/201811-citibike-tripdata.*" -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
 Found 3 file(s).
@@ -191,7 +191,7 @@ File loaded.
 Closing database connection.
 ```
 
-```console
+```bash
 $ ./csv2db load -f test/resources -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
 Found 3 file(s).
@@ -297,20 +297,20 @@ The idea is to have a staging table that data can be loaded into first and then 
 You can install `csv2db` either by installing it as a Python package,
 which will automatically install all dependencies except the Db2 driver (as this one is still in Beta status)
 
-```console
+```bash
 $ python3 -m pip install csv2db
 $ csv2db
 ```
 
 or cloning this Git repository
 
-```console
+```bash
 $ git clone https://github.com/csv2db/csv2db
 ```
 
 or by downloading one of the releases
 
-```console
+```bash
 $ LOCATION=$(curl -s https://api.github.com/repos/csv2db/csv2db/releases/latest | grep "tag_name" | awk '{print "https://github.com/csv2db/csv2db/archive/" substr($2, 2, length($2)-3) ".zip"}') ; curl -L -o csv2db.zip $LOCATION
 $ unzip csv2db.zip
 $ cd csv2db*
@@ -329,7 +329,7 @@ The following drivers are being used, and are all available on [pypi.org](https:
 
 You can install any of these drivers via `pip`:
 
-```console
+```bash
 $ python3 -m pip install oracledb
 $ python3 -m pip install mysql-connector-python
 $ python3 -m pip install psycopg[binary]
@@ -361,18 +361,18 @@ It is there to help users to get the contents of a file into a database table qu
 
 To run `csv2db`, simply invoke the `docker|podman run` command, for example:
 
-```console
+```bash
 # quick test the image
 podman run --rm csv2db --help
 ```
 
 To load data, bind the folder containing the input files as a Docker volume:
-```console
+```bash
 podman run --rm -v <input files folder>:/input/ csv2db load -f /input/<input file(s)> ...
 ```
 
 For example:
-```console
+```bash
 podman run --rm -v $HOME/input_files:/input csv2db \
   load -f /input/201811-citibike-tripdata.csv -t citibikes \
   -u db_user -p db_pass -d my_db
