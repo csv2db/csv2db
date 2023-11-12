@@ -10,6 +10,7 @@ jobs:
   build-docker-image:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Build image
         run: |
           LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
