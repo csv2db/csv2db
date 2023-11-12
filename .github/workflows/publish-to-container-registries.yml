@@ -14,12 +14,18 @@ jobs:
         with:
           fetch-depth: 0
       - name: 'Get Latest Version tag'
-        id: latestversiontag
+        id: latesttag
         uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      - name: Remove 'v'
+        id: latestversion
+        uses: bhowell2/github-substring-action@1.0.2
+        with:
+          value: ${{ steps.latesttag.outputs.tag }}
+          index_of_str: "v"
       - name: Build image
         run: |
-          podman build -f Dockerfile -t gvenzl/csv2db:${{ steps.latestversiontag.outputs.tag }}
-          podman tag gvenzl/csv2db:${{ steps.latestversiontag.outputs.tag }} gvenzl/csv2db:latest
+          podman build -f Dockerfile -t gvenzl/csv2db:${{ steps.latestversion.outputs.substring }}
+          podman tag gvenzl/csv2db:${{ steps.latestversion.outputs.substring }} gvenzl/csv2db:latest
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -39,6 +45,6 @@ jobs:
           push: true
           tags: |
             gvenzl/csv2db:latest
-            gvenzl/csv2db:latestversiontag
+            gvenzl/csv2db:${{ steps.latestversion.outputs.substring }} 
             ghcr.io/gvenzl/csv2db:latest
-            ghcr.io/gvenzl/csv2db:latestversiontag
+            ghcr.io/gvenzl/csv2db:${{ steps.latestversion.outputs.substring }} 
