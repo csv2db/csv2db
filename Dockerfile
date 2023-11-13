@@ -28,4 +28,8 @@ RUN apk --update --no-cache add python3 py3-pip freetds openssl tzdata && \
     apk del build-dependencies && \
     rm -rf /var/cache/apk/* /tmp/*
 
+LABEL org.opencontainers.image.source=https://github.com/csv2db/csv2db
+LABEL org.opencontainers.image.description="The little CSV to database command line loader you always wanted."
+LABEL org.opencontainers.image.licenses=Apache-2.0
+
 ENTRYPOINT [ "csv2db" ]
