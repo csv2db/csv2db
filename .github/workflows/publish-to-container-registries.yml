@@ -46,5 +46,5 @@ jobs:
           tags: |
             gvenzl/csv2db:latest
             gvenzl/csv2db:${{ steps.latestversion.outputs.substring }} 
-            ghcr.io/gvenzl/csv2db:latest
-            ghcr.io/gvenzl/csv2db:${{ steps.latestversion.outputs.substring }} 
+            ghcr.io/csv2db/csv2db:latest
+            ghcr.io/csv2db/csv2db:${{ steps.latestversion.outputs.substring }} 
