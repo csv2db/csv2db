@@ -1,14 +1,17 @@
 name: Publish to Container Registries
 
-on: [push]
-#  workflow_run:
-#    workflows: ["Publish csv2db distribution to PyPI"]
-#    types:
-#      - completed
+on:
+  workflow_run:
+    workflows: ["Publish csv2db distribution to PyPI"]
+    types:
+      - completed
 
 jobs:
   publish-docker-images:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
         with:
