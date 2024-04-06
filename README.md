@@ -321,7 +321,7 @@ In order for `csv2db` to work the appropriate database driver or drivers need to
 This installation is done automatically when installing `csv2db` as a Python package (`pip install csv2db`).
 The following drivers are being used, and are all available on [pypi.org](https://pypi.org/):
 
-* Oracle: [oracledb](https://pypi.org/project/oracledb/) version 1.1.1+
+* Oracle: [oracledb](https://pypi.org/project/oracledb/) version 2.0.0+
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
 * PostgreSQL: [psycopg[binary]](https://pypi.org/project/psycopg-binary/) version 3.1.9+
 * SQL Server: [pymssql](https://pypi.org/project/pymssql/) version 2.1.4+
@@ -397,7 +397,7 @@ This can be deactivated by setting the `$NO_COLOR` environment variable. For mor
 
 # LICENSE
 
-	Copyright 2023 Gerald Venzl
+	Copyright 2024 Gerald Venzl
 	
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
