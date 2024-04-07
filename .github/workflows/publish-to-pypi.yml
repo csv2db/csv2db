@@ -29,7 +29,7 @@ jobs:
         with:
           name: python-package-distros
           path: dist/
-  
+
   publish-to-pypi:
     name: Publish csv2db distribution to PyPI
     needs:

@@ -1,0 +1,60 @@
+name: Publish to Container Registries
+
+on:
+  workflow_run:
+    workflows: ["Publish csv2db distribution to PyPI"]
+    types:
+      - completed
+
+jobs:
+  publish-docker-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 'Get Latest Version tag'
+        id: latesttag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+
+      - name: Remove 'v'
+        id: latestversion
+        uses: bhowell2/github-substring-action@1.0.2
+        with:
+          value: ${{ steps.latesttag.outputs.tag }}
+          index_of_str: "v"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSSWORD }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: |
+            gvenzl/csv2db:latest
+            gvenzl/csv2db:${{ steps.latestversion.outputs.substring }} 
+            ghcr.io/csv2db/csv2db:latest
+            ghcr.io/csv2db/csv2db:${{ steps.latestversion.outputs.substring }} 

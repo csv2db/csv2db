@@ -25,12 +25,12 @@ This is particularly useful if the format of the CSV files has changed over time
 
 # Usage
 
-```console
+```bash
 $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
 The CSV to database command line loader.
-Version: 1.6.0
+Version: 1.6.1
 (c) Gerald Venzl
 
 positional arguments:
@@ -44,7 +44,7 @@ options:
   -h, --help            show this help message and exit
 ```
 
-```console
+```bash
 $ ./csv2db generate -h
 usage: csv2db generate [-h] [-f FILE] [-e ENCODING] [-v] [--debug]
                        [-o {oracle,mysql,postgres,sqlserver,db2}] [-t TABLE]
@@ -77,7 +77,7 @@ options:
                         quoted.
 ```
 
-```console
+```bash
 $ ./csv2db load -h
 usage: csv2db load [-h] [-f FILE] [-e ENCODING] [-v] [--debug] -t TABLE
                    [-o {oracle,mysql,postgres,sqlserver,db2}] -u USER
@@ -136,7 +136,7 @@ options:
 
 `csv2db` can load plain text csv files as well as compressed csv files in `.zip` or `.gz` format without having to uncompress them first.
 
-```console
+```bash
 $ ./csv2db load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1
 
 Loading file test/resources/201811-citibike-tripdata.csv
@@ -151,7 +151,7 @@ File loaded.
 
 `csv2db` `--verbose` option will provide verbose output.
 
-```console
+```bash
 $ ./csv2db load -f test/resources/201811-citibike-tripdata.csv -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
 Found 1 file(s).
@@ -168,7 +168,7 @@ Closing database connection.
 
 ***Note:** String including wildcard characters have to be enclosed in `""`*
 
-```console
+```bash
 $ ./csv2db load -f "test/resources/201811-citibike-tripdata.*" -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
 Found 3 file(s).
@@ -191,7 +191,7 @@ File loaded.
 Closing database connection.
 ```
 
-```console
+```bash
 $ ./csv2db load -f test/resources -t citibikes -u csv_data -p csv_data -d ORCLPDB1 --verbose
 Finding file(s).
 Found 3 file(s).
@@ -297,20 +297,20 @@ The idea is to have a staging table that data can be loaded into first and then 
 You can install `csv2db` either by installing it as a Python package,
 which will automatically install all dependencies except the Db2 driver (as this one is still in Beta status)
 
-```console
+```bash
 $ python3 -m pip install csv2db
 $ csv2db
 ```
 
 or cloning this Git repository
 
-```console
+```bash
 $ git clone https://github.com/csv2db/csv2db
 ```
 
 or by downloading one of the releases
 
-```console
+```bash
 $ LOCATION=$(curl -s https://api.github.com/repos/csv2db/csv2db/releases/latest | grep "tag_name" | awk '{print "https://github.com/csv2db/csv2db/archive/" substr($2, 2, length($2)-3) ".zip"}') ; curl -L -o csv2db.zip $LOCATION
 $ unzip csv2db.zip
 $ cd csv2db*
@@ -321,18 +321,18 @@ In order for `csv2db` to work the appropriate database driver or drivers need to
 This installation is done automatically when installing `csv2db` as a Python package (`pip install csv2db`).
 The following drivers are being used, and are all available on [pypi.org](https://pypi.org/):
 
-* Oracle: [oracledb](https://pypi.org/project/oracledb/) version 1.1.1+
+* Oracle: [oracledb](https://pypi.org/project/oracledb/) version 2.0.0+
 * MySQL: [mysql-connector-python](https://pypi.org/project/mysql-connector-python/) version 8.0.13+
-* PostgreSQL: [psycopg-binary](https://pypi.org/project/psycopg-binary/) version 3.1.9+
+* PostgreSQL: [psycopg[binary]](https://pypi.org/project/psycopg-binary/) version 3.1.9+
 * SQL Server: [pymssql](https://pypi.org/project/pymssql/) version 2.1.4+
 * DB2: [ibm-db](https://pypi.org/project/ibm-db/) version 2.0.9+
 
 You can install any of these drivers via `pip`:
 
-```console
+```bash
 $ python3 -m pip install oracledb
 $ python3 -m pip install mysql-connector-python
-$ python3 -m pip install psycopg-binary
+$ python3 -m pip install psycopg[binary]
 $ python3 -m pip install pymssql
 $ python3 -m pip install ibm-db
 ```
@@ -356,6 +356,28 @@ If a user requires any of these features or more, he or she should look for one 
 Simply put, `csv2db` does not do much more than taking rows from a delimited file and execute `INSERT INTO` statements with the values of these rows.
 It is there to help users to get the contents of a file into a database table quickly where the data can then be further processed.
 
+## Using the `csv2db` Docker image
+`csv2db` is also offered as a Docker image, making the usage of `csv2db` quick and easy without requiring any install.
+
+To run `csv2db`, simply invoke the `docker|podman run` command, for example:
+
+```bash
+# quick test the image
+podman run --rm csv2db --help
+```
+
+To load data, bind the folder containing the input files as a Docker volume:
+```bash
+podman run --rm -v <input files folder>:/input/ csv2db load -f /input/<input file(s)> ...
+```
+
+For example:
+```bash
+podman run --rm -v $HOME/input_files:/input csv2db \
+  load -f /input/201811-citibike-tripdata.csv -t citibikes \
+  -u db_user -p db_pass -d my_db
+```
+
 ## Exit codes
 `csv2db` returns following exit codes:  
 
@@ -375,7 +397,7 @@ This can be deactivated by setting the `$NO_COLOR` environment variable. For mor
 
 # LICENSE
 
-	Copyright 2023 Gerald Venzl
+	Copyright 2024 Gerald Venzl
 	
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.

@@ -57,4 +57,3 @@ jobs:
           $env:PYTHONPATH="$Pwd\src"
           cd test
           python tests_functional.py
-
