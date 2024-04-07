@@ -23,8 +23,8 @@ RUN apk --update --no-cache add python3 py3-pip freetds openssl tzdata && \
     apk --update --no-cache add -t build-dependencies \
         build-base python3-dev krb5-dev \
         openssl-dev freetds-dev musl-dev && \
-    pip install csv2db && \
-    pip install psycopg[binary] && \
+    pip install csv2db --break-system-packages && \
+    pip install psycopg[binary] --break-system-packages && \
     apk del build-dependencies && \
     rm -rf /var/cache/apk/* /tmp/*
 
