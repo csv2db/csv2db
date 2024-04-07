@@ -4,7 +4,7 @@
 # Name: pyproject.toml
 # Description: The project file
 #
-# Copyright 2019 Gerald Venzl
+# Copyright 2023 Gerald Venzl
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "csv2db"
-version = "1.6.0"
+version = "1.6.1"
 description = "The CSV to database command line loader."
 authors = [{ name="Gerald Venzl" }]
 maintainers = [{ name="Gerald Venzl" }]

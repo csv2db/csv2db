@@ -30,7 +30,7 @@ $ ./csv2db -h
 usage: csv2db [-h] {generate,gen,load,lo} ...
 
 The CSV to database command line loader.
-Version: 1.6.0
+Version: 1.6.1
 (c) Gerald Venzl
 
 positional arguments:

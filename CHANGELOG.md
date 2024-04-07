@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgraded to oracledb 2.0 driver which no longer supports `encoding` of the connection() function.
 - Fixed psycopg binary dependency and install documentation
 
-
 ## [1.6.0] 2023-11-04
 
 ### Added
