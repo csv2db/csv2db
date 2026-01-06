@@ -359,21 +359,21 @@ It is there to help users to get the contents of a file into a database table qu
 ## Using the `csv2db` Docker image
 `csv2db` is also offered as a Docker image, making the usage of `csv2db` quick and easy without requiring any install.
 
-To run `csv2db`, simply invoke the `docker|podman run` command, for example:
+To run `csv2db`, simply use the `gvenzl/csv2db` image invoking the `docker|podman run` command, for example:
 
 ```bash
 # quick test the image
-podman run --rm csv2db --help
+podman run --rm gvenzl/csv2db --help
 ```
 
 To load data, bind the folder containing the input files as a Docker volume:
 ```bash
-podman run --rm -v <input files folder>:/input/ csv2db load -f /input/<input file(s)> ...
+podman run --rm -v <input files folder>:/input/ gvenzl/csv2db load -f /input/<input file(s)> ...
 ```
 
 For example:
 ```bash
-podman run --rm -v $HOME/input_files:/input csv2db \
+podman run --rm -v $HOME/input_files:/input gvenzl/csv2db \
   load -f /input/201811-citibike-tripdata.csv -t citibikes \
   -u db_user -p db_pass -d my_db
 ```
