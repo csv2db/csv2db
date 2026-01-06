@@ -46,7 +46,7 @@ jobs:
           podman run -d --name sqlserver \
                      -p 1433:1433 \
                      -e 'ACCEPT_EULA=Y' \
-                     -e 'SA_PASSWORD=L3tsT3stTh1s++' \
+                     -e 'MSSQL_SA_PASSWORD=L3tsT3stTh1s++' \
                      -e 'MSSQL_PID=Developer' \
                      -v $PWD/test/resources/test_env:/test_setup \
                      mcr.microsoft.com/mssql/server:latest
@@ -56,8 +56,8 @@ jobs:
 
       - name : Create test schema
         run: |
-          podman exec sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P L3tsT3stTh1s++ -i /test_setup/setup_sqlserver.sql
-          podman exec sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U test -P L3tsT3stTh1s++ -d test -i /test_setup/schema/setup_schema.sql
+          podman exec sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P L3tsT3stTh1s++ -i /test_setup/setup_sqlserver.sql
+          podman exec sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U test -P L3tsT3stTh1s++ -d test -i /test_setup/schema/setup_schema.sql
 
       - name: Run SQL Server tests on version ${{ matrix.python-version }}
         run: |
