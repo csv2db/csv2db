@@ -25,16 +25,16 @@ jobs:
   load-tests-sqlserver:
     strategy:
       matrix:
-        python-version: [ '3.8', '3.9', '3.10', '3.11', '3.12', '3.x' ]
+        python-version: [ '3.12', '3.13', '3.14', '3.x' ]
 
     runs-on: ubuntu-latest
 
     # Run tests
     steps:
-      - uses: actions/checkout@v3.1.0
+      - uses: actions/checkout@v6.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v6.1.0
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -49,15 +49,15 @@ jobs:
                      -e 'SA_PASSWORD=L3tsT3stTh1s++' \
                      -e 'MSSQL_PID=Developer' \
                      -v $PWD/test/resources/test_env:/test_setup \
-                     mcr.microsoft.com/mssql/server:2022-latest
+                     mcr.microsoft.com/mssql/server:latest
           while [[ $(podman logs sqlserver 2>&1 | grep -c "Recovery is complete") == 0 ]]; do
             sleep 1;
           done;
 
       - name : Create test schema
         run: |
-          podman exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P L3tsT3stTh1s++ -i /test_setup/setup_sqlserver.sql
-          podman exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U test -P L3tsT3stTh1s++ -d test -i /test_setup/schema/setup_schema.sql
+          podman exec sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P L3tsT3stTh1s++ -i /test_setup/setup_sqlserver.sql
+          podman exec sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U test -P L3tsT3stTh1s++ -d test -i /test_setup/schema/setup_schema.sql
 
       - name: Run SQL Server tests on version ${{ matrix.python-version }}
         run: |
