@@ -97,6 +97,8 @@ def read_header(reader):
         if col == "":
             raise NameError("The header column name is empty for column at position {0}.".format(idx))
         header.append(get_identifier(col.replace(' ', '_')))
+    if len(header) == 0:
+        raise NameError("The header row is empty.")
     return header
 
 
